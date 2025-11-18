@@ -185,12 +185,6 @@ btagging_SFs = {
     "PNetB"          : "partNet",
 }
 
-# Algo / SF name
-btagging_SFs = {
-    "DeepFlavB"      : "deepjet",
-    "RobustParTAK4B" : "RobustParT",
-    "PNetB"          : "partNet",
-}
 
 # Algorithm and WP selection
 bAlgo = 'RobustParTAK4B' # ['DeepFlavB','RobustParTAK4B','PNetB'] 

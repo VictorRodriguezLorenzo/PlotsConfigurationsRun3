@@ -123,13 +123,13 @@ variables['jetdeepb']  = {
 variables['jetpnetb']  = {
     'name': 'Alt(Take(Jet_btagPNetB, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
-    'xaxis' : 'B tagger 1st jet (DeepB)',
+    'xaxis' : 'B tagger 1st jet (PNetB)',
     'fold' : 0
 }
-variables['jetrpartb']  = {
+variables['jetupartb']  = {
     'name': 'Alt(Take(Jet_btagUParTAK4B, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
-    'xaxis' : 'B tagger 1st jet (DeepB)',
+    'xaxis' : 'B tagger 1st jet (UParT)',
     'fold' : 0
 }
 
@@ -156,7 +156,7 @@ variables['mpmet']  = {
 }
 
 variables['njet']  = {
-    'name': 'Sum(CleanJet_pt>30)',
+    'name': 'njets',
     'range' : (5,0,5),
     'xaxis' : 'Number of jets',
     'fold' : 2
@@ -194,10 +194,10 @@ variables['jeteta2']  = {
     'fold' : 0
 }
 
-
 """
 ###### Nº b-jets
 
+# Algo / WP / WP cut
 btagging_WPs = {
     "DeepFlavB" : {
         "loose"    : "0.0480",
@@ -207,20 +207,22 @@ btagging_WPs = {
         "xxtight"  : "0.9483",
     },
     "UParTAK4B" : {
-        "loose"    : "0.0683",
-        "medium"   : "0.3494",
-        "tight"    : "0.7994",
-        "xtight"   : "0.8877",
-        "xxtight"  : "0.9883",
+        "loose"    : "0.0246",
+        "medium"   : "0.1272",
+        "tight"    : "0.4648",
+        "xtight"   : "0.6298",
+        "xxtight"  : "0.9739",
     },
     "PNetB" : {
         "loose"    : "0.0359",
         "medium"   : "0.1919",
-        "tight"    : "0.6133",
+        "tight"    : "0.6133",    
         "xtight"   : "0.7544",
         "xxtight"  : "0.9688",
     }
 }
+
+# Algo / SF name
 btagging_SFs = {
     "DeepFlavB"      : "deepjet",
     "UParTAK4B"      : "UnifiedParT",
