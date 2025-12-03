@@ -120,16 +120,13 @@ samples['DY'] = {
 }
 
 ########## Single top #########
-files = nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') + nanoGetSampleFiles(mcDirectory, 'ST_t-channel_antitop')
+files = nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') + nanoGetSampleFiles(mcDirectory, 'ST_t-channel_antitop') + nanoGetSampleFiles(mcDirectory, 'TWminusto2L2Nu') + nanoGetSampleFiles(mcDirectory, 'TbarWplusto2L2Nu')
 
 samples['ST'] = {
     'name': files,
     'weight': mcCommonWeight,
     'FilesPerJob': 5
 }
-
-##########MISSING SAMPLES
-#nanoGetSampleFiles(mcDirectory, 'TWminusto2L2Nu') + nanoGetSampleFiles(mcDirectory, 'TbarWplusto2L2Nu')
 
 ########## TTTo2L2Nu #########
 files = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu')
