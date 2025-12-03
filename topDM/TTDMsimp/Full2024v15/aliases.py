@@ -143,9 +143,9 @@ aliases['noJetInHorn'] = {
     'afterNuis': True
 }
 
-aliases['noJetInHorn_pT30'] = {
-    'expr': 'Jet_inHorns(CleanJet_pt, CleanJet_eta, true)',
-    'afterNuis': True
+aliases['noJetInHorn_pT15'] = {
+    'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/backup/MyPlotsConfiguration/extended/jet_horns.cc"'],
+    'expr': 'Jet_inHorns(CleanJet_pt, CleanJet_eta, true)'
 }
 
 ############################################################################
@@ -204,7 +204,7 @@ aliases['nbjets'] = {
 }
 
 year = '2024_Summer24'
-shifts = ['central', 'up', 'down']
+shifts = ['central', 'down_fsrdef', 'down_hdamp', 'down_isrdef', 'down_jer', 'down_jes', 'down_mass', 'down_statistic', 'down_tune', 'up_fsrdef', 'up_hdamp','up_isrdef', 'up_jer', 'up_jes', 'up_mass', 'up_statistic', 'up_tune']
 shift_str = '{"' + '","'.join(shifts) + '"}'
 
 for flavour in ['bc', 'light']:
@@ -295,24 +295,24 @@ aliases['mpmet'] = {
 #############################################################################
 #Signal region
 aliases['sr'] = {
-    'expr': 'mT2 > 80 && (!(abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) || abs(91.1876 - mll) > 15)',
+    'expr': 'mT2 > 80 && (!(abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) || abs(91.1876 - mll) > 15) && Alt(Lepton_pt, 2, 0) < 10',
     'afterNuis': True
 } 
 
 # Top control region                                                                                                                                                                                       
 aliases['ttZcr'] = {
-    'expr': 'nLepton ==3 && njets >=3 && multiJet && (Lepton_pdgId[0] == -Lepton_pdgId[1]) && abs(91.1876 - mll) < 10 ',
+    'expr': 'nLepton ==3 && njets >=3 && multiJet && (Lepton_pdgId[0] == -Lepton_pdgId[1]) && abs(91.1876 - mll) < 10',
     'afterNuis': True
 }
 
 # DY control region
 aliases['dycr'] = {
-    'expr': 'mT2 > 80 && (abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) && abs(91.1876 - mll) < 15  ',
+    'expr': 'mT2 > 80 && (abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) && abs(91.1876 - mll) < 15 && Alt(Lepton_pt, 2, 0) < 10',
     'afterNuis': True
 }
 
 # Validation region
 aliases['ttvr'] = {
-    'expr': 'mT2 < 80 && (!(abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) || abs(91.1876 - mll) > 15)',
+    'expr': 'mT2 < 80 && (!(abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) || abs(91.1876 - mll) > 15) && Alt(Lepton_pt, 2, 0) < 10',
     'afterNuis': True
 }
