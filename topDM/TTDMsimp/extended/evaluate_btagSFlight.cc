@@ -27,8 +27,10 @@ class btagSFlight {
     ~btagSFlight();
 
     TH2F* h_ljet_eff;
-  
+
+    std::string year_;
     std::unique_ptr<CorrectionSet> cset;
+    std::unique_ptr<CorrectionSet> cset_light;
  
     RVecF operator()(
 		    RVecF         CleanJet_pt,
@@ -42,32 +44,65 @@ class btagSFlight {
 		     ){
 
       RVecF results(systematic.size(), 1.0);
+
+      std::string correctionKey_alt;
+      std::string correctionKey;
+      std::string wpKey;
       
-      auto cset_deepJet_mujets  = cset->at("robustParticleTransformer_light");
-      auto cset_deepJet_wps     = cset->at("robustParticleTransformer_wp_values");      
-      
+      if (year_ == "2024_Summer24"){
+        correctionKey = "UParTAK4_kinfit";
+        wpKey = "UParTAK4_wp_values";
+
+	correctionKey_alt = "robustParticleTransformer_light";
+      }else{
+        correctionKey = "robustParticleTransformer_light";
+        wpKey = "robustParticleTransformer_wp_values";
+      }
+
+      auto cset_deepJet_mujets_alt  = cset->at(correctionKey);
+      if (year_ == "2024_Summer24")
+	cset_deepJet_mujets_alt = cset_light->at(correctionKey_alt);
+      auto cset_deepJet_mujets  = cset->at(correctionKey);
+      auto cset_deepJet_wps     = cset->at(wpKey);
+
       for (long unsigned int i=0; i<systematic.size(); i++){
+
+	//std::cout << systematic[i] << std::endl;
 	
 	float btag_sf    = 1.;
 	for (unsigned iJ{0}; iJ != nCleanJet; ++iJ) {
+
+	  //std::cout << "New Jet" << std::endl;
+	  double pt = ROOT::VecOps::Min(ROOT::RVecD{CleanJet_pt[iJ], 9999.9});
 	  
 	  if (CleanJet_pt[iJ] <= 30. || abs(CleanJet_eta[iJ]) >= 2.5) continue;
 	  if (Jet_btag[CleanJet_jetIdx[iJ]] > cset_deepJet_wps->evaluate({WP})) {
+
 	    if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 0) {
-	      btag_sf *= cset_deepJet_mujets->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]});
+	      if (year_ == "2024_Summer24"){
+		//btag_sf *= cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]});
+		btag_sf *= cset_deepJet_mujets_alt->evaluate({"central", WP, 0, abs(CleanJet_eta[iJ]), pt});
+              }else{
+		btag_sf *= cset_deepJet_mujets->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), pt});		
+	      }
 	    }
 	    else {
 	      continue;
 	    }
 	  }
 	  else {
-	    float btag_eff = getEff(CleanJet_pt[iJ], CleanJet_eta[iJ], Jet_hadronFlavour[CleanJet_jetIdx[iJ]]);
+	    float btag_eff = getEff(pt, CleanJet_eta[iJ], Jet_hadronFlavour[CleanJet_jetIdx[iJ]]);
 	    if (btag_eff == 1.) {
 	      continue;
 	    }
 	    else {
 	      if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 0) {
-		btag_sf *= (1-btag_eff*cset_deepJet_mujets->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]}))/(1-btag_eff);
+		if (year_ == "2024_Summer24"){
+		  //btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]}))/(1-btag_eff);
+		  btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({"central", WP, 0, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
+		}else{
+		  btag_sf *= (1-btag_eff*cset_deepJet_mujets->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
+		}
 	      }
 	      else {
 		continue;
@@ -86,8 +121,16 @@ class btagSFlight {
 };
 
 btagSFlight::btagSFlight(TString eff_map, const string year, TString algo_extension = "") {
-  std::string home = "/afs/cern.ch/user/v/victorr/private/mkShapesRDF/mkShapesRDF/processor/data/jsonpog-integration/POG/BTV/" + year;
-  cset = CorrectionSet::from_file(home + "/btagging.json.gz");
+  std::string home;
+  year_ = year;
+  if (year == "2024_Summer24"){
+    home = "/cvmfs/cms-griddata.cern.ch/cat/metadata/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/";
+    cset = CorrectionSet::from_file(home + "/btagging_preliminary.json.gz");
+    cset_light = CorrectionSet::from_file("/cvmfs/cms-griddata.cern.ch/cat/metadata/BTV/Run3-23DSep23-Summer23BPix-NanoAODv12/latest/btagging.json.gz");
+  }else{
+    home = "/afs/cern.ch/user/v/victorr/private/mkShapesRDF/mkShapesRDF/processor/data/jsonpog-integration/POG/BTV/" + year;
+    cset = CorrectionSet::from_file(home + "/btagging.json.gz");
+  }
 
   // deepJet -> ljet_eff
   // PNet -> ljet_pnet_eff
