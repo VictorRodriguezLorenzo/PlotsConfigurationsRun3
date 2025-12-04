@@ -255,3 +255,9 @@ variables['dphi_ttbar']  = {
     'fold' : 0
 }
 
+variables['tt_reco']  = {
+    'name': 'doubleNu_producer[9]',
+    'range' : (2,0,1),
+    'xaxis' : 'tt-reco success?',
+    'fold' : 3
+}
