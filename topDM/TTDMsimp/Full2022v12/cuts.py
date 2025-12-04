@@ -20,8 +20,10 @@ cuts['ttdm_sr']  = {
    'expr': 'sr',
     # Sub-categorization of ttDM SR
    'categories' : {
+      '2l_Incl': 'nLepton == 2',
       '2l_1b' : 'nLepton == 2 && nbjets == 1',
-      '2l_2b' : 'nLepton == 2 && nbjets >= 2 && doubleNu_producer[9]',
+      '2l_2b' : 'nLepton == 2 && nbjets >= 2',
+      '2l_2b_reco_success' : 'nLepton == 2 && nbjets >= 2 && doubleNu_producer[9]',
    }
 }
 

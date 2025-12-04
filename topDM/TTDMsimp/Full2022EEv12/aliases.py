@@ -128,7 +128,7 @@ aliases['multiJet'] = {
 
 # Number of jets
 aliases['njets'] = {
-    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5)'
+    'expr': 'Sum(CleanJet_pt > 20.)'
 }
 
 # Number of hard (= gen-matched) jets                                                                                                                                                                      
@@ -203,7 +203,7 @@ aliases['bReq'] = {
 
 # Number of b-jets
 aliases['nbjets'] = {
-    'expr': 'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})'.format(bAlgo, btagging_WPs[bAlgo][bWP])
+    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})'.format(bAlgo, btagging_WPs[bAlgo][bWP])
 }
 
 year = '2022_Summer22EE' 
