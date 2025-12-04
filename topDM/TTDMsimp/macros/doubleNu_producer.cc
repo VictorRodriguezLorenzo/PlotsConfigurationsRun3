@@ -63,7 +63,7 @@ RVecF doubleNu_producer(
             float eta = CleanJet_eta[i];
             float btag = Jet_btagger[jetIdx];
         
-            if (pt > 30.0 && std::abs(eta) < 2.5 && btag > bAlgo_WP)
+            if (pt > 20.0 && std::abs(eta) < 2.5 && btag > bAlgo_WP)
                 bjet_indices.push_back(i);
         }
         
@@ -97,15 +97,13 @@ RVecF doubleNu_producer(
         // -------------------------
         nuana::doubleNeutrinoSolution solver(bj1, bj2, l1, l2, met_x, met_y);
 
-        if (!solver.hasValidSolution())
-            return emptyResult();
-
         size_t idx = 0;
 
         auto kin = nuana::computeEventKinematics(
             bj1, bj2, l1, l2, met_x, met_y, solver, idx
         );
 
+	
         // -------------------------
         // 5) Fill result
         // -------------------------
@@ -121,7 +119,8 @@ RVecF doubleNu_producer(
         out[6] = kin.chel;
         out[7] = kin.dphi_ttbar;
         out[8] = kin.pdark;
-        out[9] = kin.valid ? 1.0f : 0.0f;
+        out[9] = kin.valid ? 1 : 0;
+	std::cout << "out[9] = " << out[9] << std::endl;
 
         return out;
 }

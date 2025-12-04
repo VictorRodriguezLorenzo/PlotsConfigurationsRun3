@@ -181,7 +181,7 @@ inline std::vector<double> multisqrt(double y) {
 }
 
 // Check whether a homogeneous coordinate lies on a conic section defined by "conic".
-inline bool satisfiesConic(const TVectorD &v, const TMatrixD &conic, double tol = 1e-6) {
+inline bool satisfiesConic(const TVectorD &v, const TMatrixD &conic, double tol = 1e-5) {
     if (v.GetNrows() != 3 || conic.GetNrows() != 3 || conic.GetNcols() != 3) {
         return false;
     }
@@ -730,8 +730,8 @@ public:
                     ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad"));
 
                 if (min) {
-                    min->SetTolerance(1e-10);
-                    min->SetPrecision(1e-12);
+                    min->SetTolerance(1e-14);
+                    min->SetPrecision(1e-15);
                     min->SetVariableStepSize(0, 0.01);
                     min->SetVariableStepSize(1, 0.01);
 
@@ -973,29 +973,63 @@ inline EventKinematics computeEventKinematics(const TLorentzVector& b1,
                                               double met_x,
                                               double met_y,
                                               const doubleNeutrinoSolution& solver,
-                                              size_t idx = 0) {
+                                              size_t idx = 0)
+{
     EventKinematics kin;
+    kin.valid = false;   // default
 
-    if (!solver.isValid(idx)) {
-        return kin;
-    }
-
+    // -----------------------
+    // 1) Build neutrinos
+    // -----------------------
     TLorentzVector nu1 = makeMasslessNeutrino(solver.nu1_px(idx), solver.nu1_py(idx));
     TLorentzVector nu2 = makeMasslessNeutrino(solver.nu2_px(idx), solver.nu2_py(idx));
 
+    // Validate px/py are finite numbers
+    if (!std::isfinite(nu1.Px()) || !std::isfinite(nu1.Py()) ||
+        !std::isfinite(nu2.Px()) || !std::isfinite(nu2.Py()))
+        return kin;
+
+    // -----------------------
+    // 2) Build top candidates
+    // -----------------------
     kin.top1 = b1 + l1 + nu1;
     kin.top2 = b2 + l2 + nu2;
 
+    // Physical sanity check
+    if (kin.top1.E() <= 0 || kin.top2.E() <= 0)
+        return kin;
+
+    // -----------------------
+    // 3) Lepton directions in top rest frame
+    // -----------------------
     TVector3 l1_rf = leptonDirectionInTopRest(kin.top1, l1);
     TVector3 l2_rf = leptonDirectionInTopRest(kin.top2, l2);
+
+    if (l1_rf.Mag2() == 0 || l2_rf.Mag2() == 0)
+        return kin;
+
     kin.chel = l1_rf.Dot(l2_rf);
 
-    kin.dphi_ttbar = std::abs(TVector2::Phi_mpi_pi(kin.top1.Phi() - kin.top2.Phi()));
+    // -----------------------
+    // 4) Δphi_ttbar
+    // -----------------------
+    if (std::isfinite(kin.top1.Phi()) && std::isfinite(kin.top2.Phi())) {
+        kin.dphi_ttbar =
+            std::abs(TVector2::Phi_mpi_pi(kin.top1.Phi() - kin.top2.Phi()));
+    } else {
+        kin.dphi_ttbar = -999.0;   // mark invalid
+    }
 
+    // -----------------------
+    // 5) p_dark calculation
+    // -----------------------
     double residual_x = met_x - nu1.Px() - nu2.Px();
     double residual_y = met_y - nu1.Py() - nu2.Py();
     kin.pdark = residual_x * residual_x + residual_y * residual_y;
 
+    // -----------------------
+    // 6) Final validity flag
+    // -----------------------
     kin.valid = true;
     return kin;
 }
