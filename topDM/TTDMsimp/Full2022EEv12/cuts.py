@@ -10,7 +10,7 @@ preselections = '((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && 
 
 # CUTS
 
-#cuts["all"] = "Alt(Lepton_pt, 2, 0) < 10"
+cuts["all"] = "Alt(Lepton_pt, 2, 0) < 10"
 
 #######################
 #### Signal region ####
@@ -31,26 +31,26 @@ cuts['ttdm_sr']  = {
 ### Control regions ###
 #######################
 
-#cuts['ttvr']  = {
-#   'expr': 'ttvr',  
-#    # Sub-categorization of VR
-#   'categories' : {
-#       'inclusive' : '1',
-#       }
-#}
-#
-#cuts['dycr']  = {
-#   'expr': 'dycr',
-#    # Sub-categorization of DY CR
-#   'categories' : { 
-#       'inclusive' : '1',
-#       }
-#}
-#
-#cuts['ttZcr']  = {
-#   'expr': 'ttZcr',
-#    # Sub-categorization of ttZ CR
-#   'categories' : {
-#       'inclusive' : '1',
-#       }
-#}
+cuts['ttvr']  = {
+   'expr': 'ttvr',  
+    # Sub-categorization of VR
+   'categories' : {
+       'inclusive' : '1',
+       }
+}
+
+cuts['dycr']  = {
+   'expr': 'dycr',
+    # Sub-categorization of DY CR
+   'categories' : { 
+       'inclusive' : '1',
+       }
+}
+
+cuts['ttZcr']  = {
+   'expr': 'ttZcr',
+    # Sub-categorization of ttZ CR
+   'categories' : {
+       'inclusive' : '1',
+       }
+}
