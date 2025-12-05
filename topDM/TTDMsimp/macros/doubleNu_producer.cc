@@ -20,8 +20,8 @@ RVecF emptyResult() {
 }
 
 RVecF doubleNu_producer(
-        int nJet,
-        RVecF CleanJet_pt, RVecF CleanJet_eta, RVecF CleanJet_phi, RVecF CleanJet_mass, RVecI Jet_jetIdx,
+        int nCleanJet,
+        RVecF CleanJet_pt, RVecF CleanJet_eta, RVecF CleanJet_phi, RVecF CleanJet_mass, RVecI CleanJet_jetIdx,
         int nLep,
         RVecF Lep_pt, RVecF Lep_eta, RVecF Lep_phi, RVecI Lep_pdgId,
         float PuppiMET_pt, float PuppiMET_phi,
@@ -33,7 +33,7 @@ RVecF doubleNu_producer(
         // -------------------------
         if (nLep < 2) return emptyResult();
 
-        auto leptonMass = [](int pdgId) {
+	auto leptonMass = [](int pdgId) {
             const int absId = std::abs(pdgId);
             if (absId == 11) return 0.000511f; // electron mass (GeV)
             if (absId == 13) return 0.105658f; // muon mass (GeV)
@@ -49,16 +49,16 @@ RVecF doubleNu_producer(
         // -------------------------
         // 2) Select b-jets
         // -------------------------
-        if (nJet < 2) return emptyResult();
-
-        std::vector<int> bjet_indices;
+        if (nCleanJet < 2) return emptyResult();
+	
+	std::vector<int> bjet_indices;
         
         for (size_t i = 0; i < CleanJet_pt.size(); ++i) {
-            int jetIdx = Jet_jetIdx[i];
+            int jetIdx = CleanJet_jetIdx[i];
         
             // Guard against corrupt indices
-            if (jetIdx < 0 || jetIdx >= CleanJet_pt.size()) continue;
-        
+            if (jetIdx < 0 || jetIdx >= (int)Jet_btagger.size()) continue;
+
             float pt  = CleanJet_pt[i];
             float eta = CleanJet_eta[i];
             float btag = Jet_btagger[jetIdx];
@@ -67,9 +67,8 @@ RVecF doubleNu_producer(
                 bjet_indices.push_back(i);
         }
         
-        if (bjet_indices.size() < 2)
-            return emptyResult();
-        
+        if (bjet_indices.size() < 2) return emptyResult();
+
         // Build TLorentzVectors for the first two b-jets
         int b1_idx = bjet_indices[0];
         int b2_idx = bjet_indices[1];
@@ -84,7 +83,6 @@ RVecF doubleNu_producer(
             CleanJet_pt[b2_idx], CleanJet_eta[b2_idx], 
             CleanJet_phi[b2_idx], CleanJet_mass[b2_idx]
         );
-
 
         // -------------------------
         // 3) MET
@@ -103,7 +101,6 @@ RVecF doubleNu_producer(
             bj1, bj2, l1, l2, met_x, met_y, solver, idx
         );
 
-	
         // -------------------------
         // 5) Fill result
         // -------------------------
@@ -120,9 +117,11 @@ RVecF doubleNu_producer(
         out[7] = kin.dphi_ttbar;
         out[8] = kin.pdark;
         out[9] = kin.valid ? 1 : 0;
-	std::cout << "out[9] = " << out[9] << std::endl;
-
-        return out;
+//      std::cout << "out[9] = " << out[9] << std::endl;
+        if (kin.valid) {
+            return out;
+	} else {
+	    return RVecF{NAN, NAN, NAN, NAN, NAN, NAN, NAN, NAN, NAN, 0};
+	}
 }
-
 #endif
