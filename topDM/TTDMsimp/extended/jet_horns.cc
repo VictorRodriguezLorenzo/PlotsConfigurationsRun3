@@ -16,14 +16,16 @@ bool Jet_inHorns(RVecF CleanJet_pt,
   bool inhorns = false; 
   
   for (unsigned int i = 0; i<CleanJet_pt.size(); i++){
-    if (minReq)
+    if (minReq) {
       lowpt = (CleanJet_pt[i] > 15.0 && CleanJet_pt[i] < 50.0);          // pt of jets between 15  & 50
-    else
+      //lowpt = (CleanJet_pt[i] > 30.0 && CleanJet_pt[i] < 50.0);          // pt of jets between 30  & 50
+    } else {
       lowpt = (CleanJet_pt[i] < 50.0);
-    
+    }
     inhorns = (fabs(CleanJet_eta[i])>2.6 && fabs(CleanJet_eta[i])<3.1);
-    if (lowpt && inhorns)
+    if (lowpt && inhorns) {
       return false;
+    }
   } 
   return true;
 }

@@ -23,21 +23,21 @@ variables['mll'] = {
 }
 
 variables['mth'] = {
-    'name': 'cleanest_mth',
+    'name': 'mth',
     'range' : (60,0,200),
     'xaxis' : 'm_{T}^{H} [GeV]',
     'fold' : 0
 }
 
 variables['mtw1']  = {
-    'name': 'cleanest_mtw1',
+    'name': 'mtw1',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{1}} [GeV]',
     'fold' : 0
 }
 
 variables['mtw2']  = {
-    'name': 'cleanest_mtw2',
+    'name': 'mtw2',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{2}} [GeV]',
     'fold' : 0
@@ -122,21 +122,21 @@ variables['phi2']  = {
 }
 
 variables['jetdeepb']  = {
-    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (DeepB)',
     'fold' : 0
 }
 variables['jetpnetb']  = {
-    'name': 'Alt(Take(Jet_btagPNetB, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagPNetB, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (PNetB)',
     'fold' : 0
 }
-variables['jetrpartb']  = {
-    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanestJet_jetIdx), 0, -99)',
+variables['jetupartb']  = {
+    'name': 'Alt(Take(Jet_btagUParTAK4B, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
-    'xaxis' : 'B tagger 1st jet (RPartB)',
+    'xaxis' : 'B tagger 1st jet (UParT)',
     'fold' : 0
 }
 
@@ -149,7 +149,7 @@ variables['trkMet']  = {
 }
 
 variables['puppimet']  = {
-    'name': 'cleanestPuppiMET_pt',
+    'name': 'PuppiMET_pt',
     'range' : (20,0,200),
     'xaxis' : 'Puppi MET p_{T} [GeV]',
     'fold' : 3
@@ -171,7 +171,7 @@ variables['njet']  = {
 
 variables['jetpt1']  = {
     #'name': 'Alt(CleanJet_pt, 0, -99) - 9999.9*(CleanJet_pt[0]<30)',
-    'name': 'Alt(CleanestJet_pt, 0, -99)',
+    'name': 'Alt(CleanJet_pt, 0, -99)',
     'range' : (40,0,200),
     'xaxis' : 'p_{T} 1st jet',
     'fold' : 0
@@ -179,7 +179,7 @@ variables['jetpt1']  = {
 
 variables['jetpt2']  = {
     #'name': 'Alt(CleanJet_pt, 1, -99)  - 9999.9*(CleanJet_pt[1]<30)',
-    'name': 'Alt(CleanestJet_pt, 1, -99)',
+    'name': 'Alt(CleanJet_pt, 1, -99)',
     'range' : (40,0,200),
     'xaxis' : 'p_{T} 2nd jet',
     'fold' : 0
@@ -187,7 +187,7 @@ variables['jetpt2']  = {
 
 variables['jeteta1']  = {
     #'name': 'Alt(CleanJet_eta, 0, -99) - 9999.9*(CleanJet_pt[0]<30)',
-    'name': 'Alt(CleanestJet_eta, 0, -99)',
+    'name': 'Alt(CleanJet_eta, 0, -99)',
     'range' : (30,-4.7,4.7),
     'xaxis' : '#eta 1st jet',
     'fold' : 0
@@ -195,7 +195,7 @@ variables['jeteta1']  = {
 
 variables['jeteta2']  = {
     #'name': 'Alt(CleanJet_eta, 1, -99) - 9999.9*(CleanJet_pt[1]<30)',
-    'name': 'Alt(CleanestJet_eta, 1, -99)',
+    'name': 'Alt(CleanJet_eta, 1, -99)',
     'range' : (30,-4.7,4.7),
     'xaxis' : '#eta 2nd jet',
     'fold' : 0
@@ -204,34 +204,35 @@ variables['jeteta2']  = {
 """
 ###### Nº b-jets
 
+# Algo / WP / WP cut
 btagging_WPs = {
     "DeepFlavB" : {
-        "loose"    : "0.0614",
-        "medium"   : "0.3196",
-        "tight"    : "0.73",
-        "xtight"   : "0.8184",
-        "xxtight"  : "0.9542",
+        "loose"    : "0.0480",
+        "medium"   : "0.2435",
+        "tight"    : "0.6563",
+        "xtight"   : "0.7671",
+        "xxtight"  : "0.9483",
     },
-    "RobustParTAK4B" : {
-        "loose"    : "0.0897",
-        "medium"   : "0.451",
-        "tight"    : "0.8604",
-        "xtight"   : "0.9234",
-        "xxtight"  : "0.9893",
+    "UParTAK4B" : {
+        "loose"    : "0.0246",
+        "medium"   : "0.1272",
+        "tight"    : "0.4648",
+        "xtight"   : "0.6298",
+        "xxtight"  : "0.9739",
     },
     "PNetB" : {
-        "loose"    : "0.0499",
-        "medium"   : "0.2605",
-        "tight"    : "0.6915",    
-        "xtight"   : "0.8033",
-        "xxtight"  : "0.9664",
+        "loose"    : "0.0359",
+        "medium"   : "0.1919",
+        "tight"    : "0.6133",    
+        "xtight"   : "0.7544",
+        "xxtight"  : "0.9688",
     }
 }
 
 # Algo / SF name
 btagging_SFs = {
     "DeepFlavB"      : "deepjet",
-    "RobustParTAK4B" : "RobustParT",
+    "UParTAK4B"      : "UnifiedParT",
     "PNetB"          : "partNet",
 }
 

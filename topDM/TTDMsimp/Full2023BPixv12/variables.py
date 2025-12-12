@@ -23,21 +23,21 @@ variables['mll'] = {
 }
 
 variables['mth'] = {
-    'name': 'mth',
+    'name': 'cleanest_mth',
     'range' : (60,0,200),
     'xaxis' : 'm_{T}^{H} [GeV]',
     'fold' : 0
 }
 
 variables['mtw1']  = {
-    'name': 'mtw1',
+    'name': 'cleanest_mtw1',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{1}} [GeV]',
     'fold' : 0
 }
 
 variables['mtw2']  = {
-    'name': 'mtw2',
+    'name': 'cleanest_mtw2',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{2}} [GeV]',
     'fold' : 0
@@ -85,6 +85,13 @@ variables['pt2']  = {
     'fold'  : 3                         
 }
 
+variables['pt3']  = {
+    'name': 'Lepton_pt[2]',
+    'range' : (20,0,100),
+    'xaxis' : 'p_{T} 3rd lep',
+    'fold'  : 3
+}
+
 variables['eta1']  = {
     'name': 'Lepton_eta[0]',     
     'range' : (40,-3,3),   
@@ -115,19 +122,19 @@ variables['phi2']  = {
 }
 
 variables['jetdeepb']  = {
-    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanestJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (DeepB)',
     'fold' : 0
 }
 variables['jetpnetb']  = {
-    'name': 'Alt(Take(Jet_btagPNetB, CleanJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagPNetB, CleanestJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (PNetB)',
     'fold' : 0
 }
 variables['jetupartb']  = {
-    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanestJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (RParT)',
     'fold' : 0
@@ -142,7 +149,7 @@ variables['trkMet']  = {
 }
 
 variables['puppimet']  = {
-    'name': 'PuppiMET_pt',
+    'name': 'cleanestPuppiMET_pt',
     'range' : (20,0,200),
     'xaxis' : 'Puppi MET p_{T} [GeV]',
     'fold' : 3
@@ -164,7 +171,7 @@ variables['njet']  = {
 
 variables['jetpt1']  = {
     #'name': 'Alt(CleanJet_pt, 0, -99) - 9999.9*(CleanJet_pt[0]<30)',
-    'name': 'Alt(CleanJet_pt, 0, -99)',
+    'name': 'Alt(CleanestJet_pt, 0, -99)',
     'range' : (40,0,200),
     'xaxis' : 'p_{T} 1st jet',
     'fold' : 0
@@ -172,7 +179,7 @@ variables['jetpt1']  = {
 
 variables['jetpt2']  = {
     #'name': 'Alt(CleanJet_pt, 1, -99)  - 9999.9*(CleanJet_pt[1]<30)',
-    'name': 'Alt(CleanJet_pt, 1, -99)',
+    'name': 'Alt(CleanestJet_pt, 1, -99)',
     'range' : (40,0,200),
     'xaxis' : 'p_{T} 2nd jet',
     'fold' : 0
@@ -180,7 +187,7 @@ variables['jetpt2']  = {
 
 variables['jeteta1']  = {
     #'name': 'Alt(CleanJet_eta, 0, -99) - 9999.9*(CleanJet_pt[0]<30)',
-    'name': 'Alt(CleanJet_eta, 0, -99)',
+    'name': 'Alt(CleanestJet_eta, 0, -99)',
     'range' : (30,-4.7,4.7),
     'xaxis' : '#eta 1st jet',
     'fold' : 0
@@ -188,7 +195,7 @@ variables['jeteta1']  = {
 
 variables['jeteta2']  = {
     #'name': 'Alt(CleanJet_eta, 1, -99) - 9999.9*(CleanJet_pt[1]<30)',
-    'name': 'Alt(CleanJet_eta, 1, -99)',
+    'name': 'Alt(CleanestJet_eta, 1, -99)',
     'range' : (30,-4.7,4.7),
     'xaxis' : '#eta 2nd jet',
     'fold' : 0
@@ -234,6 +241,13 @@ for bAlgo in btagging_SFs.keys():
 ###############################
 ### ttDM specific variables ###
 ###############################
+variables['mT2']  = {
+    'name': 'mT2',
+    'range' : (30,0,80),
+    'xaxis' : 'M_{ll}^{T2} [GeV]',
+    'fold' : 0
+}
+
 variables['pdark']  = {
     'name': 'doubleNu_producer[8]',
     'range' : (30,0,800),

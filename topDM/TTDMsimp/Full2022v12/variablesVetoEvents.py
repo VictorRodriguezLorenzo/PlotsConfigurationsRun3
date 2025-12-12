@@ -23,21 +23,21 @@ variables['mll'] = {
 }
 
 variables['mth'] = {
-    'name': 'cleanest_mth',
+    'name': 'mth',
     'range' : (60,0,200),
     'xaxis' : 'm_{T}^{H} [GeV]',
     'fold' : 0
 }
 
 variables['mtw1']  = {
-    'name': 'cleanest_mtw1',
+    'name': 'mtw1',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{1}} [GeV]',
     'fold' : 0
 }
 
 variables['mtw2']  = {
-    'name': 'cleanest_mtw2',
+    'name': 'mtw2',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{2}} [GeV]',
     'fold' : 0
@@ -87,7 +87,7 @@ variables['pt2']  = {
 
 variables['pt3']  = {
     'name': 'Lepton_pt[2]',
-    'range' : (20,0,100),
+    'range' : (20,0,100),   
     'xaxis' : 'p_{T} 3rd lep',
     'fold'  : 3
 }
@@ -122,34 +122,27 @@ variables['phi2']  = {
 }
 
 variables['jetdeepb']  = {
-    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (DeepB)',
     'fold' : 0
 }
 variables['jetpnetb']  = {
-    'name': 'Alt(Take(Jet_btagPNetB, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagPNetB, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (PNetB)',
     'fold' : 0
 }
 variables['jetrpartb']  = {
-    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (RPartB)',
     'fold' : 0
 }
 
 # MET
-variables['trkMet']  = { 
-    'name': 'TkMET_pt',
-    'range' : (20,0,200),
-    'xaxis' : 'trk met [GeV]',
-    'fold' : 3
-}
-
 variables['puppimet']  = {
-    'name': 'cleanestPuppiMET_pt',
+    'name': 'PuppiMET_pt',
     'range' : (20,0,200),
     'xaxis' : 'Puppi MET p_{T} [GeV]',
     'fold' : 3
@@ -171,7 +164,7 @@ variables['njet']  = {
 
 variables['jetpt1']  = {
     #'name': 'Alt(CleanJet_pt, 0, -99) - 9999.9*(CleanJet_pt[0]<30)',
-    'name': 'Alt(CleanestJet_pt, 0, -99)',
+    'name': 'Alt(CleanJet_pt, 0, -99)',
     'range' : (40,0,200),
     'xaxis' : 'p_{T} 1st jet',
     'fold' : 0
@@ -179,7 +172,7 @@ variables['jetpt1']  = {
 
 variables['jetpt2']  = {
     #'name': 'Alt(CleanJet_pt, 1, -99)  - 9999.9*(CleanJet_pt[1]<30)',
-    'name': 'Alt(CleanestJet_pt, 1, -99)',
+    'name': 'Alt(CleanJet_pt, 1, -99)',
     'range' : (40,0,200),
     'xaxis' : 'p_{T} 2nd jet',
     'fold' : 0
@@ -187,7 +180,7 @@ variables['jetpt2']  = {
 
 variables['jeteta1']  = {
     #'name': 'Alt(CleanJet_eta, 0, -99) - 9999.9*(CleanJet_pt[0]<30)',
-    'name': 'Alt(CleanestJet_eta, 0, -99)',
+    'name': 'Alt(CleanJet_eta, 0, -99)',
     'range' : (30,-4.7,4.7),
     'xaxis' : '#eta 1st jet',
     'fold' : 0
@@ -195,7 +188,7 @@ variables['jeteta1']  = {
 
 variables['jeteta2']  = {
     #'name': 'Alt(CleanJet_eta, 1, -99) - 9999.9*(CleanJet_pt[1]<30)',
-    'name': 'Alt(CleanestJet_eta, 1, -99)',
+    'name': 'Alt(CleanJet_eta, 1, -99)',
     'range' : (30,-4.7,4.7),
     'xaxis' : '#eta 2nd jet',
     'fold' : 0
@@ -206,25 +199,25 @@ variables['jeteta2']  = {
 
 btagging_WPs = {
     "DeepFlavB" : {
-        "loose"    : "0.0614",
-        "medium"   : "0.3196",
-        "tight"    : "0.73",
-        "xtight"   : "0.8184",
-        "xxtight"  : "0.9542",
+        "loose"    : "0.0583",
+        "medium"   : "0.3086",
+        "tight"    : "0.7183",
+        "xtight"   : "0.8111",
+        "xxtight"  : "0.9512",
     },
     "RobustParTAK4B" : {
-        "loose"    : "0.0897",
-        "medium"   : "0.451",
-        "tight"    : "0.8604",
-        "xtight"   : "0.9234",
-        "xxtight"  : "0.9893",
+        "loose"    : "0.0849",
+        "medium"   : "0.4319",
+        "tight"    : "0.8482",
+        "xtight"   : "0.9151",
+        "xxtight"  : "0.9874",
     },
     "PNetB" : {
-        "loose"    : "0.0499",
-        "medium"   : "0.2605",
-        "tight"    : "0.6915",    
-        "xtight"   : "0.8033",
-        "xxtight"  : "0.9664",
+        "loose"    : "0.047",
+        "medium"   : "0.245",
+        "tight"    : "0.6734",    
+        "xtight"   : "0.7862",
+        "xxtight"  : "0.961",
     }
 }
 

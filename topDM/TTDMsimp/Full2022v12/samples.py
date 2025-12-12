@@ -7,14 +7,17 @@ useXROOTD = False
 
 mcProduction = 'Summer22_130x_nAODv12_Full2022v12'
 mcSteps      = 'MCl2loose2022v12__MCCorr2022v12JetScaling__sblancof__l2tight'
+#mcSteps      = 'MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
 dataReco     = 'Run2022_ReReco_nAODv12_Full2022v12'
 dataSteps    = 'DATAl2loose2022v12__sblancof__l2loose'
+#dataSteps    = 'DATAl2loose2022v12__l2loose'
 
 ##############################################
 ###### Tree base directory for the site ######
 ##############################################
 #treeBaseDir = '/eos/user/v/victorr'
 treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/calderon/HWWNano/'
+#treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/'
 limitFiles = -1
 
 def makeMCDirectory(var=""):
@@ -111,7 +114,7 @@ mcCommonWeight        = 'XSWeight*METFilter_Common*PromptGenLepMatch2l*SFweight'
 ###########################################
 
 ########## DY #########
-files = nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-50') + nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-10to50')
+files = nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-50')  + nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-10to50')
 
 samples['DY'] = {
     'name': files,
@@ -171,7 +174,7 @@ samples['ZZ'] = {
     'FilesPerJob': 5
 }
 
-######## Other ########
+####### Other ########
 files = nanoGetSampleFiles(mcDirectory, 'ZGToLLG')
 
 samples['Other'] = {
