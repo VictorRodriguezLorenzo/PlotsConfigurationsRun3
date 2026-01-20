@@ -34,7 +34,7 @@ save_model = True
 
 loaded_model = False 
 
-MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp/Full2022v12/DNNmodels/model_DNN.h5"
+MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp/Full2024v15/DNNmodels/model_DNN.h5"
 
 #####################################################
 
@@ -67,9 +67,9 @@ def nanoGetSampleFiles(path, name):
         _files = _files[:limitFiles]
     return _files
 
-signalDirectory = '/eos/user/v/victorr/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
+signalDirectory = '/eos/user/v/victorr/HWWNano/Summer24_150x_nAODv15_Full2024v15/MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
 
-mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/calderon/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__sblancof__l2tight'
+mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/calderon/HWWNano/Summer24_150x_nAODv15_Full2024v15/MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
 
 mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
 
@@ -287,8 +287,8 @@ print("")
 print("New variables already declared for the use within the dataframes-----------------------------------------------------------------------------")
 print("")
 
-bWP = '0.0583'
-bAlgo = 'DeepFlavB'
+bWP = '0.0359'
+bAlgo = 'PNetB'
 
 dataframes[key] = dataframes[key].Define(
     "doubleNu",
@@ -313,7 +313,7 @@ for key, df in dataframes.items():
     dataframes[key] = dataframes[key].Define("lep_pt1", "Lepton_pt[0]")
     dataframes[key] = dataframes[key].Define("lep_pt2", "Lepton_pt[1]")
     dataframes[key] = dataframes[key].Define("noJetInHorn", "Jet_inHorns(CleanJet_pt, CleanJet_eta)")
-    dataframes[key] = dataframes[key].Define("bReq", 'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(bAlgo, bWP))    
+    dataframes[key] = dataframes[key].Define("bReq", 'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(bAlgo, bWP))
 
 df_bkg = df_bkg.Define("mT2", 'computeMT2(Lepton_pt[0], Lepton_eta[0], Lepton_phi[0], Lepton_pt[1], Lepton_eta[1], Lepton_phi[1], PuppiMET_pt, PuppiMET_phi)')
 df_bkg = df_bkg.Define(
@@ -343,7 +343,7 @@ print("New variables loaded within the dataframes-------------------------------
 print("")
 
 for key, df in dataframes.items(): 
-	dataframes[key] = dataframes[key].Filter("((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && (abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && mll > 20 && noJetInHorn && bReq && tt_reco")
+    dataframes[key] = dataframes[key].Filter("((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && (abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && mll > 20 && noJetInHorn && bReq && tt_reco")
 df_bkg = df_bkg.Filter("((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && (abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && mll > 20 && noJetInHorn && bReq && tt_reco")
 print("")
 print("Events filtering---------------------------------------------------------------------------------------------------------------------")
@@ -689,6 +689,7 @@ if HAS_SHAP:
     plt.savefig('SHAP_Feature_importance_LogBar.png', dpi=1200)
 
     print("SHAP plots saved.")
+
 
 print("DONE!")
 
