@@ -278,9 +278,23 @@ variables['dphi_ttbar']  = {
     'fold' : 0
 }
 
+variables['dphi_met_llb']  = {
+    'name': 'dphi_met_llb',
+    'range' : (30,0,3.14),
+    'xaxis' : '|#Delta#phi(MET,llb)|',
+    'fold' : 0
+}
+
 variables['tt_reco']  = {
     'name': 'doubleNu_producer[9]',
     'range' : (2,0,1),
     'xaxis' : 'tt-reco success?',
     'fold' : 3
 }
+
+### DISCRIMINANT FOR DNN ###
+variables['evaluate_dnn']  = { 'name': 'evaluate_dnn',
+                        'range' : (30,0,1),
+                        'xaxis' : 'DNN Discriminant',
+                        'fold' : 3
+                        }

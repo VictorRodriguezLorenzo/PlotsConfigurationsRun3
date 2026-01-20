@@ -259,6 +259,14 @@ aliases['doubleNu_producer'] = {
     'args': 'nCleanJet, CleanJet_pt, CleanJet_eta, CleanJet_phi, CleanJet_mass, CleanJet_jetIdx, nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId, PuppiMET_pt, PuppiMET_phi, Jet_btag{}, {}'.format(bAlgo, btagging_WPs[bAlgo][bWP]),
 }
 
+aliases['bjet_idx'] = {
+    'expr': '(nCleanJet > 0 && Jet_btag{algo}[CleanJet_jetIdx[0]] > {wp}) ? 0 : (nCleanJet > 1 && Jet_btag{algo}[CleanJet_jetIdx[1]] > {wp}) ? 1 : (nCleanJet > 2 && Jet_btag{algo}[CleanJet_jetIdx[2]] > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP])
+}
+
+aliases['dphi_met_llb'] = {
+    'expr': 'abs(DeltaPhi(PuppiMET_phi, atan2(Lepton_pt[0]*sin(Lepton_phi[0]) + Lepton_pt[1]*sin(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*sin(CleanJet_phi[bjet_idx]), Lepton_pt[0]*cos(Lepton_phi[0]) + Lepton_pt[1]*cos(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*cos(CleanJet_phi[bjet_idx]))))'
+}
+
 ### Defining other relevant variables ###
 #### mT2 variable definition
 aliases['mT2'] = {
@@ -294,6 +302,18 @@ aliases['zLep_mll'] = {
     'expr': 'getZLepMll(nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId)',
     'afterNuis': True
 }
+
+#############################################################################
+########################## DNN discriminator ################################
+#############################################################################
+
+# DNN discriminator
+aliases['evaluate_dnn'] = {
+    'linesToAdd': ['#include  "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp/Full2022EEv12/evaluate_DNN.cc"'],
+    'class' : 'evaluate_dnn',
+    'args': 'dphill, PuppiMET_pt, mT2, doubleNu_producer[8], doubleNu_producer[6], doubleNu_producer[7], dphi_met_llb',
+    'afterNuis': True
+    }
 
 #############################################################################
 ####################### tt+DM regions definition ############################
