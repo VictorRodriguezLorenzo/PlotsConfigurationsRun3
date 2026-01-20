@@ -33,7 +33,9 @@ def makeMCDirectory(var=""):
 mcDirectory   = makeMCDirectory()
 # fakeDirectory = os.path.join(treeBaseDir, dataReco, fakeSteps)
 dataDirectory = os.path.join(treeBaseDir, dataReco, dataSteps)
+signalDirectory = "/eos/user/v/victorr/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight"
 fakeDirectory = dataDirectory
+
 
 samples = {}
 
@@ -119,7 +121,7 @@ files = nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-50')  + nanoGetSampleF
 samples['DY'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5,
+    'FilesPerJob': 4,
 }
 
 ########## Single top #########
@@ -137,7 +139,7 @@ files = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu')
 samples['TTTo2L2Nu'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 1
 }
 
 ###### TTToSemiLeptonic #####
@@ -155,7 +157,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWTo2L2Nu')
 samples['WW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 4
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WZ')
@@ -189,35 +191,37 @@ samples['Other'] = {
 
 '''
 mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
-
+'''
+mPhi = ['800']
+'''
 # tt+DM dilepton scalar
 for phi in mPhi:
-    samples[f'TTto2LDMsimpSpin0_s_mchi_{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mchi_{phi}'),
+    samples[f'TTto2LDMsimpSpin0_s_mphi_{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi_{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-
+'''
 # tt+DM inclusive scalar
 for phi in mPhi:
-    samples[f'TTDMsimpSpin0_s_mchi_{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mchi_{phi}'),
+    samples[f'TTDMsimpSpin0_s_mphi_{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0-mphi-{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-
+'''
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
-    samples[f'TTto2LDMsimpSpin0_ps_mchi_{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mchi_{phi}'),
+    samples[f'TTto2LDMsimpSpin0_ps_mphi_{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi_{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
 
 # tt+DM inclusive pseudoscalar
 for phi in mPhi:
-    samples[f'TTDMsimpSpin0_ps_mchi_{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mchi_{phi}'),
+    samples[f'TTDMsimpSpin0_ps_mphi_{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi_{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }

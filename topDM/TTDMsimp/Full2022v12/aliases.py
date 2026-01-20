@@ -311,7 +311,7 @@ aliases['SFweight'] = {
 }
 
 aliases['SFweightEleUp'] = {
-    'expr': 'LepSF2l__ele_'+eleWP+'__Up',
+        'expr': 'LepSF2l__ele_'+eleWP+'__Up',
     'samples': mc
 }
 aliases['SFweightEleDown'] = {
@@ -334,6 +334,14 @@ aliases['doubleNu_producer'] = {
     'linesToAdd': [f'#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp/macros/doubleNu_producer.cc"'],
     'class': 'doubleNu_producer',
     'args': 'nCleanestJet, CleanestJet_pt, CleanestJet_eta, CleanestJet_phi, CleanestJet_mass, CleanestJet_jetIdx, nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId, cleanestPuppiMET_pt, cleanestPuppiMET_phi, Jet_btag{}, {}'.format(bAlgo, btagging_WPs[bAlgo][bWP]),
+}
+
+aliases['bjet_idx'] = {
+    'expr': '(nCleanestJet > 0 && Jet_btag{algo}[CleanestJet_jetIdx[0]] > {wp}) ? 0 : (nCleanestJet > 1 && Jet_btag{algo}[CleanestJet_jetIdx[1]] > {wp}) ? 1 : (nCleanestJet > 2 && Jet_btag{algo}[CleanestJet_jetIdx[2]] > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP])
+}
+
+aliases['dphi_met_llb'] = {
+    'expr': 'abs(DeltaPhi(PuppiMET_phi, atan2(Lepton_pt[0]*sin(Lepton_phi[0]) + Lepton_pt[1]*sin(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*sin(CleanJet_phi[bjet_idx]), Lepton_pt[0]*cos(Lepton_phi[0]) + Lepton_pt[1]*cos(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*cos(CleanJet_phi[bjet_idx]))))'
 }
 
 ### Defining other relevant variables ###
@@ -370,6 +378,22 @@ aliases['zLep_mll'] = {
     'expr': 'getZLepMll(nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId)',
     'afterNuis': True
 }
+
+#############################################################################
+########################## DNN discriminator ################################
+#############################################################################
+
+# DNN discriminator
+aliases['evaluate_dnn'] = {
+    'linesToAdd': ['#include  "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp/Full2022v12/evaluate_DNN.cc"'],
+    'class' : 'evaluate_dnn',
+    'args': (
+    'Lepton_pt[1], Lepton_eta[0], Lepton_eta[1], mll, mtw1, mtw2, ptll, drll, '
+    'dphilmet1, dphilmet2, dphill, PuppiMET_pt, PuppiMET_phi, detall, yll, '
+    'mR, mTe, mTi, upara, dphil1tkmet, dphil2tkmet, dphilmet, dphillmet, '
+    'mcoll, mcollWW, doubleNu_producer[8], doubleNu_producer[6], doubleNu_producer[7]'
+    )
+    }
 
 #############################################################################
 ####################### tt+DM regions definition ############################
