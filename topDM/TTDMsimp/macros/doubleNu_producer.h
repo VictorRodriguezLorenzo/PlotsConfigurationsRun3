@@ -1025,7 +1025,7 @@ inline EventKinematics computeEventKinematics(const TLorentzVector& b1,
     // -----------------------
     double residual_x = met_x - nu1.Px() - nu2.Px();
     double residual_y = met_y - nu1.Py() - nu2.Py();
-    kin.pdark = residual_x * residual_x + residual_y * residual_y;
+    kin.pdark = std::sqrt(residual_x * residual_x + residual_y * residual_y);
 
     // -----------------------
     // 6) Final validity flag
