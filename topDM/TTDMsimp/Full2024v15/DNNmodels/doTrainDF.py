@@ -279,7 +279,6 @@ ROOT.gInterpreter.Declare(
             }
     }
 
-
 """
 )
 
@@ -342,45 +341,102 @@ print("")
 print("New variables loaded within the dataframes-------------------------------------------------------------------------------------------")
 print("")
 
+# -------------------------------
+# FILTERING 
+# -------------------------------
 for key, df in dataframes.items(): 
-    dataframes[key] = dataframes[key].Filter("((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && (abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && mll > 20 && noJetInHorn && bReq && tt_reco")
-df_bkg = df_bkg.Filter("((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && (abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && mll > 20 && noJetInHorn && bReq && tt_reco")
+    dataframes[key] = dataframes[key].Filter(
+        "((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && "
+        "(abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && "
+        "Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && "
+        "abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && "
+        "mll > 20 && noJetInHorn && bReq && tt_reco"
+    )
+
+df_bkg = df_bkg.Filter(
+    "((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && "
+    "(abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && "
+    "Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && "
+    "abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && "
+    "mll > 20 && noJetInHorn && bReq && tt_reco"
+)
+
 print("")
 print("Events filtering---------------------------------------------------------------------------------------------------------------------")
 
-columns  = [
-  'dphill',
-  'PuppiMET_pt',
-  'mT2',
-  'pdark',
-  'chel',
-  'dphi_ttbar',
-  'dphi_met_llb',
-        ]
+columns = [
+    'dphill',
+    'PuppiMET_pt',
+    'mT2',
+    'pdark',
+    'chel',
+    'dphi_ttbar',
+    'dphi_met_llb',
+]
 
 print("DONE!")
 print("")
-print("Creating pandas dataframes!----------------------------------------------------------------------------------------------------------")
 
+# -------------------------------
+# DOWNSAMPLING
+# -------------------------------
+sig_counts = {key: df.Count() for key, df in dataframes.items()}
+bkg_count = df_bkg.Count()
+
+# Trigger event loop once
+sig_counts = {key: c.GetValue() for key, c in sig_counts.items()}
+bkg_count = bkg_count.GetValue()
+
+print("Signal counts:", sig_counts)
+print("Background count:", bkg_count)
+
+target_size = min(min(sig_counts.values()), bkg_count)
+print("Target size:", target_size)
+
+import ROOT
+
+def downsample(df, current, target):
+    if current <= target:
+        return df
+    frac = target / current
+    return (
+        df
+        .Define("rnd", "gRandom->Rndm()")
+        .Filter(f"rnd < {frac}")
+    )
+
+for key, df in dataframes.items():
+    dataframes[key] = downsample(df, sig_counts[key], target_size)
+
+df_bkg = downsample(df_bkg, bkg_count, target_size)
+
+# -------------------------------
+# CONVERSION TO PANDAS
+# -------------------------------
+print("Creating pandas dataframes!----------------------------------------------------------------------------------------------------------")
 
 numpy_dataframes = {}
 for key, df in dataframes.items():
     numpy_dataframes[key] = df.AsNumpy(var)
+
 dfBkg = df_bkg.AsNumpy(var)
 
 pd_dataframes = {}
 for key, df_sig in numpy_dataframes.items():
     pd_dataframes[key] = pd.DataFrame(df_sig)
+
 Bkg = pd.DataFrame(dfBkg)
 
 print("DONE!")
 print("")
 
-#### Categories!
+# -------------------------------
+# CATEGORIES 
+# -------------------------------
 for key, df_sig in pd_dataframes.items():
     pd_dataframes[key]['isSignal'] = np.ones(len(df_sig))
     pd_dataframes[key]['isBkg'] = np.zeros(len(df_sig))
-    
+
 Bkg['isSignal'] = np.zeros(len(Bkg))
 Bkg['isBkg'] = np.ones(len(Bkg))
 
@@ -388,19 +444,13 @@ print("")
 print("Categories inserted in the dataframes for isSignal and isBkg-------------------------------------------------------------------------")
 print("")
 
-# Make all the signals together the same size as the background
-# Find the dataframe with the lowest number of events
+# -------------------------------
+# CONCATENATION 
+# -------------------------------
 print([len(df_sig) for key, df_sig in pd_dataframes.items()])
-min_length = min([len(df_sig) for key, df_sig in pd_dataframes.items()])
-print("The min lenght for the signal dataframes is:", min_length)
 
-# Sample the rest of the dataframes to the length of the dataframe with the lowest number of events
-for key, df_sig in pd_dataframes.items():
-    if len(df_sig) > min_length:
-        pd_dataframes[key] = df_sig.sample(min_length)
-
-# Concatenate the dataframes
 Sig = pd.concat([df_sig for key, df_sig in pd_dataframes.items()])
+
 print("")
 print("Seeing how each of the dataframes for Signal and Background look:")
 print(Sig)
