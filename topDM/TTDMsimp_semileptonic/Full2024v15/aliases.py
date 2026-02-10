@@ -258,7 +258,6 @@ aliases['mT2'] = {
     'afterNuis': True
 }
 
-
 aliases['bjet_idx'] = {
     'expr': '(nCleanJet > 0 && Jet_btag{algo}[CleanJet_jetIdx[0]] > {wp}) ? 0 : (nCleanJet > 1 && Jet_btag{algo}[CleanJet_jetIdx[1]] > {wp}) ? 1 : (nCleanJet > 2 && Jet_btag{algo}[CleanJet_jetIdx[2]] > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP])
 }
@@ -309,4 +308,3 @@ aliases['ttcr'] = {
     'expr': 'mT2 <= 80 && nLepton == 2 && PuppiMET_pt >= 250 && MTb > 140 && bReq',
     'afterNuis': True
 }
-~
