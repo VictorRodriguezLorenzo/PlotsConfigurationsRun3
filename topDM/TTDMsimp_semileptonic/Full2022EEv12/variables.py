@@ -250,51 +250,31 @@ for bAlgo in btagging_SFs.keys():
 ###############################
 ### ttDM specific variables ###
 ###############################
-variables['mT2']  = {
-    'name': 'mT2',
-    'range' : (30,0,80),
-    'xaxis' : 'M_{ll}^{T2} [GeV]',
+variables['mindphi_jet_met'] = {
+    'name': 'mindphi_jet_met',
+    'range': (60, 0, 3.2),
+    'xaxis': 'min #Delta#phi(j_{1,2}, p_{T}^{miss})',
     'fold' : 0
 }
 
-variables['pdark']  = {
-    'name': 'doubleNu_producer[8]',
-    'range' : (30,0,800),
-    'xaxis' : 'p_{T}^{dark} [GeV]',
+variables['mtb'] = {
+    'name': 'MTb',
+    'range' : (60,0,200),
+    'xaxis' : 'm_{T}^{MET+b} [GeV]',
     'fold' : 0
 }
 
-variables['chel']  = {
-    'name': 'doubleNu_producer[6]',
-    'range' : (30,-1,1),
-    'xaxis' : 'cos(#phi_{ll}^{*})',
+variables['h1t'] = {
+    'name': 'H1T',
+    'range' : (30,0,1),
+    'xaxis' : 'p_{T}(j_{1}) / H_{T}',
     'fold' : 0
 }
 
-variables['dphi_ttbar']  = {
-    'name': 'doubleNu_producer[7]',
-    'range' : (30,0,3.14),
-    'xaxis' : '|#Delta#phi(t,#bar{t})|',
+variables['topness'] = {
+    'name': 'topness',
+    'range' : (25,-10,15),
+    'xaxis' : 'modified topnes',
     'fold' : 0
 }
 
-variables['dphi_met_llb']  = {
-    'name': 'dphi_met_llb',
-    'range' : (30,0,3.14),
-    'xaxis' : '|#Delta#phi(MET,llb)|',
-    'fold' : 0
-}
-
-variables['tt_reco']  = {
-    'name': 'doubleNu_producer[9]',
-    'range' : (2,0,1),
-    'xaxis' : 'tt-reco success?',
-    'fold' : 3
-}
-
-### DISCRIMINANT FOR DNN ###
-variables['evaluate_dnn']  = { 'name': 'evaluate_dnn',
-                        'range' : (30,0,1),
-                        'xaxis' : 'DNN Discriminant',
-                        'fold' : 3
-                        }
