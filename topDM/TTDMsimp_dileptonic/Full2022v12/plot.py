@@ -78,38 +78,38 @@ mPhi = ['800']
 '''
 # tt+DM dilepton scalar
 for phi in mPhi:
-    plot['TTto2LDMsimpSpin0_s_mphi_{phi}']  = {
+    plot['TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
             'nameHR' :  'TTto2LDM scalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
-            'samples'  : [f'TTto2LDMsimpSpin0_s_mphi_{phi}']
+            'samples'  : [f'TTto2LDMsimpSpin0_s_mphi-{phi}']
             }
 '''
 # tt+DM inclusive scalar
 for phi in mPhi:
-   groupPlot[f'TTDMsimpSpin0_s_mphi_{phi}']  = {
+   groupPlot[f'TTDMsimpSpin0_s_mphi-{phi}']  = {
             'nameHR' :  'TTtoDM scalar m_{#phi}=' + phi + ' (x 10^{3})',
             'isSignal' : 2,
             'color': 632, # kRed 
-            'samples'  : [f'TTDMsimpSpin0_s_mphi_{phi}']
+            'samples'  : [f'TTDMsimpSpin0_s_mphi-{phi}']
             }
 '''
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
-    plot['TTto2LDMsimpSpin0_ps_mphi_{phi}']  = {
+    plot['TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
             'nameHR' :  'TTto2LDM pseudoscalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
-            'samples'  : [f'TTto2LDMsimpSpin0_ps_mphi_{phi}']
+            'samples'  : [f'TTto2LDMsimpSpin0_ps_mphi-{phi}']
             }
 
 # tt+DM inclusive pseudoscalar
 for phi in mPhi:
-    plot[f'TTDMsimpSpin0_ps_mphi_{phi}']  = {
+    plot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
             'nameHR' :  'TTtoDM pseudoscalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
-            'samples'  : [f'TTDMsimpSpin0_ps_mphi_{phi}']
+            'samples'  : [f'TTDMsimpSpin0_ps_mphi-{phi}']
             }
 
 

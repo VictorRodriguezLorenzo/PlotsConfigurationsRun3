@@ -72,17 +72,49 @@ groupPlot['Fake']  = {
 ###############  SIGNALS  #################
 ###########################################
 '''
-mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
-
-for Zp in mZp:
-    groupPlot['DH_' + hs  +  '_'   + DM + '_' + Zp]  = {
-            'nameHR' :  'm_{s}=' + hs + ', m_{x}=' + DM + ', m_{Z}=' + Zp ,
+#mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
+'''
+mPhi = ['800']
+'''
+# tt+DM dilepton scalar
+for phi in mPhi:
+    plot['TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
+            'nameHR' :  'TTto2LDM scalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
-            'samples'  : ['DH_mhs_' + hs + '_mx_' + DM +  '_mZp_' + Zp]
+            'samples'  : [f'TTto2LDMsimpSpin0_s_mphi-{phi}']
+            }
+'''
+# tt+DM inclusive scalar
+for phi in mPhi:
+   groupPlot[f'TTDMsimpSpin0_s_mphi-{phi}']  = {
+            'nameHR' :  'TTtoDM scalar m_{#phi}=' + phi + ' (x 10^{3})',
+            'isSignal' : 2,
+            'color': 632, # kRed 
+            'samples'  : [f'TTDMsimpSpin0_s_mphi-{phi}']
+            }
+'''
+# tt+DM dilepton pseudoscalar
+for phi in mPhi:
+    plot['TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
+            'nameHR' :  'TTto2LDM pseudoscalar m_{phi}=' + phi,
+            'isSignal' : 2,
+            'color': 100, # kRed 
+            'samples'  : [f'TTto2LDMsimpSpin0_ps_mphi-{phi}']
             }
 
+# tt+DM inclusive pseudoscalar
+for phi in mPhi:
+    plot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
+            'nameHR' :  'TTtoDM pseudoscalar m_{phi}=' + phi,
+            'isSignal' : 2,
+            'color': 100, # kRed 
+            'samples'  : [f'TTDMsimpSpin0_ps_mphi-{phi}']
+            }
+
+
 '''
+
 plot = {}
 
 ###########################################
@@ -191,8 +223,8 @@ plot['Fake']  = {
 ###########################################
 '''
 # tt+DM dilepton scalar
-for Zp in mZp:
-    plot['TTto2LDMsimpSpin0_s_mchi_{phi}']  = {
+for phi in mPhi:
+    plot['TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 2,
             'isData'   : 0,
@@ -200,8 +232,8 @@ for Zp in mZp:
             }
 
 # tt+DM inclusive scalar
-for Zp in mZp:
-    plot[f'TTDMsimpSpin0_s_mchi_{phi}']  = {
+for phi in mPhi:
+    plot[f'TTDMsimpSpin0_s_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 2,
             'isData'   : 0,
@@ -209,16 +241,16 @@ for Zp in mZp:
             }
 
 # tt+DM dilepton pseudoscalar
-for Zp in mZp:
-    plot[f'TTto2LDMsimpSpin0_ps_mchi_{phi}']  = {
+for phi in mPhi:
+    plot[f'TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 2,
             'isData'   : 0,
             'scale'    : 1.0
             }
 # tt+DM inclusive pseudoscalar
-for Zp in mZp:
-    plot[f'TTDMsimpSpin0_ps_mchi_{phi}']  = {
+for phi in mPhi:
+    plot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 2,
             'isData'   : 0,
