@@ -32,6 +32,13 @@ groupPlot['TTToSemiLeptonic']  = {
     'samples'  : ['TTToSemiLeptonic']
 }
 
+groupPlot['TTTo4Q']  = {  
+    'nameHR'   : 't#bar{t}(4q)',
+    'isSignal' : 0,
+    'color'    : 810,   # kOrange + 10
+    'samples'  : ['TTTo4Q']
+}
+
 groupPlot['TTV']  = {  
     'nameHR'   : 'TTV',
     'isSignal' : 0,
@@ -145,6 +152,13 @@ plot['TTToSemiLeptonic']  = {
     'color'    : 810,   # kOrange + 10 
     'isSignal' : 0,
     'isData'   : 0, 
+    'scale'    : 1.0,
+}
+
+plot['TTTo4Q']  = {
+    'color'    : 810,   # kOrange + 10 
+    'isSignal' : 0,
+    'isData'   : 0,
     'scale'    : 1.0,
 }
 

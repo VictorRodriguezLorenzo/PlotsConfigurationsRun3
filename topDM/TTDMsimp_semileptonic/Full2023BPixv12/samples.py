@@ -156,6 +156,15 @@ samples['TTToSemiLeptonic'] = {
     'FilesPerJob': 5
 }
 
+###### TT hadronic #####
+files = nanoGetSampleFiles(mcDirectory, 'TTTo4Q')
+
+samples['TTTo4Q'] = {
+    'name': files,
+    'weight': mcCommonWeight,
+    'FilesPerJob': 5
+}
+
 ########## TTV ##########
 files = nanoGetSampleFiles(mcDirectory, 'TTNuNu') \
         + nanoGetSampleFiles(mcDirectory, 'TTLL-MLL4to50') \
