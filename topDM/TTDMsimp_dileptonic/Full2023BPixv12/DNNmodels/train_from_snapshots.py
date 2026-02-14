@@ -1,0 +1,458 @@
+import ROOT
+import glob
+import pandas as pd
+import numpy as np
+import re
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_curve, auc, classification_report, roc_auc_score
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras import callbacks, optimizers
+
+from sklearn import metrics
+
+####### CONTROL PARAMETERS FOR THE WHOLE CODE #######
+
+ANALYSIS_NAME = "dnn_model"
+save_model = True
+
+loaded_model = False
+
+MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/model_DNN.h5"
+
+# ============================================================
+# VARIABLES
+# ============================================================
+
+# Branches to load
+var = [
+    'dphill',
+    'PuppiMET_pt',
+    'mT2',
+    'pdark',
+    'chel',
+    'dphi_ttbar',
+    'dphi_met_llb',
+]
+
+# Find all snapshot ROOT files
+files = glob.glob("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/files_for_training/*.root")
+
+# Define background substrings
+bkg_names = ['TTTo2L2Nu', 'ST_t-channel_top', 'ST_t-channel_antitop']
+
+# Sort files
+files_bkg = [f for f in files if any(name in f for name in bkg_names)]
+files_sig = [f for f in files if f not in files_bkg]
+
+print(f"Signal files: {len(files_sig)}, Background files: {len(files_bkg)}")
+
+# -------------------------------
+# GROUP SIGNAL FILES BY SAMPLE TAG
+# -------------------------------
+sample_groups = {}
+for f in files_sig:
+    # extract the tag between 'nanoLatino_' and '__part'
+    m = re.search(r"nanoLatino_(.*)__part\d+_snapshot", f)
+    if m:
+        tag = m.group(1)
+        if tag not in sample_groups:
+            sample_groups[tag] = []
+        sample_groups[tag].append(f)
+
+print("Signal sample groups:", {k: len(v) for k, v in sample_groups.items()})
+
+# -------------------------------
+# CREATE TCHAINS AND GET COUNTS
+# -------------------------------
+
+# Background chain
+chain_bkg = ROOT.TChain("Events")
+for f in files_bkg:
+    chain_bkg.Add(f)
+bkg_count = chain_bkg.GetEntries()
+
+# Signal chains (one chain per sample)
+sig_chains = {}
+sig_counts = {}
+for sample_tag, file_list in sample_groups.items():
+    chain = ROOT.TChain("Events")
+    for f in file_list:
+        chain.Add(f)
+    sig_chains[sample_tag] = chain
+    sig_counts[sample_tag] = chain.GetEntries()
+
+print("Signal counts per sample:", sig_counts)
+print("Background count:", bkg_count)
+
+# -------------------------------
+# DETERMINE TARGET SIZE FOR DOWNSAMPLING
+# -------------------------------
+target_size = min(min(sig_counts.values()), bkg_count)
+print("Target size for downsampling:", target_size)
+
+# -------------------------------
+# DOWNSAMPLE FUNCTION
+# -------------------------------
+def downsample(chain, target):
+    current = chain.GetEntries()
+    if current <= target:
+        return ROOT.RDataFrame(chain)
+    frac = target / current
+    rdf = ROOT.RDataFrame(chain)
+    rdf = rdf.Define("rnd", "gRandom->Rndm()").Filter(f"rnd < {frac}")
+    return rdf
+
+# -------------------------------
+# DOWNSAMPLE SIGNAL AND BACKGROUND
+# -------------------------------
+dataframes = {key: downsample(chain, target_size) for key, chain in sig_chains.items()}
+rdf_bkg = downsample(chain_bkg, target_size)
+
+# -------------------------------
+# CONVERT TO PANDAS AND ADD LABELS
+# -------------------------------
+pd_dataframes = {}
+for key, rdf in dataframes.items():
+    pd_df = pd.DataFrame(rdf.AsNumpy(var))
+    pd_df['isSignal'] = 1
+    pd_df['isBkg'] = 0
+    pd_dataframes[key] = pd_df
+
+Bkg = pd.DataFrame(rdf_bkg.AsNumpy(var))
+Bkg['isSignal'] = 0
+Bkg['isBkg'] = 1
+
+# -------------------------------
+# CONCATENATE AND BALANCE
+# -------------------------------
+Sig = pd.concat([df for df in pd_dataframes.values()])
+
+# Balance lengths
+if len(Sig) > len(Bkg):
+    Sig = Sig.sample(len(Bkg), random_state=42)
+else:
+    Bkg = Bkg.sample(len(Sig), random_state=42)
+
+df_all = pd.concat([Sig, Bkg])
+df_all.dropna(inplace=True)
+
+print("Final dataset length:", len(df_all))
+print("Signal fraction:", df_all['isSignal'].mean())
+
+X_train, X_test, Y_train, Y_test = train_test_split(
+    df_all[var],
+    df_all[['isSignal']],
+    test_size=0.2,
+    random_state=6
+)
+
+# ============================================================
+# SAME MODEL — UNCHANGED
+# ============================================================
+
+model = Sequential()
+model.add(Dense(128, activation='relu', input_dim=len(var)))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+
+model.compile(
+    loss='binary_crossentropy',
+    optimizer=optimizers.RMSprop(0.00015),
+    metrics=['accuracy']
+)
+
+training = model.fit(
+    X_train[var].values,
+    Y_train,
+    epochs=300,
+    validation_split=0.15,
+    batch_size=128,
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=20)],
+    verbose=2,
+    shuffle=True
+)
+
+if save_model and loaded_model == False:
+    print("")
+    print("The current used Machine Learning model is being saved:")
+    print("")
+
+    model.save('./Models/model_'+ANALYSIS_NAME+'.h5')
+
+##### FOR THE DEEP NEURAL NETWORK ######
+y_pred = model.predict(X_test)
+y_pred_t = model.predict(X_train)
+
+y_pred_L = y_pred
+y_pred_t_L = y_pred_t
+
+########################
+
+#### SIGNAL category
+
+# MODEL 1
+discriminant = np.squeeze(np.asarray(y_pred_L))
+true_labels = np.squeeze(np.asarray(Y_test['isSignal']))
+
+discriminant0 = discriminant[np.array(true_labels == 0)]
+discriminant1 = discriminant[np.array(true_labels == 1)]
+
+discriminant_t = np.squeeze(np.asarray(y_pred_t_L))
+true_labels_t = np.squeeze(np.asarray(Y_train['isSignal']))
+
+discriminant0_t = discriminant_t[np.array(true_labels_t == 0)]
+discriminant1_t = discriminant_t[np.array(true_labels_t == 1)]
+
+#discriminant   = y_pred[:, 1]
+#true_labels    = np.asarray(Y_test['isSignal'])
+#
+#discriminant0 = discriminant[true_labels == 0]
+#discriminant1 = discriminant[true_labels == 1]
+#
+#discriminant_t = y_pred_t[:, 1]
+#true_labels_t  = np.asarray(Y_train['isSignal'])
+#
+#discriminant0_t = discriminant_t[true_labels_t == 0]
+#discriminant1_t = discriminant_t[true_labels_t == 1]
+
+binning = np.linspace(0, 1, 51)
+
+# Plot the discriminant distributions --------------------
+
+print("")
+print("Plotinng discriminant distribution---------------------------------------------------------------------------------------------------")
+plt.clf()
+plt.figure(num=None, figsize=(6, 6))
+plt.subplot(111)
+pdf0, bins0, patches0 = plt.hist(discriminant0, bins = binning, color = 'm', alpha = 0.0, histtype = 'stepfilled', linewidth = 1, edgecolor='r', density=True)
+pdf1, bins1, patches1 = plt.hist(discriminant1, bins = binning, color = 'y', alpha = 0.0, histtype = 'stepfilled', linewidth = 1, edgecolor='b', density=True)
+
+pdf0_t, bins0_t, patches0_t = plt.hist(discriminant0_t, bins = binning, color = 'r', alpha = 0.3, histtype = 'stepfilled', linewidth = 2, edgecolor='r', label = 'Backgrounds (train)', density=True)
+pdf1_t, bins1_t, patches1_t = plt.hist(discriminant1_t, bins = binning, color = 'b', alpha = 0.3, histtype = 'stepfilled', linewidth = 2, edgecolor='b', label = 'ttDM signal (train)', density=True)
+
+plt.scatter(bins0[:-1]+ 0.5*(bins0[1:] - bins0[:-1]), pdf0, marker='.', c='m', s=30, alpha=0.8, label = 'Backgrounds')
+plt.scatter(bins1[:-1]+ 0.5*(bins1[1:] - bins1[:-1]), pdf1, marker='.', c='y', s=30, alpha=0.8, label = 'ttDM signal')
+
+plt.legend(loc = 'upper center')
+plt.ylabel('Density', fontsize = 12)
+plt.xlabel('DNN discriminant', fontsize = 12)
+plt.savefig('Discriminant_distribution'+ANALYSIS_NAME+'.png', dpi = 600)
+
+plt.clf()
+plt.figure(num=None, figsize=(6, 6))
+plt.subplot(111)
+
+plt.clf()
+plt.figure(num=None, figsize=(6, 6))
+plt.subplot(111)
+pdf0, bins0, patches0 = plt.hist(discriminant0, bins = binning, color = 'm', alpha = 0.0, histtype = 'stepfilled', linewidth = 1, edgecolor='r', density=True)
+pdf1, bins1, patches1 = plt.hist(discriminant1, bins = binning, color = 'y', alpha = 0.0, histtype = 'stepfilled', linewidth = 1, edgecolor='b', density=True)
+
+pdf0_t, bins0_t, patches0_t = plt.hist(discriminant0_t, bins = binning, color = 'r', alpha = 0.3, histtype = 'stepfilled', linewidth = 2, edgecolor='r', label = 'Backgrounds (train)', density=True)
+pdf1_t, bins1_t, patches1_t = plt.hist(discriminant1_t, bins = binning, color = 'b', alpha = 0.3, histtype = 'stepfilled', linewidth = 2, edgecolor='b', label = 'ttDM signal (train)', density=True)
+
+plt.scatter(bins0[:-1]+ 0.5*(bins0[1:] - bins0[:-1]), pdf0, marker='.', c='m', s=30, alpha=0.8, label = 'Backgrounds')
+plt.scatter(bins1[:-1]+ 0.5*(bins1[1:] - bins1[:-1]), pdf1, marker='.', c='y', s=30, alpha=0.8, label = 'ttDM signal')
+plt.legend(loc = 'upper center')
+plt.yscale('log')
+plt.ylabel('Density', fontsize = 12)
+plt.xlabel('DNN discriminant (Signal)', fontsize = 12)
+plt.savefig('Log_Discriminant_distribution'+ANALYSIS_NAME+'.png', dpi = 600)
+
+print("DONE!")
+##### --------------------------------
+print("")
+print("Plotting ROC-------------------------------------------------------------------------------------------------------------------------")
+fpr, tpr, thresholds = metrics.roc_curve(Y_test["isSignal"], y_pred_L)
+#fpr, tpr, thresholds = metrics.roc_curve(Y_test["isSignal"], y_pred_L[:, 1])
+auc = metrics.auc(fpr, tpr)
+
+plt.clf()
+plt.figure(num=None, figsize=(6, 6))
+plt.subplot(111)
+plt.plot(fpr, tpr, color = 'r', label = "ROC curve")
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label = "Random guess")
+plt.legend(loc = "lower right")
+plt.xlabel('False Positive rate', fontsize = 12)
+plt.ylabel('True Positive rate', fontsize = 12)
+plt.text(0.55, 0.3, f'AUC = {auc:.3f}', fontsize=12, color='r')
+plt.axvline(x=0, color = 'black', linestyle = '--', linewidth = 0.5)
+plt.axhline(y=1, color = 'black', linestyle = '--', linewidth = 0.5)
+plt.savefig('ROC'+ANALYSIS_NAME+'.png', dpi = 600)
+print("")
+print("The AUC of the model is: ", auc)
+
+print("DONE!")
+
+##### Feature importance
+print("")
+print("Plotting feature importance-----------------------------------------------------------------------------------------------------------")
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score
+
+# -----------------------------
+# Feature Importance for Keras DNN
+# -----------------------------
+
+X_val = np.array(X_test)
+y_val = np.array(Y_test["isSignal"])
+features = var  # list of feature names
+
+# --- 1) Manual Permutation Importance ---
+print("Computing permutation importance (manual, works with Keras)...")
+baseline_auc = roc_auc_score(y_val, model.predict(X_val))#[:, 1])
+
+importances = []
+for i in range(X_val.shape[1]):
+    X_permuted = X_val.copy()
+    np.random.shuffle(X_permuted[:, i])
+    permuted_auc = roc_auc_score(y_val, model.predict(X_permuted))#[:, 1])
+    importances.append(baseline_auc - permuted_auc)
+
+importances = np.array(importances)
+idx = np.argsort(importances)[::-1]
+
+plt.clf()
+plt.barh(np.array(features)[idx], importances[idx])
+plt.xlabel("Permutation Importance (Δ AUC)")
+plt.title("Feature Importance (Manual, Keras DNN)")
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.savefig("FeatureImportance_Keras_Permutation.png", dpi=600)
+print("Permutation importance plot saved.")
+
+# -----------------------------
+# Optional: SHAP feature importance
+# -----------------------------
+try:
+    import shap
+    HAS_SHAP = True
+except ImportError:
+    HAS_SHAP = False
+    print("SHAP not installed — skipping SHAP plots.")
+
+if HAS_SHAP:
+    print("Computing SHAP feature importance (subsampled for speed)...")
+
+    # Subsample to avoid huge memory
+    max_background = 200
+    if len(X_val) > max_background:
+        idx_sample = np.random.choice(len(X_val), max_background, replace=False)
+        X_background = X_val[idx_sample]
+    else:
+        X_background = X_val
+
+    # Create SHAP explainer
+    explainer = shap.Explainer(model, X_background)
+    shap_values = explainer(X_background)
+
+    # Beeswarm plot
+    plt.clf()
+    shap.summary_plot(shap_values, X_background, feature_names=features, show=False)
+    plt.title('Feature Importance - SHAP Values (Beeswarm)', fontsize=16)
+    plt.tight_layout()
+    plt.savefig('SHAP_Feature_importance_Beeswarm.png', dpi=600)
+
+    # Bar plot
+    plt.clf()
+    shap.summary_plot(shap_values, X_background, plot_type="bar", feature_names=features, show=False)
+    plt.title('Feature Importance - SHAP Values (Bar)', fontsize=16)
+    plt.tight_layout()
+    plt.savefig('SHAP_Feature_importance_Bar.png', dpi=600)
+
+    # Log-scale bar plot
+    plt.clf()
+    shap.summary_plot(shap_values, X_background, plot_type="bar", feature_names=features, show=False)
+    plt.xscale('log')
+    plt.title('Feature Importance - SHAP Values (Log Bar)', fontsize=16)
+    plt.tight_layout()
+    plt.savefig('SHAP_Feature_importance_LogBar.png', dpi=1200)
+
+    print("SHAP plots saved.")
+
+print("DONE!")
+
+print("")
+print("Finding and ploting correlation matrix-----------------------------------------------------------------------------------------------")
+import matplotlib.cm as cm
+m = np.corrcoef(X_train, rowvar=False) # Correlation matrix with numpy
+
+# Name of variable in order
+tickets = var
+## PLOTING
+fig, ax = plt.subplots(figsize=(20, 20))
+im = ax.matshow(abs(m))
+plt.colorbar(im)
+for (i, j), z in np.ndenumerate(m):
+    ax.text(j, i, '{:0.1f}'.format(abs(z)), ha='center', va='center')
+
+ax.set_xticks(np.arange(len(tickets)))
+ax.set_yticks(np.arange(len(tickets)))
+ax.set_xticklabels(tickets)
+ax.set_yticklabels(tickets)
+plt.setp(ax.get_xticklabels(), rotation=-45, ha="right", rotation_mode="anchor")
+ax.set_title("Correlation matrix")
+fig.tight_layout()
+plt.savefig('CorrelationMatrix'+ANALYSIS_NAME+'.png', dpi = 600)
+
+print("DONE!")
+
+print("")
+print("Finding and ploting correlation matrix for the signal events-------------------------------------------------------------------------")
+import matplotlib.cm as cm
+m = np.corrcoef(Sig[var], rowvar=False) # Correlation matrix with numpy
+
+# Name of variable in order
+tickets = var
+## PLOTING
+fig, ax = plt.subplots(figsize=(20, 20))
+im = ax.matshow(abs(m))
+plt.colorbar(im)
+for (i, j), z in np.ndenumerate(m):
+    ax.text(j, i, '{:0.1f}'.format(abs(z)), ha='center', va='center')
+
+ax.set_xticks(np.arange(len(tickets)))
+ax.set_yticks(np.arange(len(tickets)))
+ax.set_xticklabels(tickets)
+ax.set_yticklabels(tickets)
+plt.setp(ax.get_xticklabels(), rotation=-45, ha="right", rotation_mode="anchor")
+ax.set_title("Correlation matrix")
+fig.tight_layout()
+plt.savefig('CorrelationMatrix'+ANALYSIS_NAME+'Sig.png', dpi = 600)
+
+print("DONE!")
+print("")
+print("Finding and ploting correlation matrix for the background events---------------------------------------------------------------------")
+import matplotlib.cm as cm
+m = np.corrcoef(Bkg[var], rowvar=False) # Correlation matrix with numpy
+
+# Name of variable in order
+tickets = var
+## PLOTING
+fig, ax = plt.subplots(figsize=(20, 20))
+im = ax.matshow(abs(m))
+plt.colorbar(im)
+for (i, j), z in np.ndenumerate(m):
+    ax.text(j, i, '{:0.1f}'.format(abs(z)), ha='center', va='center')
+
+ax.set_xticks(np.arange(len(tickets)))
+ax.set_yticks(np.arange(len(tickets)))
+ax.set_xticklabels(tickets)
+ax.set_yticklabels(tickets)
+plt.setp(ax.get_xticklabels(), rotation=-45, ha="right", rotation_mode="anchor")
+ax.set_title("Correlation matrix")
+fig.tight_layout()
+plt.savefig('CorrelationMatrix'+ANALYSIS_NAME+'Bkg.png', dpi = 600)
+
+print("DONE!")
+print("")
+
+print("END OF THE ANALYS")
