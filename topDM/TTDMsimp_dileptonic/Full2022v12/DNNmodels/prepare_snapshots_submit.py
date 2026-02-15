@@ -21,7 +21,7 @@ def nanoGetSampleFiles(path, name):
 
 signalDirectory = '/eos/user/v/victorr/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
 
-mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/calderon/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__sblancof__l2tight'
+mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
 
 mPhi = ['10','50','100','150','200','250','300','350','400','500','600','700','800','1000']
 
