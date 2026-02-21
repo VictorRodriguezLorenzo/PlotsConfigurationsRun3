@@ -23,21 +23,21 @@ variables['mll'] = {
 }
 
 variables['mth'] = {
-    'name': 'cleanest_mth',
+    'name': 'mth',
     'range' : (60,0,200),
     'xaxis' : 'm_{T}^{H} [GeV]',
     'fold' : 0
 }
 
 variables['mtw1']  = {
-    'name': 'cleanest_mtw1',
+    'name': 'mtw1',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{1}} [GeV]',
     'fold' : 0
 }
 
 variables['mtw2']  = {
-    'name': 'cleanest_mtw2',
+    'name': 'mtw2',
     'range' : (50, 0.,100),
     'xaxis' : 'm_{T}^{W_{2}} [GeV]',
     'fold' : 0
@@ -122,19 +122,19 @@ variables['phi2']  = {
 }
 
 variables['jetdeepb']  = {
-    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (DeepB)',
     'fold' : 0
 }
 variables['jetpnetb']  = {
-    'name': 'Alt(Take(Jet_btagPNetB, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagPNetB, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (PNetB)',
     'fold' : 0
 }
 variables['jetrpartb']  = {
-    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanestJet_jetIdx), 0, -99)',
+    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanJet_jetIdx), 0, -99)',
     'range' : (30,0,1),
     'xaxis' : 'B tagger 1st jet (RPartB)',
     'fold' : 0
@@ -149,7 +149,7 @@ variables['trkMet']  = {
 }
 
 variables['puppimet']  = {
-    'name': 'cleanestPuppiMET_pt',
+    'name': 'PuppiMET_pt',
     'range' : (20,0,200),
     'xaxis' : 'Puppi MET p_{T} [GeV]',
     'fold' : 3
@@ -269,9 +269,24 @@ variables['dphi_ttbar']  = {
     'fold' : 0
 }
 
+variables['dphi_met_llb']  = {
+    'name': 'dphi_met_llb',
+    'range' : (30,0,3.14),
+    'xaxis' : '|#Delta#phi(MET,llb)|',
+    'fold' : 0
+}
+
 variables['tt_reco']  = {
     'name': 'doubleNu_producer[9]',
     'range' : (2,0,1),
     'xaxis' : 'tt-reco success?',
     'fold' : 3
 }
+
+### DISCRIMINANT FOR DNN ###
+variables['evaluate_dnn']  = { 'name': 'evaluate_dnn',
+                        'range' : (30,0,1),
+                        'xaxis' : 'DNN Discriminant',
+                        'fold' : 3
+                        }
+
