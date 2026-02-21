@@ -78,7 +78,7 @@ mPhi = ['800']
 '''
 # tt+DM dilepton scalar
 for phi in mPhi:
-    plot['TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
+    groupPlot[f'TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
             'nameHR' :  'TTto2LDM scalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
@@ -96,7 +96,7 @@ for phi in mPhi:
 '''
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
-    plot['TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
+    groupPlot[f'TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
             'nameHR' :  'TTto2LDM pseudoscalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
@@ -105,7 +105,7 @@ for phi in mPhi:
 
 # tt+DM inclusive pseudoscalar
 for phi in mPhi:
-    plot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
+    groupPlot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
             'nameHR' :  'TTtoDM pseudoscalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
@@ -223,7 +223,7 @@ plot['Fake']  = {
 '''
 # tt+DM dilepton scalar
 for phi in mPhi:
-    plot['TTto2LDMsimpSpin0_s_mphi_{phi}']  = {
+    plot['TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 2,
             'isData'   : 0,
@@ -232,7 +232,7 @@ for phi in mPhi:
 '''
 # tt+DM inclusive scalar
 for phi in mPhi:
-    plot[f'TTDMsimpSpin0_s_mphi_{phi}']  = {
+    plot[f'TTDMsimpSpin0_s_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 1,
             'isData'   : 0,
@@ -241,7 +241,7 @@ for phi in mPhi:
 '''
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
-    plot[f'TTto2LDMsimpSpin0_ps_mphi_{phi}']  = {
+    plot[f'TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 2,
             'isData'   : 0,
@@ -250,7 +250,7 @@ for phi in mPhi:
 
 # tt+DM inclusive pseudoscalar
 for phi in mPhi:
-    plot[f'TTDMsimpSpin0_ps_mphi_{phi}']  = {
+    plot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
             'color': 100, # kRed
             'isSignal' : 2,
             'isData'   : 0,

@@ -8,7 +8,9 @@ useXROOTD = False
 mcProduction = 'Summer24_150x_nAODv15_Full2024v15'
 #mcSteps      = 'MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
 mcSteps      = 'MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
-dataReco     = 'Run2024_ReRecoCDE_PromptFGHI_nAODv15_Full2024v15'
+dataRecoMuon     = 'Run2024_ReRecoCDE_PromptFGHI_nAODv15_Full2024v15_Muon'
+dataRecoMuonEG     = 'Run2024_ReRecoCDE_PromptFGHI_nAODv15_Full2024v15_MuonEG'
+dataRecoEGamma     = 'Run2024_ReRecoCDE_PromptFGHI_nAODv15_Full2024v15_EGamma'
 #dataSteps    = 'DATAl2loose2024v15__sblancof__l2loose'
 dataSteps    = 'DATAl2loose2024v15__l2loose'
 
@@ -30,9 +32,15 @@ def makeMCDirectory(var=""):
 
 
 mcDirectory   = makeMCDirectory()
-# fakeDirectory = os.path.join(treeBaseDir, dataReco, fakeSteps)
-dataDirectory = os.path.join(treeBaseDir, dataReco, dataSteps)
-fakeDirectory = dataDirectory
+dir_map = {
+    'MuonEG': os.path.join(treeBaseDir, dataRecoMuonEG, dataSteps),
+    'Muon0':  os.path.join(treeBaseDir, dataRecoMuon,   dataSteps),
+    'Muon1':  os.path.join(treeBaseDir, dataRecoMuon,   dataSteps),
+    'EGamma0': os.path.join(treeBaseDir, dataRecoEGamma, dataSteps),
+    'EGamma1': os.path.join(treeBaseDir, dataRecoEGamma, dataSteps),
+}
+
+fake_dir_map = dir_map.copy()
 
 samples = {}
 
@@ -133,7 +141,7 @@ for label in [
 samples['DY'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 15,
+    'FilesPerJob': 25,
 }
 
 ########## Single top #########
@@ -149,7 +157,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') \
 samples['ST'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 8
 }
 
 ########## TTTo2L2Nu #########
@@ -158,7 +166,7 @@ files = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu')
 samples['TTTo2L2Nu'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 15
+    'FilesPerJob': 3
 }
 
 ##### TTToSemiLeptonic #####
@@ -167,13 +175,13 @@ files = nanoGetSampleFiles(mcDirectory, 'TTToSemiLeptonic')
 samples['TTToSemiLeptonic'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 10
 }
 
 ########## TTV ##########
 files = nanoGetSampleFiles(mcDirectory, 'TTNuNu') \
-        + nanoGetSampleFiles(mcDirectory, 'TTLL-MLL4to50') \
-        + nanoGetSampleFiles(mcDirectory, 'TTLL-MLL-50') \
+        + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-4to50') \
+        + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-50') \
         + nanoGetSampleFiles(mcDirectory, 'TTZ-ZtoQQ') \
         + nanoGetSampleFiles(mcDirectory, 'TTLNu') \
         + nanoGetSampleFiles(mcDirectory, 'TTHtoNon2B') \
@@ -183,19 +191,19 @@ files = nanoGetSampleFiles(mcDirectory, 'TTNuNu') \
 samples['TTV'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 10
 }
 
 ######## TXX ##########
-files = nanoGetSampleFiles(mcDirectory, 'THW') \
-        + nanoGetSampleFiles(mcDirectory, 'THQ') \
+#files = nanoGetSampleFiles(mcDirectory, 'THW') \
+#        + nanoGetSampleFiles(mcDirectory, 'THQ') \
         #+ nanoGetSampleFiles(mcDirectory, 'TWZ')
 
-samples['TXX'] = {
-    'name': files,
-    'weight': mcCommonWeight,
-    'FilesPerJob': 5
-}
+#samples['TXX'] = {
+#    'name': files,
+#    'weight': mcCommonWeight,
+#    'FilesPerJob': 5
+#}
 
 ########## VV ###########
 files = nanoGetSampleFiles(mcDirectory, 'WWTo2L2Nu')
@@ -203,7 +211,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWTo2L2Nu')
 samples['WW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 15
+    'FilesPerJob': 20
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WZ')
@@ -211,7 +219,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WZ')
 samples['WZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 15
+    'FilesPerJob': 20
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'ZZ')
@@ -219,7 +227,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ZZ')
 samples['ZZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 15
+    'FilesPerJob': 20
 }
 
 ######## VVV #########
@@ -229,7 +237,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWW')
 samples['WWW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 4
+    'FilesPerJob': 8
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WWZ')
@@ -237,7 +245,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWZ')
 samples['WWZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 8
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WZZ')
@@ -245,7 +253,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WZZ')
 samples['WZZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 8
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'ZZZ')
@@ -253,7 +261,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ZZZ')
 samples['ZZZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 8
 }
 
 ######## Other ########
@@ -303,28 +311,28 @@ for phi in mPhi:
             'FilesPerJob': 1
             }
 '''
+
 ###########################################
 ################## FAKE ###################
 ###########################################
 
 samples['Fake'] = {
-  'name': [],
-  'weight': 'METFilter_DATA*fakeW',
-  'weights': [],
-  'isData': ['all'],
-  'FilesPerJob': 50
+    'name': [],
+    'weight': 'METFilter_DATA*fakeW',
+    'weights': [],
+    'isData': ['all'],
+    'FilesPerJob': 50
 }
 
 for _, sd in DataRun:
-  for pd in DataSets:
-    tag = pd + '_' + sd
+    for pd in DataSets:
+        tag = f"{pd}_{sd}"
+        files = nanoGetSampleFiles(fake_dir_map[pd], tag)
 
-    files = nanoGetSampleFiles(fakeDirectory, tag)
+        samples['Fake']['name'].extend(files)
+        addSampleWeight(samples, 'Fake', tag, DataTrig[pd])
 
-    samples['Fake']['name'].extend(files)
-    addSampleWeight(samples, 'Fake', tag, DataTrig[pd])
 
-    
 ###########################################
 ################## DATA ###################
 ###########################################
@@ -332,19 +340,18 @@ for _, sd in DataRun:
 samples['DATA'] = {
     'name': [],
     'weight': 'LepWPCut*METFilter_DATA',
-    #'weight': 'METFilter_DATA',
     'weights': [],
     'isData': ['all'],
     'FilesPerJob': 70
 }
 
 for _, sd in DataRun:
-  for pd in DataSets:
-    datatag = pd + '_' + sd
+    for pd in DataSets:
+        datatag = f"{pd}_{sd}"
+        files = nanoGetSampleFiles(dir_map[pd], datatag)
 
-    files = nanoGetSampleFiles(dataDirectory, datatag)
+        print(datatag)
 
-    print(datatag)
+        samples['DATA']['name'].extend(files)
+        addSampleWeight(samples, 'DATA', datatag, DataTrig[pd])
 
-    samples['DATA']['name'].extend(files)
-    addSampleWeight(samples, 'DATA', datatag, DataTrig[pd])

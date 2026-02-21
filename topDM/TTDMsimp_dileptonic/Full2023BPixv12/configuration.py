@@ -24,11 +24,9 @@ lumi = 9.451
 
 # file with dict of aliases to define
 aliasesFile = "aliases.py"
-#aliasesFile = "aliasesVetoEvents.py"
 
 # file with dict of variables
 variablesFile = "variables.py"
-#variablesFile = "variablesVetoEvents.py"
 
 # file with dict of cuts
 cutsFile = "cuts.py"

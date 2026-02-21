@@ -74,17 +74,16 @@ groupPlot['Fake']  = {
 '''
 #mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
 '''
-mPhi = ['800']
+mPhi = ['10']
 '''
 # tt+DM dilepton scalar
 for phi in mPhi:
-    plot['TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
+    groupPlot['TTto2LDMsimpSpin0_s_mphi-{phi}']  = {
             'nameHR' :  'TTto2LDM scalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
             'samples'  : [f'TTto2LDMsimpSpin0_s_mphi-{phi}']
             }
-'''
 # tt+DM inclusive scalar
 for phi in mPhi:
    groupPlot[f'TTDMsimpSpin0_s_mphi-{phi}']  = {
@@ -93,19 +92,18 @@ for phi in mPhi:
             'color': 632, # kRed 
             'samples'  : [f'TTDMsimpSpin0_s_mphi-{phi}']
             }
-'''
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
-    plot['TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
+    groupPlot['TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
             'nameHR' :  'TTto2LDM pseudoscalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
             'samples'  : [f'TTto2LDMsimpSpin0_ps_mphi-{phi}']
             }
-
+'''
 # tt+DM inclusive pseudoscalar
 for phi in mPhi:
-    plot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
+    groupPlot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
             'nameHR' :  'TTtoDM pseudoscalar m_{phi}=' + phi,
             'isSignal' : 2,
             'color': 100, # kRed 
@@ -113,7 +111,6 @@ for phi in mPhi:
             }
 
 
-'''
 
 plot = {}
 
@@ -248,6 +245,7 @@ for phi in mPhi:
             'isData'   : 0,
             'scale'    : 1.0
             }
+'''
 # tt+DM inclusive pseudoscalar
 for phi in mPhi:
     plot[f'TTDMsimpSpin0_ps_mphi-{phi}']  = {
@@ -256,7 +254,7 @@ for phi in mPhi:
             'isData'   : 0,
             'scale'    : 1.0
             }
-'''
+
 # data
 
 plot['DATA']  = { 
@@ -264,7 +262,7 @@ plot['DATA']  = {
     'color'    : 1 ,  
     'isSignal' : 0,
     'isData'   : 1 ,
-    'isBlind'  : 0
+    'isBlind'  : 1
 }
 
 
