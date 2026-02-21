@@ -3,15 +3,26 @@
 import numpy as np
 from tensorflow.keras.models import load_model
 import os
+import joblib
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
 # Load the model
-model = load_model('/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022EEv12/DNNmodels/Models/model_dnn_model_DNN_.h5', compile = False)
+model = load_model('/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022EEv12/DNNmodels/Models/model_dnn_model.h5', compile = False)
+
+# Load scaler
+scaler = joblib.load(
+    "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022EEv12/DNNmodels/Models/scaler_dnn_model.pkl"
+)
+
+feature_names = scaler.feature_names_in_
 
 def load_neural_network(inputs):
     try:
-        result = model.predict(np.array(inputs).reshape(1, -1), verbose = 0)
-        return [result[0][0]]
+        df = pd.DataFrame([inputs], columns=feature_names)
+        inputs_scaled = scaler.transform(df)
+        result = model.predict(inputs_scaled, verbose=0)
+        print(float(result[0][0]))
+        return [float(result[0][0])]
     except Exception as e:
         return [-99.9]
 

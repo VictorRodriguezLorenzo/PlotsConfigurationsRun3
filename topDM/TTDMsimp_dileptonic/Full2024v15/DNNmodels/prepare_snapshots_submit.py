@@ -4,7 +4,7 @@ import subprocess
 from mkShapesRDF.lib.search_files import SearchFiles
 
 # ============================================================
-# SAME FILE DISCOVERY STRUCTURE AS ORIGINAL
+# FILE DISCOVERY STRUCTURE
 # ============================================================
 
 searchFiles = SearchFiles()
@@ -42,13 +42,13 @@ for phi in mPhi:
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     files_ttDM_temp[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}')
+        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}')
     }
 
 # tt+DM inclusive scalar
 for phi in mPhi:
     files_ttDM_temp[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}')
+        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}')
     }
 
 files_ttDM = files_ttDM_temp.copy()
@@ -57,10 +57,23 @@ for key, value in list(files_ttDM_temp.items()):
         del files_ttDM[key]
 
 files_top = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
-    nanoGetSampleFiles(mcDirectory,'ST_t-channel_top') + \
-    nanoGetSampleFiles(mcDirectory,'ST_t-channel_antitop')
+            nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_t-channel_antitop') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_s-channel_plus') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_s-channel_minus') + \
+            nanoGetSampleFiles(mcDirectory, 'TWminusto2L2Nu') + \
+            nanoGetSampleFiles(mcDirectory, 'TbarWplusto2L2Nu') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_tW_top') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_tW_antitop')
 
-files_BKG = files_top
+#files_DY = nanoGetSampleFiles(mcDirectory, 'DYto2E-2Jets_MLL-50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Mu-2Jets_MLL-50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Tau-2Jets_MLL-50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2E-2Jets_MLL-10to50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Mu-2Jets_MLL-10to50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Tau-2Jets_MLL-10to50') 
+
+files_BKG = files_top #+ files_DY
 
 # ============================================================
 # FLATTEN LIST

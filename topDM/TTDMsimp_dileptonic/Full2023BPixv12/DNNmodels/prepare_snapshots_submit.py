@@ -4,7 +4,7 @@ import subprocess
 from mkShapesRDF.lib.search_files import SearchFiles
 
 # ============================================================
-# SAME FILE DISCOVERY STRUCTURE AS ORIGINAL
+# FILE DISCOVERY STRUCTURE 
 # ============================================================
 
 searchFiles = SearchFiles()
@@ -19,9 +19,9 @@ def nanoGetSampleFiles(path, name):
     return _files
 
 
-signalDirectory = '/eos/user/v/victorr/HWWNano/Summer23BPix_130x_nAODv12_Full2023v12/MCl2loose2023BPixv12__MCCorr2023Bixv12JetScaling__l2tight'
+signalDirectory = '/eos/user/v/victorr/HWWNano/Summer23BPix_130x_nAODv12_Full2023BPixv12/MCl2loose2023BPixv12__MCCorr2023BPixv12JetScaling__l2tight'
 
-mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer23BPix_130x_nAODv12_Full2023v12/MCl2loose2023BPixv12__MCCorr2023Bixv12JetScaling__l2tight'
+mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer23BPix_130x_nAODv12_Full2023BPixv12/MCl2loose2023BPixv12__MCCorr2023BPixv12JetScaling__l2tight'
 
 mPhi = ['10','50','100','150','200','250','300','350','400','500','600','700','800','1000']
 
@@ -42,13 +42,13 @@ for phi in mPhi:
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     files_ttDM_temp[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}')
+        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}')
     }
 
 # tt+DM inclusive scalar
 for phi in mPhi:
     files_ttDM_temp[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}')
+        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}')
     }
 
 files_ttDM = files_ttDM_temp.copy()
@@ -57,10 +57,19 @@ for key, value in list(files_ttDM_temp.items()):
         del files_ttDM[key]
 
 files_top = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
-    nanoGetSampleFiles(mcDirectory,'ST_t-channel_top') + \
-    nanoGetSampleFiles(mcDirectory,'ST_t-channel_antitop')
+            nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_t-channel_antitop') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_s-channel_plus') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_s-channel_minus') + \
+            nanoGetSampleFiles(mcDirectory, 'TWminusto2L2Nu') + \
+            nanoGetSampleFiles(mcDirectory, 'TbarWplusto2L2Nu') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_tW_top') + \
+            nanoGetSampleFiles(mcDirectory, 'ST_tW_antitop')
 
-files_BKG = files_top
+#files_DY = nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-10to50')
+
+files_BKG = files_top #+ files_DY
 
 # ============================================================
 # FLATTEN LIST
@@ -106,7 +115,7 @@ executable  = run_snapshot.sh
 arguments   = $(inputfile)
 
 should_transfer_files = YES
-transfer_input_files = /afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2024v15/DNNmodels/prepare_training_snapshots.py
+transfer_input_files = /afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/prepare_training_snapshots.py
 
 output      = condor_logs/job_$(Cluster)_$(Process).out
 error       = condor_logs/job_$(Cluster)_$(Process).err

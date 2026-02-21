@@ -2,15 +2,19 @@ import ROOT
 import glob
 import pandas as pd
 import numpy as np
+import os
 import re
 import matplotlib.pyplot as plt
 
+import tensorflow as tf
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
+from tensorflow.keras import callbacks, optimizers
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import roc_curve, auc, classification_report, roc_auc_score
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from tensorflow.keras import callbacks, optimizers
 
 from sklearn import metrics
 
@@ -29,20 +33,71 @@ MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/
 
 # Branches to load
 var = [
-    'dphill',
-    'PuppiMET_pt',
-    'mT2',
-    'pdark',
-    'chel',
-    'dphi_ttbar',
-    'dphi_met_llb',
+'lep_pt1',
+'lep_pt2',
+'lep_eta1',
+'lep_eta2',
+
+'mll',
+'ptll',
+'drll',
+'detall',
+'dphill',
+'yll',
+
+'PuppiMET_pt',
+'PuppiMET_phi',
+'dphilmet',
+'dphilmet1',
+'dphilmet2',
+'dphillmet',
+
+'mtw1',
+'mtw2',
+'mth',
+'mTi',
+'mR',
+'mT2',
+'mTe',
+
+'recoil',
+'upara',
+'uperp',
+'pTWW',
+
+'mcoll',
+'mcollWW',
+'choiMass',
+
+'nbjet_jet_ratio',
+'njet',
+'ht',
+'vht_pt',
+'dphijet1met',
+'dphijet2met',
+'dphijjmet',
+
+'chel',
+'pdark',
+'dphi_ttbar',
+'dphi_met_llb'
 ]
+
+#var = [
+#    'dphill',
+#    'PuppiMET_pt',
+#    'mT2',
+#    'pdark',
+#    'chel',
+#    'dphi_ttbar',
+#    'dphi_met_llb',
+#]
 
 # Find all snapshot ROOT files
 files = glob.glob("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/files_for_training/*.root")
 
 # Define background substrings
-bkg_names = ['TTTo2L2Nu', 'ST_t-channel_top', 'ST_t-channel_antitop']
+bkg_names = ['TTTo2L2Nu', 'ST_t-channel_top', 'ST_t-channel_antitop', 'ST_s-channel_plus', 'ST_s-channel_minus', 'TWminusto2L2Nu', 'TbarWplusto2L2Nu', 'ST_tW_top', 'ST_tW_antitop', 'DYto2L-2Jets_MLL-50', 'DYto2L-2Jets_MLL-10to50']
 
 # Sort files
 files_bkg = [f for f in files if any(name in f for name in bkg_names)]
@@ -150,44 +205,96 @@ X_train, X_test, Y_train, Y_test = train_test_split(
     random_state=6
 )
 
+scaler = StandardScaler()
+
+# Scale
+X_train_scaled = scaler.fit_transform(X_train)
+
+# Apply same transformation to test
+X_test_scaled = scaler.transform(X_test)
+
 # ============================================================
-# SAME MODEL — UNCHANGED
+# MODEL
 # ============================================================
 
-model = Sequential()
-model.add(Dense(128, activation='relu', input_dim=len(var)))
-model.add(Dense(64, activation='relu'))
-model.add(Dense(32, activation='relu'))
-model.add(Dense(8, activation='relu'))
-model.add(Dense(1, activation='sigmoid'))
+model = Sequential([
+    Dense(128, activation='relu', input_dim=len(var)),
+    BatchNormalization(),
+    Dropout(0.3),
+
+    Dense(64, activation='relu'),
+    BatchNormalization(),
+    Dropout(0.3),
+
+    Dense(32, activation='relu'),
+    Dense(8, activation='relu'),
+    Dense(1, activation='sigmoid')
+])
 
 model.compile(
     loss='binary_crossentropy',
-    optimizer=optimizers.RMSprop(0.00015),
-    metrics=['accuracy']
+    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
+    metrics=[tf.keras.metrics.AUC(name="auc")]
+)
+
+early = callbacks.EarlyStopping(
+    monitor='val_auc',
+    mode='max',
+    patience=15,
+    restore_best_weights=True
+)
+
+reduce_lr = callbacks.ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,
+    patience=8,
+    min_lr=1e-6,
+    verbose=1
 )
 
 training = model.fit(
-    X_train[var].values,
+    X_train_scaled,
     Y_train,
     epochs=300,
     validation_split=0.15,
-    batch_size=128,
-    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=20)],
+    batch_size=32,
+    callbacks=[early, reduce_lr],
     verbose=2,
     shuffle=True
 )
+
+# Get history
+loss = training.history['loss']
+val_loss = training.history['val_loss']
+
+epochs = range(1, len(loss) + 1)
+
+plt.figure()
+plt.plot(epochs, loss)
+plt.plot(epochs, val_loss)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Training and Validation Loss')
+plt.legend(['Train Loss', 'Validation Loss'])
+plt.grid(True)
+plt.yscale('log')
+
+os.makedirs("./Plots", exist_ok=True)
+plt.savefig(f'./Plots/loss_{ANALYSIS_NAME}.png', dpi=300, bbox_inches='tight')
+
+plt.close()
 
 if save_model and loaded_model == False:
     print("")
     print("The current used Machine Learning model is being saved:")
     print("")
-
+    os.makedirs("./Models", exist_ok=True)
+    joblib.dump(scaler, './Models/scaler_'+ANALYSIS_NAME+'.pkl')
     model.save('./Models/model_'+ANALYSIS_NAME+'.h5')
 
 ##### FOR THE DEEP NEURAL NETWORK ######
-y_pred = model.predict(X_test)
-y_pred_t = model.predict(X_train)
+y_pred = model.predict(X_test_scaled)
+y_pred_t = model.predict(X_train_scaled)
 
 y_pred_L = y_pred
 y_pred_t_L = y_pred_t
@@ -242,7 +349,7 @@ plt.scatter(bins1[:-1]+ 0.5*(bins1[1:] - bins1[:-1]), pdf1, marker='.', c='y', s
 plt.legend(loc = 'upper center')
 plt.ylabel('Density', fontsize = 12)
 plt.xlabel('DNN discriminant', fontsize = 12)
-plt.savefig('Discriminant_distribution'+ANALYSIS_NAME+'.png', dpi = 600)
+plt.savefig('./Plots/Discriminant_distribution'+ANALYSIS_NAME+'.png', dpi = 600)
 
 plt.clf()
 plt.figure(num=None, figsize=(6, 6))
@@ -263,7 +370,7 @@ plt.legend(loc = 'upper center')
 plt.yscale('log')
 plt.ylabel('Density', fontsize = 12)
 plt.xlabel('DNN discriminant (Signal)', fontsize = 12)
-plt.savefig('Log_Discriminant_distribution'+ANALYSIS_NAME+'.png', dpi = 600)
+plt.savefig('./Plots/Log_Discriminant_distribution'+ANALYSIS_NAME+'.png', dpi = 600)
 
 print("DONE!")
 ##### --------------------------------
@@ -284,7 +391,7 @@ plt.ylabel('True Positive rate', fontsize = 12)
 plt.text(0.55, 0.3, f'AUC = {auc:.3f}', fontsize=12, color='r')
 plt.axvline(x=0, color = 'black', linestyle = '--', linewidth = 0.5)
 plt.axhline(y=1, color = 'black', linestyle = '--', linewidth = 0.5)
-plt.savefig('ROC'+ANALYSIS_NAME+'.png', dpi = 600)
+plt.savefig('./Plots/ROC'+ANALYSIS_NAME+'.png', dpi = 600)
 print("")
 print("The AUC of the model is: ", auc)
 
@@ -302,7 +409,7 @@ from sklearn.metrics import roc_auc_score
 # Feature Importance for Keras DNN
 # -----------------------------
 
-X_val = np.array(X_test)
+X_val = np.array(X_test_scaled)
 y_val = np.array(Y_test["isSignal"])
 features = var  # list of feature names
 
@@ -326,7 +433,7 @@ plt.xlabel("Permutation Importance (Δ AUC)")
 plt.title("Feature Importance (Manual, Keras DNN)")
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.savefig("FeatureImportance_Keras_Permutation.png", dpi=600)
+plt.savefig("./Plots/FeatureImportance_Keras_Permutation.png", dpi=600)
 print("Permutation importance plot saved.")
 
 # -----------------------------
@@ -359,14 +466,14 @@ if HAS_SHAP:
     shap.summary_plot(shap_values, X_background, feature_names=features, show=False)
     plt.title('Feature Importance - SHAP Values (Beeswarm)', fontsize=16)
     plt.tight_layout()
-    plt.savefig('SHAP_Feature_importance_Beeswarm.png', dpi=600)
+    plt.savefig('./Plots/SHAP_Feature_importance_Beeswarm.png', dpi=600)
 
     # Bar plot
     plt.clf()
     shap.summary_plot(shap_values, X_background, plot_type="bar", feature_names=features, show=False)
     plt.title('Feature Importance - SHAP Values (Bar)', fontsize=16)
     plt.tight_layout()
-    plt.savefig('SHAP_Feature_importance_Bar.png', dpi=600)
+    plt.savefig('./Plots/SHAP_Feature_importance_Bar.png', dpi=600)
 
     # Log-scale bar plot
     plt.clf()
@@ -374,7 +481,7 @@ if HAS_SHAP:
     plt.xscale('log')
     plt.title('Feature Importance - SHAP Values (Log Bar)', fontsize=16)
     plt.tight_layout()
-    plt.savefig('SHAP_Feature_importance_LogBar.png', dpi=1200)
+    plt.savefig('./Plots/SHAP_Feature_importance_LogBar.png', dpi=1200)
 
     print("SHAP plots saved.")
 
@@ -383,7 +490,7 @@ print("DONE!")
 print("")
 print("Finding and ploting correlation matrix-----------------------------------------------------------------------------------------------")
 import matplotlib.cm as cm
-m = np.corrcoef(X_train, rowvar=False) # Correlation matrix with numpy
+m = np.corrcoef(X_train_scaled, rowvar=False) # Correlation matrix with numpy
 
 # Name of variable in order
 tickets = var
@@ -401,7 +508,7 @@ ax.set_yticklabels(tickets)
 plt.setp(ax.get_xticklabels(), rotation=-45, ha="right", rotation_mode="anchor")
 ax.set_title("Correlation matrix")
 fig.tight_layout()
-plt.savefig('CorrelationMatrix'+ANALYSIS_NAME+'.png', dpi = 600)
+plt.savefig('./Plots/CorrelationMatrix'+ANALYSIS_NAME+'.png', dpi = 60)
 
 print("DONE!")
 
@@ -426,7 +533,7 @@ ax.set_yticklabels(tickets)
 plt.setp(ax.get_xticklabels(), rotation=-45, ha="right", rotation_mode="anchor")
 ax.set_title("Correlation matrix")
 fig.tight_layout()
-plt.savefig('CorrelationMatrix'+ANALYSIS_NAME+'Sig.png', dpi = 600)
+plt.savefig('./Plots/CorrelationMatrix'+ANALYSIS_NAME+'Sig.png', dpi = 60)
 
 print("DONE!")
 print("")
@@ -450,9 +557,9 @@ ax.set_yticklabels(tickets)
 plt.setp(ax.get_xticklabels(), rotation=-45, ha="right", rotation_mode="anchor")
 ax.set_title("Correlation matrix")
 fig.tight_layout()
-plt.savefig('CorrelationMatrix'+ANALYSIS_NAME+'Bkg.png', dpi = 600)
+plt.savefig('./Plots/CorrelationMatrix'+ANALYSIS_NAME+'Bkg.png', dpi = 60)
 
 print("DONE!")
 print("")
 
-print("END OF THE ANALYS")
+print("END OF THE ANALYSIS")

@@ -19,20 +19,71 @@ outfile = os.path.join(
 )
 
 # ============================================================
-# SAME VARIABLE LIST — UNCHANGED
+# VARIABLE LIST
 # ============================================================
 var = [
-  'dphill',
-  'PuppiMET_pt',
-  'mT2',
-  'pdark',
-  'chel',
-  'dphi_ttbar',
-  'dphi_met_llb',
+'lep_pt1',
+'lep_pt2',
+'lep_eta1',
+'lep_eta2',
+
+'mll',
+'ptll',
+'drll',
+'detall',
+'dphill',
+'yll',
+
+'PuppiMET_pt',
+'PuppiMET_phi',
+'dphilmet',
+'dphilmet1',
+'dphilmet2',
+'dphillmet',
+
+'mtw1',
+'mtw2',
+'mth',
+'mTi',
+'mR',
+'mT2',
+'mTe',
+
+'recoil',
+'upara',
+'uperp',
+'pTWW',
+
+'mcoll',
+'mcollWW',
+'choiMass',
+
+'nbjet_jet_ratio',
+'njet',
+'ht',
+'vht_pt',
+'dphijet1met',
+'dphijet2met',
+'dphijjmet',
+
+'chel',
+'pdark',
+'dphi_ttbar',
+'dphi_met_llb'
 ]
 
+#var = [
+#  'dphill',
+#  'PuppiMET_pt',
+#  'mT2',
+#  'pdark',
+#  'chel',
+#  'dphi_ttbar',
+#  'dphi_met_llb',
+#]
+
 # ============================================================
-# SAME DECLARATIONS — COPIED EXACTLY
+# DECLARATIONS
 # ============================================================
 
 ROOT.gROOT.ProcessLine(
@@ -182,26 +233,64 @@ RVecF doubleNu_producer(
 
 df = ROOT.RDataFrame("Events", input_file)
 
-bWP = '0.0583'
-bAlgo = 'DeepFlavB'
+# Algo / WP / WP cut
+btagging_WPs = {
+    "DeepFlavB" : {
+        "loose"    : "0.0480",
+        "medium"   : "0.2435",
+        "tight"    : "0.6563",
+        "xtight"   : "0.7671",
+        "xxtight"  : "0.9483",
+    },
+    "UParTAK4B" : {
+        "loose"    : "0.0246",
+        "medium"   : "0.1272",
+        "tight"    : "0.4648",
+        "xtight"   : "0.6298",
+        "xxtight"  : "0.9739",
+    },
+    "PNetB" : {
+        "loose"    : "0.0359",
+        "medium"   : "0.1919",
+        "tight"    : "0.6133",
+        "xtight"   : "0.7544",
+        "xxtight"  : "0.9688",
+    }
+}
+
+# Algo / SF name
+btagging_SFs = {
+    "DeepFlavB"      : "deepjet",
+    "UParTAK4B"      : "UnifiedParT",
+    "PNetB"          : "partNet",
+}
+
+# Algorithm and WP selection
+bAlgo = 'PNetB' # ['DeepFlavB','UParTAK4B','PNetB'] 
+bWP    = 'medium'     # ['loose','medium','tight','xtight','xxtight']
 
 df = df.Define(
 "doubleNu",
-"doubleNu_producer(nCleanJet, CleanJet_pt, CleanJet_eta, CleanJet_phi, CleanJet_mass, CleanJet_jetIdx, nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId, PuppiMET_pt, PuppiMET_phi, Jet_btag{0}, {1})".format(bAlgo, bWP)
+"doubleNu_producer(nCleanJet, CleanJet_pt, CleanJet_eta, CleanJet_phi, CleanJet_mass, CleanJet_jetIdx, nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId, PuppiMET_pt, PuppiMET_phi, Jet_btag{0}, {1})".format(bAlgo, btagging_WPs[bAlgo][bWP])
 )
 
+df = df.Define("lep_eta1", "Lepton_eta[0]")
+df = df.Define("lep_eta2", "Lepton_eta[1]")
+df = df.Define("lep_pt1", "Lepton_pt[0]")
+df = df.Define("lep_pt2", "Lepton_pt[1]")
+df = df.Define("nbjet_jet_ratio", 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})/njet'.format(bAlgo, btagging_WPs[bAlgo][bWP]))
 df = df.Define("mT2",'computeMT2(Lepton_pt[0],Lepton_eta[0],Lepton_phi[0],Lepton_pt[1],Lepton_eta[1],Lepton_phi[1],PuppiMET_pt,PuppiMET_phi)')
 df = df.Define("pdark","doubleNu[8]")
 df = df.Define("chel","doubleNu[6]")
 df = df.Define("dphi_ttbar","doubleNu[7]")
 df = df.Define("tt_reco","doubleNu[9]")
-df = df.Define("bjet_idx",'(nCleanJet > 0 && Jet_btag{algo}[CleanJet_jetIdx[0]] > {wp}) ? 0 : (nCleanJet > 1 && Jet_btag{algo}[CleanJet_jetIdx[1]] > {wp}) ? 1 : (nCleanJet > 2 && Jet_btag{algo}[CleanJet_jetIdx[2]] > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=bWP))
+df = df.Define("bjet_idx",'(nCleanJet > 0 && Jet_btag{algo}[CleanJet_jetIdx[0]] > {wp}) ? 0 : (nCleanJet > 1 && Jet_btag{algo}[CleanJet_jetIdx[1]] > {wp}) ? 1 : (nCleanJet > 2 && Jet_btag{algo}[CleanJet_jetIdx[2]] > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP]))
 df = df.Define("dphi_met_llb","abs(DeltaPhi(PuppiMET_phi, atan2(Lepton_pt[0]*sin(Lepton_phi[0]) + Lepton_pt[1]*sin(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*sin(CleanJet_phi[bjet_idx]), Lepton_pt[0]*cos(Lepton_phi[0]) + Lepton_pt[1]*cos(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*cos(CleanJet_phi[bjet_idx]))))")
 df = df.Define("noJetInHorn","Jet_inHorns(CleanJet_pt, CleanJet_eta)")
-df = df.Define("bReq",'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(bAlgo, bWP))
+df = df.Define("bReq",'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(bAlgo, btagging_WPs[bAlgo][bWP]))
 
 # ============================================================
-# FILTER — UNCHANGED
+# FILTER 
 # ============================================================
 
 df = df.Filter(
@@ -209,7 +298,8 @@ df = df.Filter(
 "(abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) && "
 "Lepton_pt[0]>25 && Lepton_pt[1]>20 && Alt(Lepton_pt,2, 0)<10 && "
 "abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 && "
-"mll > 20 && noJetInHorn && bReq && tt_reco"
+"mll > 20 && noJetInHorn && bReq && tt_reco && "
+"mT2 > 80 && (!(abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) || abs(91.1876 - mll) > 15)"
 )
 
 # ============================================================
