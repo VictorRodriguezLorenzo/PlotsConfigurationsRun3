@@ -1,5 +1,5 @@
-#ifndef EVALUATE_DNN_DARK_HIGGS
-#define EVALUATE_DNN_DARK_HIGGS
+#ifndef EVALUATE_DNN_TTDM
+#define EVALUATE_DNN_TTDM
 
 #include <vector>
 #include <iostream>

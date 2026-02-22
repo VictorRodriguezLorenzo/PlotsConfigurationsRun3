@@ -22,7 +22,6 @@ def load_neural_network(inputs):
         df = pd.DataFrame([inputs], columns=feature_names)
         inputs_scaled = scaler.transform(df)
         result = model.predict(inputs_scaled, verbose=0)
-        print(float(result[0][0]))
         return [float(result[0][0])]
     except Exception as e:
         return [-99.9]
