@@ -758,25 +758,18 @@ public:
             }
 
             if (!result.solutions.empty()) {
-                auto pairResidualSq = [&](const NuPair& pair) {
-                    if (!std::isfinite(pair.first[0]) || !std::isfinite(pair.first[1]) ||
-                        !std::isfinite(pair.second[0]) || !std::isfinite(pair.second[1])) {
-                        return std::numeric_limits<double>::infinity();
-                    }
-                    double dx = (pair.first[0] + pair.second[0]) - met_x;
-                    double dy = (pair.first[1] + pair.second[1]) - met_y;
-                    double res = dx * dx + dy * dy;
-                    return std::isfinite(res) ? res : std::numeric_limits<double>::infinity();
-                };
-
                 std::stable_sort(
                     result.solutions.begin(),
                     result.solutions.end(),
                     [&](const NuPair& a, const NuPair& b) {
-                        return pairResidualSq(a) < pairResidualSq(b);
+                        const double mttA = combinedTTbarMass(a, B1, B2, L1, L2);
+                        const double mttB = combinedTTbarMass(b, B1, B2, L1, L2);
+                        if (mttA != mttB) {
+                            return mttA < mttB;
+                        }
+                        return metResidual(a, met_x, met_y) < metResidual(b, met_x, met_y);
                     }
                 );
-
             }
             return result;
         };
@@ -784,10 +777,10 @@ public:
         PairingResult pairing1 = try_pairing(b1, b2, l1, l2);
         PairingResult pairing2 = try_pairing(b1, b2, l2, l1);
 
-        double residual1 = metResidual(pairing1, met_x, met_y);
-        double residual2 = metResidual(pairing2, met_x, met_y);
+        double score1 = pairingScore(pairing1, b1, b2, l1, l2, met_x, met_y);
+        double score2 = pairingScore(pairing2, b1, b2, l2, l1, met_x, met_y);
 
-        if (residual1 <= residual2) {
+        if (score1 <= score2) {
             nunu_s = pairing1.solutions;
             H1.ResizeTo(pairing1.H1.GetNrows(), pairing1.H1.GetNcols());
             H2.ResizeTo(pairing1.H2.GetNrows(), pairing1.H2.GetNcols());
@@ -865,6 +858,7 @@ public:
 
     bool usedMinimizerFallback() const { return usedMinimizerFallback_; }
 
+
     std::vector<double> allSolutionsFlat() const {
         std::vector<double> flat;
         flat.reserve(nunu_s.size() * 4);
@@ -912,15 +906,65 @@ private:
                std::isfinite(pair.second[1]);
     }
 
-    static double metResidual(const PairingResult& res, double met_x, double met_y) {
+    static TLorentzVector neutrinoP4(const std::array<double, 2>& nuPt) {
+        TLorentzVector nu;
+        if (!std::isfinite(nuPt[0]) || !std::isfinite(nuPt[1])) {
+            nu.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
+            return nu;
+        }
+
+        const double px = nuPt[0];
+        const double py = nuPt[1];
+        const double p2 = px * px + py * py;
+        const double e = (p2 > 0.0) ? std::sqrt(p2) : 0.0;
+        nu.SetPxPyPzE(px, py, 0.0, e);
+        return nu;
+    }
+
+    static double combinedTTbarMass(const NuPair& pair,
+                                    const TLorentzVector& B1,
+                                    const TLorentzVector& B2,
+                                    const TLorentzVector& L1,
+                                    const TLorentzVector& L2) {
+        if (!isFinitePair(pair)) {
+            return std::numeric_limits<double>::infinity();
+        }
+
+        TLorentzVector top1 = B1 + L1 + neutrinoP4(pair.first);
+        TLorentzVector top2 = B2 + L2 + neutrinoP4(pair.second);
+        const double mtt = (top1 + top2).M();
+        return std::isfinite(mtt) ? mtt : std::numeric_limits<double>::infinity();
+    }
+
+    static double metResidual(const NuPair& pair, double met_x, double met_y) {
+        if (!isFinitePair(pair)) {
+            return std::numeric_limits<double>::infinity();
+        }
+
+        const double sumx = pair.first[0] + pair.second[0];
+        const double sumy = pair.first[1] + pair.second[1];
+        const double residual = std::hypot(sumx - met_x, sumy - met_y);
+        return std::isfinite(residual) ? residual : std::numeric_limits<double>::infinity();
+    }
+
+    static double pairingScore(const PairingResult& res,
+                               const TLorentzVector& B1,
+                               const TLorentzVector& B2,
+                               const TLorentzVector& L1,
+                               const TLorentzVector& L2,
+                               double met_x,
+                               double met_y) {
         if (res.solutions.empty()) {
             return std::numeric_limits<double>::infinity();
         }
+
         const auto& best = res.solutions.front();
-        double sumx = best.first[0] + best.second[0];
-        double sumy = best.first[1] + best.second[1];
-        double residual = std::hypot(sumx - met_x, sumy - met_y);
-        return residual;
+        const double mtt = combinedTTbarMass(best, B1, B2, L1, L2);
+        if (std::isfinite(mtt)) {
+            return mtt;
+        }
+
+        return metResidual(best, met_x, met_y);
     }
 
     std::vector<NuPair> nunu_s;
