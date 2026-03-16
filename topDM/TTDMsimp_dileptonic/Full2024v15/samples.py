@@ -180,20 +180,34 @@ samples['TTToSemiLeptonic'] = {
     'FilesPerJob': 10
 }
 
-########## TTV ##########
+########### TTX ##########
 files = nanoGetSampleFiles(mcDirectory, 'TTNuNu') \
         + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-4to50') \
         + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-50') \
-        + nanoGetSampleFiles(mcDirectory, 'TTZ-ZtoQQ') \
-        + nanoGetSampleFiles(mcDirectory, 'TTLNu') \
-        + nanoGetSampleFiles(mcDirectory, 'TTHtoNon2B') \
-        + nanoGetSampleFiles(mcDirectory, 'TTHto2B') 
-        #+ nanoGetSampleFiles(mcDirectory, 'TTW-WtoQQ') \
+        + nanoGetSampleFiles(mcDirectory, 'TTZ-ZtoQQ')
 
-samples['TTV'] = {
+samples['ttZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 10
+    'FilesPerJob': 2
+}
+
+files = nanoGetSampleFiles(mcDirectory, 'TTLNu')
+        # + nanoGetSampleFiles(mcDirectory, 'TTW-WtoQQ')
+
+samples['ttW'] = {
+    'name': files,
+    'weight': mcCommonWeight,
+    'FilesPerJob': 2
+}
+
+files = nanoGetSampleFiles(mcDirectory, 'TTHtoNon2B') \
+        + nanoGetSampleFiles(mcDirectory, 'TTHto2B')
+
+samples['ttH'] = {
+    'name': files,
+    'weight': mcCommonWeight,
+    'FilesPerJob': 2
 }
 
 ######## TXX ##########
@@ -213,7 +227,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWTo2L2Nu')
 samples['WW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 20
+    'FilesPerJob': 3
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WZ')
@@ -221,7 +235,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WZ')
 samples['WZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 20
+    'FilesPerJob': 5
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'ZZ')
@@ -229,7 +243,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ZZ')
 samples['ZZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 20
+    'FilesPerJob': 5
 }
 
 ######## VVV #########

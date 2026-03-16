@@ -32,11 +32,11 @@ groupPlot['TTToSemiLeptonic']  = {
     'samples'  : ['TTToSemiLeptonic']
 }
 
-groupPlot['TTV']  = {  
+groupPlot['TTV']  = {
     'nameHR'   : 'TTV',
     'isSignal' : 0,
     'color'    : 616,   # kMagenta
-    'samples'  : ['TTV']
+    'samples'  : ['ttW', 'ttZ', 'ttH']
 }
 
 groupPlot['TXX']  = {
@@ -149,10 +149,24 @@ plot['TTToSemiLeptonic']  = {
     'scale'    : 1.0,
 }
 
-plot['TTV']  = {  
+plot['ttW']  = {
     'color'    : 616,   # kMagenta
     'isSignal' : 0,
-    'isData'   : 0, 
+    'isData'   : 0,
+    'scale'    : 1.0,
+}
+
+plot['ttZ']  = {
+    'color'    : 616,   # kMagenta
+    'isSignal' : 0,
+    'isData'   : 0,
+    'scale'    : 1.0,
+}
+
+plot['ttH']  = {
+    'color'    : 616,   # kMagenta
+    'isSignal' : 0,
+    'isData'   : 0,
     'scale'    : 1.0,
 }
 

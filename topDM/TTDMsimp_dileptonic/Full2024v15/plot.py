@@ -32,19 +32,19 @@ groupPlot['TTToSemiLeptonic']  = {
     'samples'  : ['TTToSemiLeptonic']
 }
 
-groupPlot['TTV']  = {  
+groupPlot['TTV']  = {
     'nameHR'   : 'TTV',
     'isSignal' : 0,
     'color'    : 616,   # kMagenta
-    'samples'  : ['TTV']
+    'samples'  : ['ttW', 'ttZ', 'ttH']
 }
 
-groupPlot['TXX']  = {  
-    'nameHR'   : 't + X',
-    'isSignal' : 0,
-    'color'    : 870,   # kAzure + 10
-    'samples'  : ['TXX']
-}
+#groupPlot['TXX']  = {  
+#    'nameHR'   : 't + X',
+#    'isSignal' : 0,
+#    'color'    : 870,   # kAzure + 10
+#    'samples'  : ['TXX']
+#}
 
 groupPlot['VV']  = {  
     'nameHR'   : 'VV',
@@ -74,7 +74,7 @@ groupPlot['Fake']  = {
 '''
 #mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
 '''
-mPhi = ['800']
+mPhi = ['300']
 '''
 # tt+DM dilepton scalar
 for phi in mPhi:
@@ -149,19 +149,33 @@ plot['TTToSemiLeptonic']  = {
     'scale'    : 1.0,
 }
 
-plot['TTV']  = {  
+plot['ttW']  = {
     'color'    : 616,   # kMagenta
     'isSignal' : 0,
-    'isData'   : 0, 
+    'isData'   : 0,
     'scale'    : 1.0,
 }
 
-plot['TXX']  = {  
-    'color'    : 870,   # kMagenta
+plot['ttZ']  = {
+    'color'    : 616,   # kMagenta
     'isSignal' : 0,
-    'isData'   : 0, 
+    'isData'   : 0,
     'scale'    : 1.0,
 }
+
+plot['ttH']  = {
+    'color'    : 616,   # kMagenta
+    'isSignal' : 0,
+    'isData'   : 0,
+    'scale'    : 1.0,
+}
+
+#plot['TXX']  = {  
+#    'color'    : 870,   # kMagenta
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
 
 plot['WW']  = {  
     'color'    : 857, # kAzure -3
@@ -230,7 +244,7 @@ for phi in mPhi:
             'isData'   : 0,
             'scale'    : 1.0
             }
-
+'''
 # tt+DM inclusive scalar
 for phi in mPhi:
     plot[f'TTDMsimpSpin0_s_mphi-{phi}']  = {
@@ -239,7 +253,7 @@ for phi in mPhi:
             'isData'   : 0,
             'scale'    : 1.0
             }
-
+'''
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     plot[f'TTto2LDMsimpSpin0_ps_mphi-{phi}']  = {
