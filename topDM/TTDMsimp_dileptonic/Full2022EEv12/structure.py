@@ -2,119 +2,106 @@
 
 structure = {}
 
-# scaleSampleForDatacard
 # keys here must match keys in samples.py    
-#                    
 
-structure['DY']  = {  
+structure['DY']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
               }
 
-structure['Fake_e']  = {  
+structure['TTTo2L2Nu'] = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
-              }
-
-structure['Fake_m']  = {  
-                  'isSignal' : 0,
-                  'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
-              }
-
-structure['top'] = {   
-                  'isSignal' : 0,
-                  'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
                   }
 
-
-structure['ggWW']  = {
+structure['TTToSemiLeptonic'] = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7  
                   }
 
-structure['Wg']  = { 
+structure['ST'] = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7 
                   }
 
-structure['Vg']  = { 
+structure['TTToSemiLeptonic'] = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
                   }
 
-structure['VgS'] = { 
+structure['ttW']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
                   }
 
-structure['VgS_L'] = {
+structure['ttZ']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
                   }
 
-structure['VgS_H'] = {
+structure['ttH']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
                   }
 
-structure['Zg']  = { 
+structure['TXX']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7
                   }
 
-structure['VZ']  = { 
+structure['WWW']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7 
                   }
 
-structure['WW']  = { 
+structure['WWZ']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7 
                   }
 
-
-structure['VVV']  = { 
+structure['WZZ']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7 
+                  }
+
+structure['ZZZ']  = {
+                  'isSignal' : 0,
+                  'isData'   : 0,
+                  }
+
+structure['WW']  = {
+                  'isSignal' : 0,
+                  'isData'   : 0,
+                  }
+
+structure['WZ']  = {
+                  'isSignal' : 0,
+                  'isData'   : 0,
                   }
 
 structure['ZZ']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7    
                   }
 
-structure['ggH_hww'] = {
-                  'isSignal' : 1,
+structure['Fake']  = {
+                  'isSignal' : 0,
                   'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 150/26.7    
                   }
+'''
+mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
+'''
+mPhi = ['150']
 
-structure['qqH_hww'] = {
-                  'isSignal' : 1,
-                  'isData'   : 0,
-                  # 'scaleSampleForDatacard' : 0.1*150/26.7    
-                  }
+for phi in mPhi:
+    structure[f'TTDMsimpSpin0_s_mphi-{phi}']  = {
+        'isSignal' : 2,
+        'isData'   : 0
+    }
 
 # data
 
-
-structure['DATA']  = { 
+structure['DATA']  = {
                   'isSignal' : 0,
                   'isData'   : 1,
-                  # 'scaleSampleForDatacard' : 150/26.7
               }
