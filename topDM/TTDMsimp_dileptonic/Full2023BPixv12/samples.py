@@ -260,13 +260,24 @@ samples['ZZZ'] = {
 }
 
 ######## Other ########
-#files = nanoGetSampleFiles(mcDirectory, 'ZGToLLG')
-#
-#samples['Other'] = {
-#    'name': files,
-#    'weight': mcCommonWeight,
-#    'FilesPerJob': 5,
-#}
+
+for label in [
+        'DYGto2LG-1Jets_MLL-4to50_PTG-10to100',
+        'DYGto2LG-1Jets_MLL-4to50_PTG-100to200',
+        'DYGto2LG-1Jets_MLL-4to50_PTG-200',
+        'DYGto2LG-1Jets_MLL-50_PTG-10to100',
+        'DYGto2LG-1Jets_MLL-50_PTG-100to200',
+        'DYGto2LG-1Jets_MLL-50_PTG-200to400',
+        'DYGto2LG-1Jets_MLL-50_PTG-400to600',
+        'DYGto2LG-1Jets_MLL-50_PTG-600'
+]:
+    files += nanoGetSampleFiles(mcDirectory, label)
+
+samples['Other'] = {
+    'name': files,
+    'weight': mcCommonWeight,
+    'FilesPerJob': 5,
+}
 
 ###########################################
 ###############  SIGNALS  #################
