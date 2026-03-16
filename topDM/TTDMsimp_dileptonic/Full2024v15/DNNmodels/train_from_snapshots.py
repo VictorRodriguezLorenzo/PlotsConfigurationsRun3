@@ -9,9 +9,10 @@ import joblib
 
 import tensorflow as tf
 
+from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
-from tensorflow.keras import callbacks, optimizers
+from tensorflow.keras import callbacks, optimizers, regularizers
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
@@ -210,14 +211,14 @@ Bkg['isBkg'] = 1
 # -------------------------------
 Sig = pd.concat([df for df in pd_dataframes.values()])
 
-# Balance lengths
-if len(Sig) > len(Bkg):
-    Sig = Sig.sample(len(Bkg))
-else:
-    Bkg = Bkg.sample(len(Sig))
-
 df_all = pd.concat([Sig, Bkg])
+df_all[var] = df_all[var].replace([np.inf, -np.inf], np.nan)
+
+print("NaNs on dataframe:\n", df_all.isna().sum())
+
 df_all.dropna(inplace=True)
+
+print("\nNaNs remaining:\n", df_all.isna().sum())
 
 print("Final dataset length:", len(df_all))
 print("Signal fraction:", df_all['isSignal'].mean())
@@ -226,32 +227,47 @@ X_train, X_test, Y_train, Y_test = train_test_split(
     df_all[var],
     df_all[['isSignal']],
     test_size=0.2,
-    random_state=6
 )
 
 scaler = StandardScaler()
 
-# Scale
 X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled  = scaler.transform(X_test)
 
-# Apply same transformation to test
-X_test_scaled = scaler.transform(X_test)
+def balanced_batch_generator(X, y, batch_size=1024):
+    y = np.array(y)
+
+    sig_idx = np.where(y == 1)[0]
+    bkg_idx = np.where(y == 0)[0]
+    while True:
+        sig_batch = np.random.choice(sig_idx, batch_size // 2)
+        bkg_batch = np.random.choice(bkg_idx, batch_size // 2)
+        idx = np.concatenate([sig_batch, bkg_batch])
+        np.random.shuffle(idx)
+
+        yield X[idx], y[idx]
+
+batch_size = 1024
+train_generator = balanced_batch_generator(
+    X_train_scaled,
+    Y_train,
+    batch_size=batch_size
+)
 
 # ============================================================
 # MODEL 
 # ============================================================
 
 model = Sequential([
-    Dense(128, activation='relu', input_dim=len(var)),
+    Input(shape=(len(var),)),
+    Dense(128, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
     BatchNormalization(),
     Dropout(0.3),
-
-    Dense(64, activation='relu'),
+    Dense(64, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
     BatchNormalization(),
     Dropout(0.3),
-
-    Dense(32, activation='relu'),
-    Dense(8, activation='relu'),
+    Dense(32, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
+    Dense(8, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
     Dense(1, activation='sigmoid')
 ])
 
@@ -277,14 +293,12 @@ reduce_lr = callbacks.ReduceLROnPlateau(
 )
 
 training = model.fit(
-    X_train_scaled,
-    Y_train,
+    train_generator,
+    steps_per_epoch=len(X_train_scaled) // batch_size,
     epochs=300,
-    validation_split=0.15,
-    batch_size=64,
+    validation_data=(X_test_scaled, Y_test),
     callbacks=[early, reduce_lr],
-    verbose=2,
-    shuffle=True
+    verbose=2
 )
 
 # Get history
