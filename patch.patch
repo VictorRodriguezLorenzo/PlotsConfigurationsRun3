@@ -1,0 +1,264 @@
+diff --git a/topDM/TTDMsimp_dileptonic/macros/computeMT2.cc b/topDM/TTDMsimp_dileptonic/macros/computeMT2.cc
+index 1b26e76ad68d0d4775d3966d19b4302607e74d58..ac90870952eb1bc21682959f05cce00694891688 100644
+--- a/topDM/TTDMsimp_dileptonic/macros/computeMT2.cc
++++ b/topDM/TTDMsimp_dileptonic/macros/computeMT2.cc
+@@ -94,148 +94,192 @@ bool __private_ellipsesAreDisjoint(const double coeffLamPow3,
+ 
+ bool ellipsesAreDisjoint(const EllipseParams &e1, const EllipseParams &e2) {
+   if (e1 == e2) {
+     return false;
+   }
+ 
+   const double coeffLamPow3 = e1.det;
+   const double coeffLamPow2 = e1.lesterFactor(e2);
+   const double coeffLamPow1 = e2.lesterFactor(e1);
+   const double coeffLamPow0 = e2.det;
+ 
+   if (fabs(coeffLamPow3) >= fabs(coeffLamPow0)) {
+     return __private_ellipsesAreDisjoint(coeffLamPow3, coeffLamPow2,
+                                          coeffLamPow1, coeffLamPow0);
+   }
+   return __private_ellipsesAreDisjoint(coeffLamPow0, coeffLamPow1,
+                                        coeffLamPow2, coeffLamPow3);
+ }
+ 
+ }  // namespace Lester
+ 
+ class asymm_mt2_lester_bisect {
+  public:
+   static const int MT2_ERROR = -1;
+ 
++  static bool isFinite(const double x) { return std::isfinite(x); }
++
+   static double get_mT2(const double mVis1, const double pxVis1,
+                         const double pyVis1, const double mVis2,
+                         const double pxVis2, const double pyVis2,
+                         const double pxMiss, const double pyMiss,
+                         const double mInvis1, const double mInvis2,
+                         const double desiredPrecisionOnMT2 = 0,
+                         const bool useDeciSectionsInitially = true) {
+     const double mT2_Sq = get_mT2_Sq(
+         mVis1, pxVis1, pyVis1, mVis2, pxVis2, pyVis2, pxMiss, pyMiss,
+         mInvis1, mInvis2, desiredPrecisionOnMT2, useDeciSectionsInitially);
+     if (mT2_Sq == MT2_ERROR) {
+       return MT2_ERROR;
+     }
+     return sqrt(mT2_Sq);
+   }
+ 
+   static double get_mT2_Sq(const double mVis1, const double pxVis1,
+                            const double pyVis1, const double mVis2,
+                            const double pxVis2, const double pyVis2,
+                            const double pxMiss, const double pyMiss,
+                            const double mInvis1, const double mInvis2,
+                            const double desiredPrecisionOnMT2 = 0,
+                            const bool useDeciSectionsInitially = true) {
++    if (!isFinite(mVis1) || !isFinite(pxVis1) || !isFinite(pyVis1) ||
++        !isFinite(mVis2) || !isFinite(pxVis2) || !isFinite(pyVis2) ||
++        !isFinite(pxMiss) || !isFinite(pyMiss) || !isFinite(mInvis1) ||
++        !isFinite(mInvis2) || !isFinite(desiredPrecisionOnMT2)) {
++      std::cout << "MT2 error: non-finite input argument in get_mT2_Sq" << std::endl;
++      return MT2_ERROR;
++    }
++
+     const double m1Min = mVis1 + mInvis1;
+     const double m2Min = mVis2 + mInvis2;
+ 
+     if (m1Min > m2Min) {
+       return asymm_mt2_lester_bisect::get_mT2_Sq(
+           mVis2, pxVis2, pyVis2, mVis1, pxVis1, pyVis1, pxMiss, pyMiss,
+           mInvis2, mInvis1, desiredPrecisionOnMT2, useDeciSectionsInitially);
+     }
+ 
+     assert(m1Min <= m2Min);
+     const double mMin = m2Min;
+ 
+     const double msSq = mVis1 * mVis1;
+     const double sx = pxVis1;
+     const double sy = pyVis1;
+     const double mpSq = mInvis1 * mInvis1;
+ 
+     const double mtSq = mVis2 * mVis2;
+     const double tx = pxVis2;
+     const double ty = pyVis2;
+     const double mqSq = mInvis2 * mInvis2;
+ 
+     const double sSq = sx * sx + sy * sy;
+     const double tSq = tx * tx + ty * ty;
+     const double pMissSq = pxMiss * pxMiss + pyMiss * pyMiss;
+     const double massSqSum = msSq + mtSq + mpSq + mqSq;
+     const double scaleSq = (massSqSum + sSq + tSq + pMissSq) / 8.0;
+ 
+     if (scaleSq == 0) {
+       return 0;
+     }
++
++    if (scaleSq < 0 || !isFinite(scaleSq)) {
++      std::cout << "MT2 error: invalid scaleSq (" << scaleSq << ")" << std::endl;
++      return MT2_ERROR;
++    }
++
+     const double scale = sqrt(scaleSq);
++    if (!isFinite(scale)) {
++      std::cout << "MT2 error: non-finite scale (" << scale << ")" << std::endl;
++      return MT2_ERROR;
++    }
+ 
+     double mLower = mMin;
+     double mUpper = mMin + scale;
+     unsigned int attempts = 0;
+     const unsigned int maxAttempts = 10000;
+     while (true) {
+       ++attempts;
+       const double mUpperSq = mUpper * mUpper;
+       const Lester::EllipseParams &side1 = helper(mUpperSq, msSq, -sx, -sy,
+                                                   mpSq, 0, 0);
+       const Lester::EllipseParams &side2 = helper(mUpperSq, mtSq, +tx, +ty,
+                                                   mqSq, pxMiss, pyMiss);
+ 
+       bool disjoint;
+       try {
+         disjoint = Lester::ellipsesAreDisjoint(side1, side2);
+       } catch (...) {
++        std::cout << "MT2 error: exception in ellipsesAreDisjoint during upper-bound search" << std::endl;
+         return MT2_ERROR;
+       }
+ 
+       if (!disjoint) {
+         break;
+       }
+ 
+       if (attempts >= maxAttempts) {
+         std::cerr << "MT2 algorithm failed to find upper bound to MT2"
+                   << std::endl;
+         return MT2_ERROR;
+       }
+ 
+       mUpper *= 2;
+     }
+ 
+     bool goLow = useDeciSectionsInitially;
++    unsigned int bisectAttempts = 0;
++    const unsigned int maxBisectAttempts = 10000;
+     while (desiredPrecisionOnMT2 <= 0 || mUpper - mLower > desiredPrecisionOnMT2) {
++      ++bisectAttempts;
++      if (bisectAttempts >= maxBisectAttempts) {
++        std::cerr << "MT2 algorithm exceeded max bisection iterations"
++                  << std::endl;
++        std::cout << "MT2 error: max bisection attempts reached with mLower=" << mLower
++                  << ", mUpper=" << mUpper << std::endl;
++        return MT2_ERROR;
++      }
++
+       const double trialM = (goLow ? (mLower * 15 + mUpper) / 16
+                                    : (mUpper + mLower) / 2.0);
+ 
++      if (!isFinite(mLower) || !isFinite(mUpper) || !isFinite(trialM)) {
++        std::cout << "MT2 error: non-finite bisection state (mLower=" << mLower
++                  << ", mUpper=" << mUpper << ", trialM=" << trialM << ")"
++                  << std::endl;
++        return MT2_ERROR;
++      }
++
+       if (trialM <= mLower || trialM >= mUpper) {
+         return trialM * trialM;
+       }
+ 
+       const double trialMSq = trialM * trialM;
++      if (!isFinite(trialMSq)) {
++        std::cout << "MT2 error: non-finite trialMSq (" << trialMSq << ")"
++                  << std::endl;
++        return MT2_ERROR;
++      }
+       const Lester::EllipseParams &side1 = helper(trialMSq, msSq, -sx, -sy,
+                                                   mpSq, 0, 0);
+       const Lester::EllipseParams &side2 = helper(trialMSq, mtSq, +tx, +ty,
+                                                   mqSq, pxMiss, pyMiss);
+ 
+       try {
+         const bool disjoint = Lester::ellipsesAreDisjoint(side1, side2);
+         if (disjoint) {
+           mLower = trialM;
+           goLow = false;
+         } else {
+           mUpper = trialM;
+         }
+       } catch (...) {
+         return mLower * mLower;
+       }
+     }
+ 
+     const double mAns = (mLower + mUpper) / 2.0;
+     return mAns * mAns;
+   }
+ 
+  private:
+   static const Lester::EllipseParams helper(const double mSq,
+                                             const double mtSq, const double tx,
+@@ -254,53 +298,64 @@ class asymm_mt2_lester_bisect {
+                        2.0 * mSq * tx - 2.0 * mtSq * tx + 4.0 * pymiss * tx * ty -
+                        4.0 * pxmiss * tySq;
+ 
+     const double c_y = -4.0 * mtSq * pymiss - 4.0 * pymiss * txSq -
+                        2.0 * mqSq * ty + 2.0 * mSq * ty - 2.0 * mtSq * ty +
+                        4.0 * pxmiss * tx * ty;
+ 
+     const double c = -mqSq * mqSq + 2 * mqSq * mSq - mSq * mSq + 2 * mqSq * mtSq +
+                      2 * mSq * mtSq - mtSq * mtSq + 4.0 * mtSq * pxmissSq +
+                      4.0 * mtSq * pymissSq + 4.0 * mqSq * pxmiss * tx -
+                      4.0 * mSq * pxmiss * tx + 4.0 * mtSq * pxmiss * tx +
+                      4.0 * mqSq * txSq + 4.0 * pymissSq * txSq +
+                      4.0 * mqSq * pymiss * ty - 4.0 * mSq * pymiss * ty +
+                      4.0 * mtSq * pymiss * ty - 8.0 * pxmiss * pymiss * tx * ty +
+                      4.0 * mqSq * tySq + 4.0 * pxmissSq * tySq;
+ 
+     return Lester::EllipseParams(c_xx, c_yy, c_xy, c_x, c_y, c);
+   }
+ };
+ 
+ // ---------------------------------------------------------------------------
+ // Compute MT2 from two leptons and MET using the Lester bisect algorithm
+ // ---------------------------------------------------------------------------
+ float computeMT2(float l1_pt, float l1_eta, float l1_phi, float l2_pt,
+                  float l2_eta, float l2_phi, float met_pt, float met_phi) {
++  if (!std::isfinite(l1_pt) || !std::isfinite(l1_eta) || !std::isfinite(l1_phi) ||
++      !std::isfinite(l2_pt) || !std::isfinite(l2_eta) || !std::isfinite(l2_phi) ||
++      !std::isfinite(met_pt) || !std::isfinite(met_phi)) {
++    std::cout << "MT2 error: non-finite input in computeMT2 wrapper" << std::endl;
++    return static_cast<float>(asymm_mt2_lester_bisect::MT2_ERROR);
++  }
++
+   TLorentzVector lepton1, lepton2;
+   lepton1.SetPtEtaPhiM(l1_pt, l1_eta, l1_phi, 0.0);
+   lepton2.SetPtEtaPhiM(l2_pt, l2_eta, l2_phi, 0.0);
+ 
+   const double mVisA = fabs(lepton1.M());
+   const double mVisB = fabs(lepton2.M());
+ 
+   const double pxA = lepton1.Px();
+   const double pyA = lepton1.Py();
+   const double pxB = lepton2.Px();
+   const double pyB = lepton2.Py();
+ 
+   const double pxMiss = met_pt * cos(met_phi);
+   const double pyMiss = met_pt * sin(met_phi);
+ 
+   const double chiA = 0.0;
+   const double chiB = 0.0;
+   const double desiredPrecisionOnMt2 = 0.0;
+ 
+   const double mT2 = asymm_mt2_lester_bisect::get_mT2(
+       mVisA, pxA, pyA, mVisB, pxB, pyB, pxMiss, pyMiss, chiA, chiB,
+       desiredPrecisionOnMt2);
+ 
++  if (!std::isfinite(mT2)) {
++    std::cout << "MT2 error: non-finite output mT2 (" << mT2 << ")" << std::endl;
++    return static_cast<float>(asymm_mt2_lester_bisect::MT2_ERROR);
++  }
++
+   return static_cast<float>(mT2);
+ }
+ 
+ #endif
+-
+
