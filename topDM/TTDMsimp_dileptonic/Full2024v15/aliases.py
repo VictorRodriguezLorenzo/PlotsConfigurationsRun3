@@ -104,6 +104,13 @@ aliases['gstarHigh'] = {
     'samples': ['WZ', 'VgS', 'Vg'],
 }
 
+## Top pT reweighting ##
+
+aliases['Top_pTrw'] = {
+    'expr': '(topGenPt * antitopGenPt > 0.) * (TMath::Sqrt((0.103*TMath::Exp(-0.0118*topGenPt) - 0.000134*topGenPt + 0.973) * (0.103*TMath::Exp(-0.0118*antitopGenPt) - 0.000134*antitopGenPt + 0.973))) + (topGenPt * antitopGenPt <= 0.)',
+    'samples': ['TTTo2L2Nu']
+}
+
 # Jet bins
 # using Alt(CleanJet_pt, n, 0) instead of Sum(CleanJet_pt >= 20) because jet pt ordering is not strictly followed in JES-varied samples
 

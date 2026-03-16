@@ -19,6 +19,7 @@ dataSteps    = 'DATAl2loose2024v15__l2loose'
 ##############################################
 #treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/calderon/HWWNano/'
 treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/'
+
 limitFiles = -1
 
 def makeMCDirectory(var=""):
@@ -107,8 +108,7 @@ DataRun = [
 DataSets = ['MuonEG','Muon0','Muon1','EGamma0','EGamma1']
 
 DataTrig = {
-    'MuonEG'         : ' Trigger_ElMu' ,
-    #'SingleMuon'     : '!Trigger_ElMu && Trigger_sngMu' ,
+    'MuonEG'          : 'Trigger_ElMu' ,
     'Muon0'           : '!Trigger_ElMu && (Trigger_sngMu || Trigger_dblMu)',
     'Muon1'           : '!Trigger_ElMu && (Trigger_sngMu || Trigger_dblMu)',
     'EGamma0'         : '!Trigger_ElMu && !Trigger_sngMu && !Trigger_dblMu && (Trigger_sngEl || Trigger_dblEl)',
@@ -157,7 +157,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') \
 samples['ST'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 8
+    'FilesPerJob': 3
 }
 
 ########## TTTo2L2Nu #########
@@ -166,8 +166,10 @@ files = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu')
 samples['TTTo2L2Nu'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 3
+    'FilesPerJob': 1
 }
+
+addSampleWeight(samples,'TTTo2L2Nu','TTTo2L2Nu','Top_pTrw')
 
 ##### TTToSemiLeptonic #####
 files = nanoGetSampleFiles(mcDirectory, 'TTToSemiLeptonic')

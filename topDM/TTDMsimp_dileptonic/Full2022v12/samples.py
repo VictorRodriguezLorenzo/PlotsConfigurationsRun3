@@ -97,7 +97,7 @@ DataRun = [
 DataSets = ['MuonEG','SingleMuon','Muon','EGamma']
 
 DataTrig = {
-    'MuonEG'         : ' Trigger_ElMu' ,
+    'MuonEG'         : 'Trigger_ElMu' ,
     'SingleMuon'     : '!Trigger_ElMu && Trigger_sngMu' ,
     'Muon'           : '!Trigger_ElMu && (Trigger_sngMu || Trigger_dblMu)',
     'EGamma'         : '!Trigger_ElMu && !Trigger_sngMu && !Trigger_dblMu && (Trigger_sngEl || Trigger_dblEl)'
@@ -137,7 +137,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') \
 samples['ST'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 2
 }
 
 ########## TTTo2L2Nu #########
@@ -148,6 +148,8 @@ samples['TTTo2L2Nu'] = {
     'weight': mcCommonWeight,
     'FilesPerJob': 1
 }
+
+addSampleWeight(samples,'TTTo2L2Nu','TTTo2L2Nu','Top_pTrw')
 
 ###### TTToSemiLeptonic #####
 files = nanoGetSampleFiles(mcDirectory, 'TTToSemiLeptonic')
