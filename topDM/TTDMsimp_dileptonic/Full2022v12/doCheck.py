@@ -37,7 +37,8 @@ def run(submit=False, specific_jobs=None, condor_q=None):
         prePath = prePath.split("examples/")[0]   ## Assume you work in processor folder
         
     path = prePath + "/condor/EGamma_Run2022D-ReReco-v1/"
-    output_path = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022v12/rootFiles/ttDM_dilep_2022/"
+    output_path = "/eos/user/v/victorr/www/Run3-ttDM/rootFiles/ttDM_dilep_2022/"
+    #output_path = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022v12/rootFiles/ttDM_dilep_2022/"
     jobDir = path
 
     cmd = "find {} -type d -name '*'".format(path)

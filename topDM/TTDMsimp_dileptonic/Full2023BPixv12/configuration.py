@@ -10,8 +10,8 @@ runnerFile = "default"
 outputFile = "mkShapes__{}.root".format(tag)
 
 #: path to ouput folder
-#outputFolder = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/"
-outputFolder = "rootFiles/ttDM_dilep_2023BPix/"
+outputFolder = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Run3-ttDM/rootFiles/ttDM_dilep_2023BPix/"
+#outputFolder = "rootFiles/ttDM_dilep_2023BPix/"
 
 # path to batch folder (used for condor submission)
 batchFolder = "condor"

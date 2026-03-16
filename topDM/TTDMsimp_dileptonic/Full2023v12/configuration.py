@@ -10,8 +10,8 @@ runnerFile = "default"
 outputFile = "mkShapes__{}.root".format(tag)
 
 #: path to ouput folder
-#outputFolder = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/"
-outputFolder = "rootFiles/ttDM_dilep_2023/"
+outputFolder = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Run3-ttDM/rootFiles/ttDM_dilep_2023/"
+#outputFolder = "rootFiles/ttDM_dilep_2023/"
 
 # path to batch folder (used for condor submission)
 batchFolder = "condor"
@@ -23,12 +23,10 @@ configsFolder = "configs"
 lumi = 17.794
 
 # file with dict of aliases to define
-#aliasesFile = "aliases.py"
-aliasesFile = "aliasesVetoEvents.py"
+aliasesFile = "aliases.py"
 
 # file with dict of variables
-#variablesFile = "variables.py"
-variablesFile = "variablesVetoEvents.py"
+variablesFile = "variables.py"
 
 # file with dict of cuts
 cutsFile = "cuts.py"
