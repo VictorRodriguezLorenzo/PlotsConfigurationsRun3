@@ -9,9 +9,10 @@ import joblib
 
 import tensorflow as tf
 
+from tensorflow.keras import Input
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
-from tensorflow.keras import callbacks, optimizers
+from tensorflow.keras import callbacks, optimizers, regularizers
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
@@ -27,6 +28,8 @@ save_model = True
 loaded_model = False
 
 MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022v12/DNNmodels/model_DNN.h5"
+
+PARAMETRIC = True
 
 # ============================================================
 # VARIABLES
@@ -84,6 +87,8 @@ var = [
 'dphi_met_llb'
 ]
 
+if PARAMETRIC:
+    var.append("mPhi")
 
 #var = [
 #    'dphill',
@@ -121,6 +126,10 @@ for f in files_sig:
         sample_groups[tag].append(f)
 
 print("Signal sample groups:", {k: len(v) for k, v in sample_groups.items()})
+
+def extract_mphi(sample_tag):
+    match = re.search(r"m[Pp]hi[_-]?(\d+)", sample_tag)
+    return float(match.group(1)) if match else None
 
 # -------------------------------
 # CREATE TCHAINS AND GET COUNTS
@@ -164,22 +173,36 @@ def downsample(chain, target):
     return rdf
 
 # -------------------------------
-# DOWNSAMPLE SIGNAL AND BACKGROUND
+# DOWNSAMPLE SIGNALS
 # -------------------------------
 dataframes = {key: downsample(chain, target_size) for key, chain in sig_chains.items()}
-rdf_bkg = downsample(chain_bkg, target_size)
+rdf_bkg = ROOT.RDataFrame(chain_bkg)
 
 # -------------------------------
 # CONVERT TO PANDAS AND ADD LABELS
 # -------------------------------
 pd_dataframes = {}
 for key, rdf in dataframes.items():
-    pd_df = pd.DataFrame(rdf.AsNumpy(var))
+    features_to_read = [v for v in var if v != "mPhi"]
+    pd_df = pd.DataFrame(rdf.AsNumpy(features_to_read))
+
+    if PARAMETRIC:
+        mphi = extract_mphi(key)
+        if mphi is None:
+            raise RuntimeError(f"Could not infer mPhi from signal tag: {key}")
+        pd_df["mPhi"] = mphi
     pd_df['isSignal'] = 1
     pd_df['isBkg'] = 0
     pd_dataframes[key] = pd_df
 
 Bkg = pd.DataFrame(rdf_bkg.AsNumpy(var))
+features_to_read = [v for v in var if v != "mPhi"]
+Bkg = pd.DataFrame(rdf_bkg.AsNumpy(features_to_read))
+if PARAMETRIC:
+    signal_hypotheses = sorted({extract_mphi(k) for k in sample_groups if extract_mphi(k) is not None})
+    if not signal_hypotheses:
+        raise RuntimeError("No signal mPhi hypotheses found for parametric training.")
+    Bkg["mPhi"] = np.random.choice(signal_hypotheses, len(Bkg))
 Bkg['isSignal'] = 0
 Bkg['isBkg'] = 1
 
@@ -188,14 +211,14 @@ Bkg['isBkg'] = 1
 # -------------------------------
 Sig = pd.concat([df for df in pd_dataframes.values()])
 
-# Balance lengths
-if len(Sig) > len(Bkg):
-    Sig = Sig.sample(len(Bkg), random_state=42)
-else:
-    Bkg = Bkg.sample(len(Sig), random_state=42)
-
 df_all = pd.concat([Sig, Bkg])
+df_all[var] = df_all[var].replace([np.inf, -np.inf], np.nan)
+
+print("NaNs on dataframe:\n", df_all.isna().sum())
+
 df_all.dropna(inplace=True)
+
+print("\nNaNs remaining:\n", df_all.isna().sum())
 
 print("Final dataset length:", len(df_all))
 print("Signal fraction:", df_all['isSignal'].mean())
@@ -204,32 +227,47 @@ X_train, X_test, Y_train, Y_test = train_test_split(
     df_all[var],
     df_all[['isSignal']],
     test_size=0.2,
-    random_state=6
 )
 
 scaler = StandardScaler()
 
-# Scale
 X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled  = scaler.transform(X_test)
 
-# Apply same transformation to test
-X_test_scaled = scaler.transform(X_test)
+def balanced_batch_generator(X, y, batch_size=1024):
+    y = np.array(y)
+
+    sig_idx = np.where(y == 1)[0]
+    bkg_idx = np.where(y == 0)[0]
+    while True:
+        sig_batch = np.random.choice(sig_idx, batch_size // 2)
+        bkg_batch = np.random.choice(bkg_idx, batch_size // 2)
+        idx = np.concatenate([sig_batch, bkg_batch])
+        np.random.shuffle(idx)
+
+        yield X[idx], y[idx]
+
+batch_size = 1024
+train_generator = balanced_batch_generator(
+    X_train_scaled,
+    Y_train,
+    batch_size=batch_size
+)
 
 # ============================================================
 # MODEL 
 # ============================================================
 
 model = Sequential([
-    Dense(128, activation='relu', input_dim=len(var)),
+    Input(shape=(len(var),)),
+    Dense(128, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
     BatchNormalization(),
     Dropout(0.3),
-
-    Dense(64, activation='relu'),
+    Dense(64, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
     BatchNormalization(),
     Dropout(0.3),
-
-    Dense(32, activation='relu'),
-    Dense(8, activation='relu'),
+    Dense(32, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
+    Dense(8, activation='relu', kernel_regularizer=regularizers.l2(1e-4)),
     Dense(1, activation='sigmoid')
 ])
 
@@ -255,14 +293,12 @@ reduce_lr = callbacks.ReduceLROnPlateau(
 )
 
 training = model.fit(
-    X_train_scaled,
-    Y_train,
+    train_generator,
+    steps_per_epoch=len(X_train_scaled) // batch_size,
     epochs=300,
-    validation_split=0.15,
-    batch_size=64,
+    validation_data=(X_test_scaled, Y_test),
     callbacks=[early, reduce_lr],
-    verbose=2,
-    shuffle=True
+    verbose=2
 )
 
 # Get history
@@ -290,6 +326,7 @@ if save_model and loaded_model == False:
     print("")
     print("The current used Machine Learning model is being saved:")
     print("")
+
     os.makedirs("./Models", exist_ok=True)
     joblib.dump(scaler, './Models/scaler_'+ANALYSIS_NAME+'.pkl')
     model.save('./Models/model_'+ANALYSIS_NAME+'.h5')
@@ -332,7 +369,7 @@ discriminant1_t = discriminant_t[np.array(true_labels_t == 1)]
 
 binning = np.linspace(0, 1, 51)
 
-# Plot the discriminant distributions ----------------------------
+# Plot the discriminant distributions --------------------
 
 print("")
 print("Plotinng discriminant distribution---------------------------------------------------------------------------------------------------")
@@ -396,6 +433,53 @@ plt.axhline(y=1, color = 'black', linestyle = '--', linewidth = 0.5)
 plt.savefig('./Plots/ROC'+ANALYSIS_NAME+'.png', dpi = 600)
 print("")
 print("The AUC of the model is: ", auc)
+
+if PARAMETRIC and "mPhi" in X_test.columns:
+    print("")
+    print("Plotting individual ROCs for different mPhi hypotheses-----------------------------------------------------------------------")
+
+    roc_df = pd.DataFrame({
+        "isSignal": np.asarray(Y_test["isSignal"]).reshape(-1),
+        "score": np.asarray(y_pred_L).reshape(-1),
+        "mPhi": np.asarray(X_test["mPhi"]).reshape(-1),
+    })
+
+    roc_curves_by_mass = []
+    unique_masses = sorted(roc_df["mPhi"].dropna().unique())
+
+    for mass in unique_masses:
+        mass_slice = roc_df[roc_df["mPhi"] == mass]
+
+        # Need both classes to compute ROC/AUC.
+        if mass_slice["isSignal"].nunique() < 2:
+            print(f"Skipping mPhi={mass}: only one class present in test split")
+            continue
+
+        fpr_mass, tpr_mass, _ = metrics.roc_curve(mass_slice["isSignal"], mass_slice["score"])
+        auc_mass = metrics.auc(fpr_mass, tpr_mass)
+        roc_curves_by_mass.append((mass, fpr_mass, tpr_mass, auc_mass))
+
+    if roc_curves_by_mass:
+        plt.clf()
+        plt.figure(num=None, figsize=(7, 6))
+        plt.subplot(111)
+
+        color_map = plt.cm.get_cmap('tab20', len(roc_curves_by_mass))
+
+        print("AUC per mPhi hypothesis:")
+        for i, (mass, fpr_mass, tpr_mass, auc_mass) in enumerate(roc_curves_by_mass):
+            print(f"  mPhi={mass}: AUC={auc_mass:.4f}")
+            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=f"mPhi={mass:g} (AUC={auc_mass:.3f})")
+
+        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random guess')
+        plt.xlabel('False Positive rate', fontsize=12)
+        plt.ylabel('True Positive rate', fontsize=12)
+        plt.legend(loc='lower right', fontsize=9)
+        plt.axvline(x=0, color='black', linestyle='--', linewidth=0.5)
+        plt.axhline(y=1, color='black', linestyle='--', linewidth=0.5)
+        plt.savefig('./Plots/ROC'+ANALYSIS_NAME+'_mPhi.png', dpi=600)
+    else:
+        print("No per-mPhi ROC could be produced (insufficient class mixture per mass in test split).")
 
 print("DONE!")
 
@@ -537,7 +621,6 @@ ax.set_title("Correlation matrix")
 fig.tight_layout()
 plt.savefig('./Plots/CorrelationMatrix'+ANALYSIS_NAME+'Sig.png', dpi = 60)
 
-
 print("DONE!")
 print("")
 print("Finding and ploting correlation matrix for the background events---------------------------------------------------------------------")
@@ -565,5 +648,4 @@ plt.savefig('./Plots/CorrelationMatrix'+ANALYSIS_NAME+'Bkg.png', dpi = 60)
 print("DONE!")
 print("")
 
-print("END OF THE ANALYSIS------------------------------------------------------------------------------------------------------------------")
-
+print("END OF THE ANALYSIS")

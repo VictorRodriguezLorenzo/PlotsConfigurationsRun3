@@ -1,12 +1,16 @@
 import ROOT
 import os
 import sys
+import re
 
 ROOT.EnableImplicitMT()
 
 # ============================================================
 # INPUT ARGUMENT
 # ============================================================
+# Toggle this to write parametric snapshots with the mediator mass.
+PARAMETRIC = True
+
 # Condor passes the file path
 input_file = sys.argv[1]
 
@@ -71,6 +75,9 @@ var = [
 'dphi_ttbar',
 'dphi_met_llb'
 ]
+
+if PARAMETRIC:
+    var.append("mPhi")
 
 
 #var = [
@@ -234,6 +241,10 @@ RVecF doubleNu_producer(
 
 df = ROOT.RDataFrame("Events", input_file)
 
+# Extract mPhi from signal file names like: ..._mPhi_500_... or ..._mphi-500_...
+mphi_match = re.search(r"m[Pp]hi[_-]?(\d+)", os.path.basename(input_file))
+mphi_value = float(mphi_match.group(1)) if mphi_match else -999.0
+
 # Algo / WP / WP cut
 btagging_WPs = {
     "DeepFlavB" : {
@@ -280,6 +291,9 @@ df = df.Define("bjet_idx",'(nCleanJet > 0 && Jet_btag{algo}[CleanJet_jetIdx[0]] 
 df = df.Define("dphi_met_llb","abs(DeltaPhi(PuppiMET_phi, atan2(Lepton_pt[0]*sin(Lepton_phi[0]) + Lepton_pt[1]*sin(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*sin(CleanJet_phi[bjet_idx]), Lepton_pt[0]*cos(Lepton_phi[0]) + Lepton_pt[1]*cos(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*cos(CleanJet_phi[bjet_idx]))))")
 df = df.Define("noJetInHorn","Jet_inHorns(CleanJet_pt, CleanJet_eta)")
 df = df.Define("bReq",'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(bAlgo, btagging_WPs[bAlgo][bWP]))
+
+if PARAMETRIC:
+    df = df.Define("mPhi", str(mphi_value))
 
 # ============================================================
 # FILTER 
