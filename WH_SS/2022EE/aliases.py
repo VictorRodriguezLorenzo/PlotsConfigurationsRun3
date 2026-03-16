@@ -4,9 +4,8 @@ import inspect
 
 # /afs/cern.ch/user/n/ntrevisa/work/latinos/Run3/PlotsConfigurationsRun3/ControlRegions/WZ/2022EE_v12
 configurations = os.path.realpath(inspect.getfile(inspect.currentframe())) # this file
-configurations = os.path.dirname(configurations) # 2022EE_v12
-configurations = os.path.dirname(configurations) # WZ
-configurations = os.path.dirname(configurations) # ControlRegions
+configurations = os.path.dirname(configurations) # 2022EE
+configurations = os.path.dirname(configurations) # WH_SS
 configurations = os.path.dirname(configurations) # PlotsConfigurationsRun3
 
 aliases = {}
@@ -17,8 +16,8 @@ mc_emb = [skey for skey in samples if skey not in ('Fake', 'DATA', 'DATA_Mu', 'D
 
 # LepCut3l__ele_wp90iso__mu_cut_TightID_POG
 
-eleWP = 'wp90iso'
-muWP  = 'cut_Tight_HWW'
+eleWP = 'cutBased_LooseID_tthMVA_Run3'
+muWP  = 'cut_TightID_pfIsoTight_HWW_tthmva_67'
 
 aliases['LepWPCut'] = {
     'expr': 'LepCut2l__ele_'+eleWP+'__mu_'+muWP,
@@ -50,6 +49,10 @@ aliases['oneJet'] = {
 
 aliases['multiJet'] = {
     'expr': 'Alt(CleanJet_pt, 1, 0) > 30.'
+}
+
+aliases['noJetInHorn'] = {
+    'expr' : 'Sum(CleanJet_pt > 30 && CleanJet_pt < 50 && abs(CleanJet_eta) > 2.5 && abs(CleanJet_eta) < 3.0) == 0',
 }
 
 ##########################################################################
@@ -97,59 +100,67 @@ bWP   = btagging_WPs[bAlgo][WP]
 bSF   = btagging_SFs[bAlgo]
 
 # B tagging selections and scale factors
+# aliases['bVeto'] = {
+#     'expr': f'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{bAlgo}, CleanJet_jetIdx) > {bWP}) == 0'
+# }
+
+# aliases['bVetoSF'] = {
+#     'expr': 'TMath::Exp(Sum(LogVec((CleanJet_pt>20 && abs(CleanJet_eta)<2.5)*Take(Jet_btagSF_{}_shape, CleanJet_jetIdx)+1*(CleanJet_pt<20 || abs(CleanJet_eta)>2.5))))'.format(bSF),
+#     'samples': mc
+# }
+
 aliases['bVeto'] = {
     'expr': f'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{bAlgo}, CleanJet_jetIdx) > {bWP}) == 0'
-}
-
-aliases['bVetoSF'] = {
-    'expr': 'TMath::Exp(Sum(LogVec((CleanJet_pt>20 && abs(CleanJet_eta)<2.5)*Take(Jet_btagSF_{}_shape, CleanJet_jetIdx)+1*(CleanJet_pt<20 || abs(CleanJet_eta)>2.5))))'.format(bSF),
-    'samples': mc
 }
 
 aliases['bReq'] = { 
     'expr': f'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{bAlgo}, CleanJet_jetIdx) > {bWP}) >= 1'
 }
 
-aliases['bReqSF'] = {
-    'expr': 'TMath::Exp(Sum(LogVec((CleanJet_pt>30 && abs(CleanJet_eta)<2.5)*Take(Jet_btagSF_{}_shape, CleanJet_jetIdx)+1*(CleanJet_pt<30 || abs(CleanJet_eta)>2.5))))'.format(bSF),
-    'samples': mc
-}
+# aliases['bReq'] = { 
+#     'expr': f'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{bAlgo}, CleanJet_jetIdx) > {bWP}) >= 1'
+# }
+
+# aliases['bReqSF'] = {
+#     'expr': 'TMath::Exp(Sum(LogVec((CleanJet_pt>30 && abs(CleanJet_eta)<2.5)*Take(Jet_btagSF_{}_shape, CleanJet_jetIdx)+1*(CleanJet_pt<30 || abs(CleanJet_eta)>2.5))))'.format(bSF),
+#     'samples': mc
+# }
 
 # Top control region
-aliases['topcr'] = {
-    'expr': 'mtw2>30 && mll>50 && ((zeroJet && !bVeto) || bReq)'
-}
+# aliases['topcr'] = {
+#     'expr': 'mtw2>30 && mll>50 && ((zeroJet && !bVeto) || bReq)'
+# }
 
-# WW control region
-aliases['wwcr'] = {
-    'expr': 'mth>60 && mtw2>30 && mll>100 && bVeto'
-}
+# # WW control region
+# aliases['wwcr'] = {
+#     'expr': 'mth>60 && mtw2>30 && mll>100 && bVeto'
+# }
 
-# Overall b tag SF
-aliases['btagSF'] = {
-    'expr': '(bVeto || (topcr && zeroJet))*bVetoSF + (topcr && !zeroJet)*bReqSF',
-    'samples': mc
-}
+# # Overall b tag SF
+# aliases['btagSF'] = {
+#     'expr': '(bVeto || (topcr && zeroJet))*bVetoSF + (topcr && !zeroJet)*bReqSF',
+#     'samples': mc
+# }
 
 # Systematic uncertainty variations
-for shift in ['jes','lf','hf','lfstats1','lfstats2','hfstats1','hfstats2','cferr1','cferr2']:
+# for shift in ['jes','lf','hf','lfstats1','lfstats2','hfstats1','hfstats2','cferr1','cferr2']:
 
-    for targ in ['bVeto', 'bReq']:
-        alias = aliases['%sSF%sup' % (targ, shift)] = copy.deepcopy(aliases['%sSF' % targ])
-        alias['expr'] = alias['expr'].replace('btagSF_deepjet_shape', 'btagSF_deepjet_shape_up_%s' % shift)
+#     for targ in ['bVeto', 'bReq']:
+#         alias = aliases['%sSF%sup' % (targ, shift)] = copy.deepcopy(aliases['%sSF' % targ])
+#         alias['expr'] = alias['expr'].replace('btagSF_deepjet_shape', 'btagSF_deepjet_shape_up_%s' % shift)
 
-        alias = aliases['%sSF%sdown' % (targ, shift)] = copy.deepcopy(aliases['%sSF' % targ])
-        alias['expr'] = alias['expr'].replace('btagSF_deepjet_shape', 'btagSF_deepjet_shape_down_%s' % shift)
+#         alias = aliases['%sSF%sdown' % (targ, shift)] = copy.deepcopy(aliases['%sSF' % targ])
+#         alias['expr'] = alias['expr'].replace('btagSF_deepjet_shape', 'btagSF_deepjet_shape_down_%s' % shift)
 
-    aliases['btagSF%sup' % shift] = {
-        'expr': aliases['btagSF']['expr'].replace('SF', 'SF' + shift + 'up'),
-        'samples': mc
-    }
+#     aliases['btagSF%sup' % shift] = {
+#         'expr': aliases['btagSF']['expr'].replace('SF', 'SF' + shift + 'up'),
+#         'samples': mc
+#     }
 
-    aliases['btagSF%sdown' % shift] = {
-        'expr': aliases['btagSF']['expr'].replace('SF', 'SF' + shift + 'down'),
-        'samples': mc
-    }
+#     aliases['btagSF%sdown' % shift] = {
+#         'expr': aliases['btagSF']['expr'].replace('SF', 'SF' + shift + 'down'),
+#         'samples': mc
+#     }
 
 ##########################################################################
 # End of b tagging
@@ -157,7 +168,8 @@ for shift in ['jes','lf','hf','lfstats1','lfstats2','hfstats1','hfstats2','cferr
 
 # Data/MC scale factors and systematic uncertainties
 aliases['SFweight'] = {
-    'expr': ' * '.join(['SFweight2l', 'LepWPCut', 'LepWPSF','btagSF']),
+    # 'expr': ' * '.join(['SFweight2l', 'LepWPCut', 'LepWPSF','btagSF']),
+    'expr': ' * '.join(['SFweight2l', 'LepWPCut', 'LepWPSF']),
     'samples': mc
 }
 

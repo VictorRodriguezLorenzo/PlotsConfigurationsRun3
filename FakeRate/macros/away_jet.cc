@@ -24,18 +24,22 @@ float drlj(float inputJetPt,
 		   RVecF Lepton_phi,
 		   RVecF CleanJet_pt,
 		   RVecF CleanJet_eta,
-		   RVecF CleanJet_phi,
+		   RVecF CleanJet_phi
 		){
   
   float deltaR = -999.0f;
 
   if (nLepton < 1) return deltaR;
+
   // Check if we have at least one jet candidate
   if (nCleanJet < 1) return deltaR;
+
+  // Define Lepton 4-vector
   ROOT::Math::PtEtaPhiMVector LeptonVector(Lepton_pt[0],Lepton_eta[0],Lepton_phi[0],0);
 
   const int iJet = 0;
 
+  // Check if leading jet has pT above threshold
   if ((CleanJet_pt[iJet] > inputJetPt) && (abs(CleanJet_eta[iJet]) < 2.5)){ // if btagging: && (Jet_btagDeepFlavB[CleanJet_jetIdx[iJet]] > bWP)
 	ROOT::Math::PtEtaPhiMVector CleanJetVector(CleanJet_pt[iJet],CleanJet_eta[iJet],CleanJet_phi[iJet],0);
 	

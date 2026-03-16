@@ -1,7 +1,7 @@
 import sys,os
 
 #: tag used to identify the configuration folder version
-tag = "WHSS_2022EE_v1"
+tag = "WHSS_2022EE_ChargeFlip_singleEORdoubleE"
 
 #: file to use as runner script, default uses mkShapesRDF.shapeAnalysis.runner, otherwise specify path to script
 runnerFile = "default"
@@ -24,7 +24,7 @@ outputFolder = "rootFiles"
 #: luminosity to normalize to (in 1/fb)
 # lumi = 8.174732641
 #lumi = 35.0
-lumi = 27.0
+lumi = 26.7
 
 #: file with dict of aliases to define
 aliasesFile = "aliases.py"
