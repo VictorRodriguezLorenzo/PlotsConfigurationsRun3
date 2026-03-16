@@ -34,7 +34,7 @@ aliases['PromptGenLepMatch2l'] = {
 # Fake leptons transfer factor --------------------------------------
 aliases['fakeW'] = {
     'linesToAdd' : [f'#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"nominal\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"nominal\", 2, \"std\");')"],
     'expr': 'fr_reader(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples'    : ['Fake']
 }
@@ -42,54 +42,54 @@ aliases['fakeW'] = {
 # And variations - already divided by central values in formulas !
 aliases['fakeWEleUp'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_EleUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"EleUp\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_EleUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"EleUp\", 2, \"std\");')"],
     'expr': 'fr_reader_EleUp(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
 aliases['fakeWEleDown'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_EleDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"EleDown\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_EleDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"EleDown\", 2, \"std\");')"],
     'expr': 'fr_reader_EleDown(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
 
 aliases['fakeWMuUp'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_MuUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"MuUp\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_MuUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"MuUp\", 2, \"std\");')"],
     'expr': 'fr_reader_MuUp(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
 
 aliases['fakeWMuDown'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_MuDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"MuDown\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_MuDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"MuDown\", 2, \"std\");')"],
     'expr': 'fr_reader_MuDown(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
 
 aliases['fakeWStatEleUp'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_StatEleUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatEleUp\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_StatEleUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatEleUp\", 2, \"std\");')"],
     'expr': 'fr_reader_StatEleUp(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
 aliases['fakeWStatEleDown'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_StatEleDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatEleDown\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_StatEleDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatEleDown\", 2, \"std\");')"],
     'expr': 'fr_reader_StatEleDown(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
 
 aliases['fakeWStatMuUp'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_StatMuUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatMuUp\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_StatMuUp = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatMuUp\", 2, \"std\");')"],
     'expr': 'fr_reader_StatMuUp(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
 
 aliases['fakeWStatMuDown'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/fake_rate_reader_class.cc"'],
-    'linesToProcess':["ROOT.gInterpreter.Declare('fake_rate_reader fr_reader_StatMuDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatMuDown\", 2, \"std\");')"],
+    'linesToProcess':["ROOT.gInterpreter.ProcessLine('fake_rate_reader fr_reader_StatMuDown = fake_rate_reader(\"2022EE\", \"Run3\", \"67\", \"StatMuDown\", 2, \"std\");')"],
     'expr': 'fr_reader_StatMuDown(Lepton_pdgId, Lepton_pt, Lepton_eta, Lepton_isTightMuon_cut_TightID_pfIsoLoose_HWW_tthmva_67, Lepton_isTightElectron_cutBased_LooseID_tthMVA_Run3, CleanJet_pt, nCleanJet)',
     'samples': ['Fake']
 }
@@ -209,7 +209,7 @@ for flavour in ['bc', 'light']:
     aliases[btagsf_tmp] = {
         'linesToProcess':[
             f'ROOT.gSystem.Load("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/evaluate_btagSF{flavour}_cc.so","", ROOT.kTRUE)',
-            f"ROOT.gInterpreter.Declare('btagSF{flavour} btag_SF{flavour} = btagSF{flavour}(\"/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/data/btag_eff/bTagEff_2022EE_ttbar_loose.root\",\"{year}\",\"_parT\");')"
+            f"ROOT.gInterpreter.ProcessLine('btagSF{flavour} btag_SF{flavour} = btagSF{flavour}(\"/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/data/btag_eff/bTagEff_2022EE_ttbar_loose.root\",\"{year}\",\"_parT\");')"
         ],
         'expr': f'btag_SF{flavour}(CleanJet_pt, CleanJet_eta, CleanJet_jetIdx, nCleanJet, Jet_hadronFlavour, Jet_btag{bAlgo}, "L", {shift_str})',
         'samples' : mc,
@@ -222,6 +222,7 @@ for flavour in ['bc', 'light']:
             'expr': f"{btagsf_tmp}[{i}]",
             'samples' : mc,
         }
+
 ##########################################################################
 # End of b tagging
 ##########################################################################
