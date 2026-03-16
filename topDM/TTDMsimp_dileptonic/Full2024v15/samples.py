@@ -41,8 +41,8 @@ dir_map = {
     'EGamma1': os.path.join(treeBaseDir, dataRecoEGamma, dataSteps),
 }
 
+signalDirectory = "/eos/user/v/victorr/HWWNano/Summer24_150x_nAODv15_Full2024v15/MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight"
 fake_dir_map = dir_map.copy()
-
 samples = {}
 
 
@@ -280,35 +280,37 @@ samples['ZZZ'] = {
 ###########################################
 '''
 mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
-
+'''
+mPhi = ['300']
+'''
 # tt+DM dilepton scalar
 for phi in mPhi:
-    samples[f'TTto2LDMsimpSpin0_s_mchi-{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mchi-{phi}'),
+    samples[f'TTto2LDMsimpSpin0_s_mphi-{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-
+'''
 # tt+DM inclusive scalar
 for phi in mPhi:
-    samples[f'TTDMsimpSpin0_s_mchi-{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mchi-{phi}'),
+    samples[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-
+'''
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
-    samples[f'TTto2LDMsimpSpin0_ps_mchi-{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mchi-{phi}'),
+    samples[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
 
 # tt+DM inclusive pseudoscalar
 for phi in mPhi:
-    samples[f'TTDMsimpSpin0_ps_mchi-{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mchi-{phi}'),
+    samples[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}'),
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
