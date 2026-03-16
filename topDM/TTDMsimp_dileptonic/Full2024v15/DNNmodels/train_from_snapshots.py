@@ -258,7 +258,7 @@ training = model.fit(
     Y_train,
     epochs=300,
     validation_split=0.15,
-    batch_size=32,
+    batch_size=64,
     callbacks=[early, reduce_lr],
     verbose=2,
     shuffle=True
