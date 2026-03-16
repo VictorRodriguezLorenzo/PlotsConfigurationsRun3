@@ -65,7 +65,8 @@ float evaluate_dnn(
     float chel,
     float pdark,
     float dphi_ttbar,
-    float dphi_met_llb
+    float dphi_met_llb,
+    float mPhi
                 )
 {
     Py_Initialize();
@@ -141,11 +142,12 @@ float evaluate_dnn(
             input.push_back(pdark);                      // doubleNu_producer[8]
             input.push_back(dphi_ttbar);                 // doubleNu_producer[7]
             input.push_back(dphi_met_llb);
+            input.push_back(mPhi);
 
             // Input
-            PyObject* pList = PyList_New(41);
-            for (int i = 0; i < 41; ++i) {
-                PyList_SetItem(pList, i, PyFloat_FromDouble((double)input[i]));
+	    PyObject* pList = PyList_New(input.size());
+            for (size_t i = 0; i < input.size(); ++i) {
+	        PyList_SetItem(pList, i, PyFloat_FromDouble((double)input[i]));
             }
             PyObject* pArgs = PyTuple_Pack(1, pList);
             if (pArgs != NULL) {

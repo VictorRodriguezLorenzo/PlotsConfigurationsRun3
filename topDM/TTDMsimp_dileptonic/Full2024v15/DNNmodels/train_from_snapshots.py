@@ -28,6 +28,8 @@ loaded_model = False
 
 MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2024v15/DNNmodels/model_DNN.h5"
 
+PARAMETRIC = True
+
 # ============================================================
 # VARIABLES
 # ============================================================
@@ -84,6 +86,9 @@ var = [
 'dphi_met_llb'
 ]
 
+if PARAMETRIC:
+    var.append("mPhi")
+
 #var = [
 #    'dphill',
 #    'PuppiMET_pt',
@@ -120,6 +125,10 @@ for f in files_sig:
         sample_groups[tag].append(f)
 
 print("Signal sample groups:", {k: len(v) for k, v in sample_groups.items()})
+
+def extract_mphi(sample_tag):
+    match = re.search(r"m[Pp]hi[_-]?(\d+)", sample_tag)
+    return float(match.group(1)) if match else None
 
 # -------------------------------
 # CREATE TCHAINS AND GET COUNTS
@@ -163,22 +172,36 @@ def downsample(chain, target):
     return rdf
 
 # -------------------------------
-# DOWNSAMPLE SIGNAL AND BACKGROUND
+# DOWNSAMPLE SIGNALS
 # -------------------------------
 dataframes = {key: downsample(chain, target_size) for key, chain in sig_chains.items()}
-rdf_bkg = downsample(chain_bkg, target_size)
+rdf_bkg = ROOT.RDataFrame(chain_bkg)
 
 # -------------------------------
 # CONVERT TO PANDAS AND ADD LABELS
 # -------------------------------
 pd_dataframes = {}
 for key, rdf in dataframes.items():
-    pd_df = pd.DataFrame(rdf.AsNumpy(var))
+    features_to_read = [v for v in var if v != "mPhi"]
+    pd_df = pd.DataFrame(rdf.AsNumpy(features_to_read))
+
+    if PARAMETRIC:
+        mphi = extract_mphi(key)
+        if mphi is None:
+            raise RuntimeError(f"Could not infer mPhi from signal tag: {key}")
+        pd_df["mPhi"] = mphi
     pd_df['isSignal'] = 1
     pd_df['isBkg'] = 0
     pd_dataframes[key] = pd_df
 
 Bkg = pd.DataFrame(rdf_bkg.AsNumpy(var))
+features_to_read = [v for v in var if v != "mPhi"]
+Bkg = pd.DataFrame(rdf_bkg.AsNumpy(features_to_read))
+if PARAMETRIC:
+    signal_hypotheses = sorted({extract_mphi(k) for k in sample_groups if extract_mphi(k) is not None})
+    if not signal_hypotheses:
+        raise RuntimeError("No signal mPhi hypotheses found for parametric training.")
+    Bkg["mPhi"] = np.random.choice(signal_hypotheses, len(Bkg))
 Bkg['isSignal'] = 0
 Bkg['isBkg'] = 1
 
@@ -189,9 +212,9 @@ Sig = pd.concat([df for df in pd_dataframes.values()])
 
 # Balance lengths
 if len(Sig) > len(Bkg):
-    Sig = Sig.sample(len(Bkg), random_state=42)
+    Sig = Sig.sample(len(Bkg))
 else:
-    Bkg = Bkg.sample(len(Sig), random_state=42)
+    Bkg = Bkg.sample(len(Sig))
 
 df_all = pd.concat([Sig, Bkg])
 df_all.dropna(inplace=True)
@@ -396,6 +419,53 @@ plt.axhline(y=1, color = 'black', linestyle = '--', linewidth = 0.5)
 plt.savefig('./Plots/ROC'+ANALYSIS_NAME+'.png', dpi = 600)
 print("")
 print("The AUC of the model is: ", auc)
+
+if PARAMETRIC and "mPhi" in X_test.columns:
+    print("")
+    print("Plotting individual ROCs for different mPhi hypotheses-----------------------------------------------------------------------")
+
+    roc_df = pd.DataFrame({
+        "isSignal": np.asarray(Y_test["isSignal"]).reshape(-1),
+        "score": np.asarray(y_pred_L).reshape(-1),
+        "mPhi": np.asarray(X_test["mPhi"]).reshape(-1),
+    })
+
+    roc_curves_by_mass = []
+    unique_masses = sorted(roc_df["mPhi"].dropna().unique())
+
+    for mass in unique_masses:
+        mass_slice = roc_df[roc_df["mPhi"] == mass]
+
+        # Need both classes to compute ROC/AUC.
+        if mass_slice["isSignal"].nunique() < 2:
+            print(f"Skipping mPhi={mass}: only one class present in test split")
+            continue
+
+        fpr_mass, tpr_mass, _ = metrics.roc_curve(mass_slice["isSignal"], mass_slice["score"])
+        auc_mass = metrics.auc(fpr_mass, tpr_mass)
+        roc_curves_by_mass.append((mass, fpr_mass, tpr_mass, auc_mass))
+
+    if roc_curves_by_mass:
+        plt.clf()
+        plt.figure(num=None, figsize=(7, 6))
+        plt.subplot(111)
+
+        color_map = plt.cm.get_cmap('tab20', len(roc_curves_by_mass))
+
+        print("AUC per mPhi hypothesis:")
+        for i, (mass, fpr_mass, tpr_mass, auc_mass) in enumerate(roc_curves_by_mass):
+            print(f"  mPhi={mass}: AUC={auc_mass:.4f}")
+            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=f"mPhi={mass:g} (AUC={auc_mass:.3f})")
+
+        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random guess')
+        plt.xlabel('False Positive rate', fontsize=12)
+        plt.ylabel('True Positive rate', fontsize=12)
+        plt.legend(loc='lower right', fontsize=9)
+        plt.axvline(x=0, color='black', linestyle='--', linewidth=0.5)
+        plt.axhline(y=1, color='black', linestyle='--', linewidth=0.5)
+        plt.savefig('./Plots/ROC'+ANALYSIS_NAME+'_mPhi.png', dpi=600)
+    else:
+        print("No per-mPhi ROC could be produced (insufficient class mixture per mass in test split).")
 
 print("DONE!")
 
