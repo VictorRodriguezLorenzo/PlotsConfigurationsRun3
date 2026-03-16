@@ -187,7 +187,7 @@ btagging_SFs = {
 
 # Algorithm and WP selection
 bAlgo = 'PNetB' # ['DeepFlavB','UParTAK4B','PNetB'] 
-bWP    = 'loose'     # ['loose','medium','tight','xtight','xxtight']
+bWP    = 'medium'     # ['loose','medium','tight','xtight','xxtight']
 
 # b veto
 aliases['bVeto'] = {
@@ -208,6 +208,13 @@ year = '2024_Summer24'
 #shifts = ['central', 'down_fsrdef', 'down_hdamp', 'down_isrdef', 'down_jer', 'down_jes', 'down_mass', 'down_statistic', 'down_tune', 'up_fsrdef', 'up_hdamp','up_isrdef', 'up_jer', 'up_jes', 'up_mass', 'up_statistic', 'up_tune']
 shifts = ['central', 'up_uncorrelated', 'down_uncorrelated', 'up_correlated', 'down_correlated']
 shift_str = '{"' + '","'.join(shifts) + '"}'
+wp_map = {
+    "loose": "L",
+    "medium": "M",
+    "tight": "T",
+    "xtight": "XT",
+    "xxtight": "XXT"
+}
 
 for flavour in ['bc', 'light']:
     btagsf_tmp = 'btagSF_TMP_' + flavour
@@ -216,7 +223,7 @@ for flavour in ['bc', 'light']:
             f'ROOT.gSystem.Load("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/evaluate_btagSF{flavour}_cc.so","", ROOT.kTRUE)',
             f"ROOT.gInterpreter.ProcessLine('btagSF{flavour} btag_SF{flavour} = btagSF{flavour}(\"/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/data/btag_eff/bTagEff_2024_ttbar_loose.root\",\"{year}\",\"_parT\");')"
         ],
-        'expr': f'btag_SF{flavour}(CleanJet_pt, CleanJet_eta, CleanJet_jetIdx, nCleanJet, Jet_hadronFlavour, Jet_btag{bAlgo}, "L", {shift_str})',
+        'expr': f'btag_SF{flavour}(CleanJet_pt, CleanJet_eta, CleanJet_jetIdx, nCleanJet, Jet_hadronFlavour, Jet_btag{bAlgo}, "{wp_map[bWP]}", {shift_str})',
         'samples' : mc,
     }
     for i in range(len(shifts)):
