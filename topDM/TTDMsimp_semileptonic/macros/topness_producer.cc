@@ -3,6 +3,10 @@
 
 #include <cmath>
 #include <vector>
+#include <memory>
+#include <limits>
+#include <algorithm>
+
 #include "TLorentzVector.h"
 #include "ROOT/RVec.hxx"
 #include "Math/Minimizer.h"
@@ -21,28 +25,52 @@ struct TopnessFunctor {
     double nu_px, nu_py;
 
     double operator()(const double *x) {
-        const double nu_pz = x[0];
+
+        const double pWx   = x[0];
+        const double pWy   = x[1];
+        const double pWz   = x[2];
+        const double nu_pz = x[3];
 
         const double mW  = 80.379;
         const double mt  = 172.5;
+
         const double aW  = 5.0;
         const double at  = 15.0;
         const double aCM = 1000.0;
 
+        // --------------------
+        // neutrino
+        // --------------------
         TLorentzVector nu;
         double nu_E = std::sqrt(nu_px*nu_px + nu_py*nu_py + nu_pz*nu_pz);
         nu.SetPxPyPzE(nu_px, nu_py, nu_pz, nu_E);
 
-        TLorentzVector W    = lep + nu;
-        TLorentzVector top1 = b1 + W;
-        TLorentzVector top2 = b2 + W;
-        TLorentzVector sum  = lep + nu + b1 + b2;
+        // --------------------
+        // lost W boson
+        // --------------------
+        TLorentzVector W;
+        double EW = std::sqrt(pWx*pWx + pWy*pWy + pWz*pWz + mW*mW);
+        W.SetPxPyPzE(pWx, pWy, pWz, EW);
 
+        // --------------------
+        // top hypotheses
+        // --------------------
+        TLorentzVector top1 = b1 + lep + nu;
+        TLorentzVector top2 = b2 + W;
+
+        // --------------------
+        // CM system (5 particles)
+        // --------------------
+        TLorentzVector sum = b1 + b2 + lep + nu + W;
+
+        // --------------------
+        // S function
+        // --------------------
         double S =
-            std::pow(mW*mW - W.M2(), 2) / std::pow(aW, 4) +
-            std::pow(mt*mt - top1.M2(), 2) / std::pow(at, 4) +
-            std::pow(mt*mt - top2.M2(), 2) / std::pow(at, 4) +
-            std::pow(4*mt*mt - sum.M2(), 2) / std::pow(aCM, 4);
+            std::pow(mW*mW - W.M2(), 2) / std::pow(aW,4) +
+            std::pow(mt*mt - top1.M2(), 2) / std::pow(at,4) +
+            std::pow(mt*mt - top2.M2(), 2) / std::pow(at,4) +
+            std::pow(4*mt*mt - sum.M2(), 2) / std::pow(aCM,4);
 
         return S;
     }
@@ -51,89 +79,149 @@ struct TopnessFunctor {
 // --------------------
 // Producer
 // --------------------
-RVecF topness_producer_minuit(
+double topness_producer_minuit(
+
     int nCleanJet,
-    RVecF CleanJet_pt, RVecF CleanJet_eta, RVecF CleanJet_phi, RVecF CleanJet_mass, RVecI CleanJet_jetIdx,
+    RVecF CleanJet_pt,
+    RVecF CleanJet_eta,
+    RVecF CleanJet_phi,
+    RVecF CleanJet_mass,
+
     int nLep,
-    RVecF Lep_pt, RVecF Lep_eta, RVecF Lep_phi, RVecI Lep_pdgId,
-    float PuppiMET_pt, float PuppiMET_phi,
-    RVecF Jet_btagger, float bAlgo_WP
+    RVecF Lep_pt,
+    RVecF Lep_eta,
+    RVecF Lep_phi,
+    RVecI Lep_pdgId,
+
+    float PuppiMET_pt,
+    float PuppiMET_phi,
+
+    RVecF Jet_btagger,
+    float bAlgo_WP
 ) {
 
     if (nLep < 1 || nCleanJet < 2)
-        return RVecF{NAN};
+        return NAN;
 
     // --------------------
     // Lepton
     // --------------------
     double lepMass = (std::abs(Lep_pdgId[0]) == 13 ? 0.105658 : 0.000511);
+
     TLorentzVector lep;
-    lep.SetPtEtaPhiM(Lep_pt[0], Lep_eta[0], Lep_phi[0], lepMass);
+    lep.SetPtEtaPhiM(
+        Lep_pt[0],
+        Lep_eta[0],
+        Lep_phi[0],
+        lepMass
+    );
 
     // --------------------
-    // b-jets
+    // select b jets
     // --------------------
     std::vector<int> bjets;
     for (size_t i = 0; i < CleanJet_pt.size(); ++i) {
-        int idx = CleanJet_jetIdx[i];
-        if (idx < 0 || idx >= (int)Jet_btagger.size()) continue;
-        if (CleanJet_pt[i] > 20.0 &&
+        if (i < 0 || i >= (int)Jet_btagger.size()) continue;
+
+        if (CleanJet_pt[i] > 30.0 &&
             std::abs(CleanJet_eta[i]) < 2.5 &&
-            Jet_btagger[idx] > bAlgo_WP)
+            Jet_btagger[i] > bAlgo_WP)
+        {
             bjets.push_back(i);
+        }
     }
 
-    if (bjets.size() < 2)
-        return RVecF{NAN};
-
-    TLorentzVector b1, b2;
-    b1.SetPtEtaPhiM(
-        CleanJet_pt[bjets[0]], CleanJet_eta[bjets[0]],
-        CleanJet_phi[bjets[0]], CleanJet_mass[bjets[0]]
-    );
-    b2.SetPtEtaPhiM(
-        CleanJet_pt[bjets[1]], CleanJet_eta[bjets[1]],
-        CleanJet_phi[bjets[1]], CleanJet_mass[bjets[1]]
-    );
-
     // --------------------
-    // MET
+    // MET equals neutrino px,py
     // --------------------
     double nu_px = PuppiMET_pt * std::cos(PuppiMET_phi);
     double nu_py = PuppiMET_pt * std::sin(PuppiMET_phi);
 
     // --------------------
-    // Build functor
+    // build jet pairs
     // --------------------
-    TopnessFunctor f;
-    f.b1 = b1;
-    f.b2 = b2;
-    f.lep = lep;
-    f.nu_px = nu_px;
-    f.nu_py = nu_py;
+    std::vector<std::pair<int,int>> jetPairs;
 
-    ROOT::Math::Functor functor(f, 1);
+    if (bjets.size() >= 2) {
+        jetPairs.push_back({bjets[0], bjets[1]});
+    } else if (bjets.size() == 1) {
+        // only one b-jet: pair it with the two hardest untagged jets
+        std::vector<int> untagged;
+        for (size_t i = 0; i < CleanJet_pt.size(); ++i) {
+            if ((int)i == bjets[0]) continue;
+            if (CleanJet_pt[i] > 30.0 && std::abs(CleanJet_eta[i]) < 2.5)
+                untagged.push_back(i);
+        }
+
+        // sort untagged jets by pt descending
+        std::sort(untagged.begin(), untagged.end(), [&](int a,int b){
+            return CleanJet_pt[a] > CleanJet_pt[b];
+        });
+
+        for (int i = 0; i < std::min(2,(int)untagged.size()); ++i) {
+            jetPairs.push_back({bjets[0], untagged[i]});
+        }
+
+    } else {
+        // no b-jets: cannot proceed
+        return NAN;
+    }
+
+    double bestS = std::numeric_limits<double>::infinity();
 
     // --------------------
-    // Minuit
+    // loop over jetPairs and permutations
     // --------------------
-    std::unique_ptr<ROOT::Math::Minimizer> min(
-        ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad")
-    );
+    for (auto &[i1,i2] : jetPairs) {
 
-    min->SetFunction(functor);
-    min->SetLimitedVariable(0, "nu_pz", 0.0, 10.0, -1000.0, 1000.0);
-    min->SetMaxFunctionCalls(10000);
-    min->SetTolerance(1e-3);
-    min->Minimize();
+        TLorentzVector jet1, jet2;
+        jet1.SetPtEtaPhiM(CleanJet_pt[i1], CleanJet_eta[i1], CleanJet_phi[i1], CleanJet_mass[i1]);
+        jet2.SetPtEtaPhiM(CleanJet_pt[i2], CleanJet_eta[i2], CleanJet_phi[i2], CleanJet_mass[i2]);
 
-    double minS = min->MinValue();
+        for (int perm = 0; perm < 2; perm++) {
 
-    if (!std::isfinite(minS) || minS <= 0)
-        return RVecF{NAN};
+            TLorentzVector b1 = (perm == 0 ? jet1 : jet2);
+            TLorentzVector b2 = (perm == 0 ? jet2 : jet1);
 
-    return RVecF{static_cast<float>(std::log(minS))};
+            TopnessFunctor f;
+            f.b1 = b1;
+            f.b2 = b2;
+            f.lep = lep;
+            f.nu_px = nu_px;
+            f.nu_py = nu_py;
+
+            ROOT::Math::Functor functor(f,4);
+
+            std::unique_ptr<ROOT::Math::Minimizer> min(
+                ROOT::Math::Factory::CreateMinimizer("Minuit2","Simplex") // Nelder-Mead
+            );
+            
+            min->SetFunction(functor);
+            
+            // parameters: pWx, pWy, pWz, nu_pz
+            min->SetVariable(0,"pWx",0.0,10.0);
+            min->SetVariable(1,"pWy",0.0,10.0);
+            min->SetVariable(2,"pWz",0.0,10.0);
+            min->SetVariable(3,"nu_pz",0.0,10.0);
+            
+            min->SetMaxFunctionCalls(10);
+            min->SetMaxIterations(10);
+            
+            min->Minimize();
+
+            double S = min->MinValue();
+
+            if (std::isfinite(S) && S < bestS)
+                bestS = S;
+        }
+    }
+
+    if (!std::isfinite(bestS))
+        return NAN;
+
+    float topness = std::log(bestS);
+
+    return topness;
 }
 
 #endif
-

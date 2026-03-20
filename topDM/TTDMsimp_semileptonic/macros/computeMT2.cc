@@ -116,6 +116,8 @@ class asymm_mt2_lester_bisect {
  public:
   static const int MT2_ERROR = -1;
 
+  static bool isFinite(const double x) { return std::isfinite(x); }
+
   static double get_mT2(const double mVis1, const double pxVis1,
                         const double pyVis1, const double mVis2,
                         const double pxVis2, const double pyVis2,
@@ -139,6 +141,13 @@ class asymm_mt2_lester_bisect {
                            const double mInvis1, const double mInvis2,
                            const double desiredPrecisionOnMT2 = 0,
                            const bool useDeciSectionsInitially = true) {
+    if (!isFinite(mVis1) || !isFinite(pxVis1) || !isFinite(pyVis1) ||
+        !isFinite(mVis2) || !isFinite(pxVis2) || !isFinite(pyVis2) ||
+        !isFinite(pxMiss) || !isFinite(pyMiss) || !isFinite(mInvis1) ||
+        !isFinite(mInvis2) || !isFinite(desiredPrecisionOnMT2)) {
+      return MT2_ERROR;
+    }
+
     const double m1Min = mVis1 + mInvis1;
     const double m2Min = mVis2 + mInvis2;
 
@@ -170,7 +179,15 @@ class asymm_mt2_lester_bisect {
     if (scaleSq == 0) {
       return 0;
     }
+
+    if (scaleSq < 0 || !isFinite(scaleSq)) {
+      return MT2_ERROR;
+    }
+
     const double scale = sqrt(scaleSq);
+    if (!isFinite(scale)) {
+      return MT2_ERROR;
+    }
 
     double mLower = mMin;
     double mUpper = mMin + scale;
@@ -205,15 +222,31 @@ class asymm_mt2_lester_bisect {
     }
 
     bool goLow = useDeciSectionsInitially;
+    unsigned int bisectAttempts = 0;
+    const unsigned int maxBisectAttempts = 10000;
     while (desiredPrecisionOnMT2 <= 0 || mUpper - mLower > desiredPrecisionOnMT2) {
+      ++bisectAttempts;
+      if (bisectAttempts >= maxBisectAttempts) {
+        std::cerr << "MT2 algorithm exceeded max bisection iterations"
+                  << std::endl;
+        return MT2_ERROR;
+      }
+
       const double trialM = (goLow ? (mLower * 15 + mUpper) / 16
                                    : (mUpper + mLower) / 2.0);
+
+      if (!isFinite(mLower) || !isFinite(mUpper) || !isFinite(trialM)) {
+        return MT2_ERROR;
+      }
 
       if (trialM <= mLower || trialM >= mUpper) {
         return trialM * trialM;
       }
 
       const double trialMSq = trialM * trialM;
+      if (!isFinite(trialMSq)) {
+        return MT2_ERROR;
+      }
       const Lester::EllipseParams &side1 = helper(trialMSq, msSq, -sx, -sy,
                                                   mpSq, 0, 0);
       const Lester::EllipseParams &side2 = helper(trialMSq, mtSq, +tx, +ty,
@@ -276,6 +309,12 @@ class asymm_mt2_lester_bisect {
 // ---------------------------------------------------------------------------
 float computeMT2(float l1_pt, float l1_eta, float l1_phi, float l2_pt,
                  float l2_eta, float l2_phi, float met_pt, float met_phi) {
+  if (!std::isfinite(l1_pt) || !std::isfinite(l1_eta) || !std::isfinite(l1_phi) ||
+      !std::isfinite(l2_pt) || !std::isfinite(l2_eta) || !std::isfinite(l2_phi) ||
+      !std::isfinite(met_pt) || !std::isfinite(met_phi)) {
+    return static_cast<float>(asymm_mt2_lester_bisect::MT2_ERROR);
+  }
+
   TLorentzVector lepton1, lepton2;
   lepton1.SetPtEtaPhiM(l1_pt, l1_eta, l1_phi, 0.0);
   lepton2.SetPtEtaPhiM(l2_pt, l2_eta, l2_phi, 0.0);
@@ -299,8 +338,11 @@ float computeMT2(float l1_pt, float l1_eta, float l1_phi, float l2_pt,
       mVisA, pxA, pyA, mVisB, pxB, pyB, pxMiss, pyMiss, chiA, chiB,
       desiredPrecisionOnMt2);
 
+  if (!std::isfinite(mT2)) {
+    return static_cast<float>(asymm_mt2_lester_bisect::MT2_ERROR);
+  }
+
   return static_cast<float>(mT2);
 }
 
 #endif
-

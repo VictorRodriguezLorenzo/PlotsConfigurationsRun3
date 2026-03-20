@@ -49,12 +49,9 @@ class btagSFbc {
       std::string correctionKey;
       std::string wpKey;
       
-      std::string correctionKey_alt;
-      
       if (year_ == "2024_Summer24"){
-	      correctionKey = "UParTAK4_kinfit";
+	      correctionKey = "UParTAK4_mujets";
 	      wpKey = "UParTAK4_wp_values";
-        correctionKey_alt = "robustParticleTransformer_mujets";
       }
       else{
 	      correctionKey	= "robustParticleTransformer_mujets";
@@ -64,12 +61,12 @@ class btagSFbc {
       auto cset_deepJet_mujets_alt  = cset->at(correctionKey);
 
       if (year_ == "2024_Summer24")
-	      cset_deepJet_mujets_alt  = cset_light->at(correctionKey_alt);
+	      cset_deepJet_mujets_alt  = cset_light->at(correctionKey);
       auto cset_deepJet_mujets  = cset->at(correctionKey);
       auto cset_deepJet_wps     = cset->at(wpKey);
       
       for (long unsigned int i=0; i<systematic.size(); i++){
-	
+
 	float btag_sf    = 1.;
 	
 	for (unsigned iJ{0}; iJ != nCleanJet; ++iJ) {
@@ -84,8 +81,8 @@ class btagSFbc {
 	    else if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 4) {
 	      
 	      if (year_ == "2024_Summer24"){
-		//btag_sf *= cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]});
-		btag_sf *= cset_deepJet_mujets_alt->evaluate({"central", WP, 4, abs(CleanJet_eta[iJ]), pt});
+		btag_sf *= cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]});
+		//btag_sf *= cset_deepJet_mujets_alt->evaluate({"central", WP, 4, abs(CleanJet_eta[iJ]), pt});
 	      }else{
 		btag_sf *= cset_deepJet_mujets->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), pt});
 	      }
@@ -104,8 +101,8 @@ class btagSFbc {
 	      }
 	      else if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 4) {
 		if (year_ == "2024_Summer24"){
-		  //btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]}))/(1-btag_eff);
-		  btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({"central", WP, 4, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
+		  btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]}))/(1-btag_eff);
+		  //btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({"central", WP, 4, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
 		}else{
 		  btag_sf *= (1-btag_eff*cset_deepJet_mujets->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
 		}
@@ -131,8 +128,8 @@ btagSFbc::btagSFbc(TString eff_map, const string year, TString algo_extension = 
   year_ = year;
   if (year == "2024_Summer24"){
     home = "/cvmfs/cms-griddata.cern.ch/cat/metadata/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/";
-    cset = CorrectionSet::from_file(home + "/btagging_preliminary.json.gz");
-    cset_light = CorrectionSet::from_file("/cvmfs/cms-griddata.cern.ch/cat/metadata/BTV/Run3-23DSep23-Summer23BPix-NanoAODv12/latest/btagging.json.gz");
+    cset = CorrectionSet::from_file(home + "/btagging.json.gz");
+    cset_light = CorrectionSet::from_file(home + "/btagging.json.gz");
   }
   else{
     home = "/afs/cern.ch/user/v/victorr/private/mkShapesRDF/mkShapesRDF/processor/data/jsonpog-integration/POG/BTV/" + year;  

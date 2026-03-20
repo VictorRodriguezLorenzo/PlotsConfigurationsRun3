@@ -15,60 +15,18 @@ variables['nvtx'] = {
     'fold'  : 3
 }
 
-variables['mll'] = {
-    'name': 'mll',    
-    'range' : (60,60,120), 
-    'xaxis' : 'm_{ll} [GeV]',
-    'fold' : 0
-}
-
-variables['mth'] = {
-    'name': 'mth',
-    'range' : (60,0,200),
-    'xaxis' : 'm_{T}^{H} [GeV]',
-    'fold' : 0
-}
-
 variables['mtw1']  = {
     'name': 'mtw1',
-    'range' : (50, 0.,100),
+    'range' : (50, 0., 400),
     'xaxis' : 'm_{T}^{W_{1}} [GeV]',
-    'fold' : 0
+    'fold' : 2
 }
 
-variables['mtw2']  = {
-    'name': 'mtw2',
-    'range' : (50, 0.,100),
-    'xaxis' : 'm_{T}^{W_{2}} [GeV]',
-    'fold' : 0
-}
-
-variables['ptll']  = {  
-    'name': 'ptll',     
-    'range' : (20, 0,200),   
-    'xaxis' : 'p_{T}^{ll} [GeV]',
-    'fold' : 0
-}
-
-variables['drll']  = {
-    'name': 'drll',
-    'range' : (50, 0,5),
-    'xaxis' : '#Delta R_{ll}',
-    'fold' : 0
-}
-
-variables['dphill']  = {
-    'name': 'abs(dphill)',
-    'range' : (50, 0,3.15),
-    'xaxis' : '#Delta #phi_{ll}',
-    'fold' : 0
-}
-
-variables['detall'] = {
-    'name'  : 'abs(detall)',
-    'range' : (40, 0., 5.),
-    'xaxis' : '|#Delta#eta_{ll}|',
-    'fold'  : 3
+variables['mt2w']  = {
+    'name': 'mt2w',
+    'range' : (50, 0, 450),
+    'xaxis' : 'm_{T2}^{W} [GeV]',
+    'fold'  : 2                         
 }
 
 variables['pt1']  = { 
@@ -85,13 +43,6 @@ variables['pt2']  = {
     'fold'  : 3                         
 }
 
-variables['pt3']  = {
-    'name': 'Lepton_pt[2]',
-    'range' : (20,0,100),   
-    'xaxis' : 'p_{T} 3rd lep',
-    'fold'  : 3
-}
-
 variables['eta1']  = {
     'name': 'Lepton_eta[0]',     
     'range' : (40,-3,3),   
@@ -106,7 +57,6 @@ variables['eta2']  = {
     'fold'  : 3                         
 }
 
-                        
 variables['phi1']  = {
     'name': 'Lepton_phi[0]',
     'range' : (20,-3.2,3.2),
@@ -143,7 +93,7 @@ variables['jetrpartb']  = {
 # MET
 variables['puppimet']  = {
     'name': 'PuppiMET_pt',
-    'range' : (20,0,200),
+    'range' : (20,0,400),
     'xaxis' : 'Puppi MET p_{T} [GeV]',
     'fold' : 3
 }
@@ -252,9 +202,9 @@ variables['mindphi_jet_met'] = {
 
 variables['mtb'] = {
     'name': 'MTb',
-    'range' : (60,0,200),
+    'range' : (60,0,1000),
     'xaxis' : 'm_{T}^{MET+b} [GeV]',
-    'fold' : 0
+    'fold' : 2
 }
 
 variables['h1t'] = {
@@ -268,6 +218,6 @@ variables['topness'] = {
     'name': 'topness',
     'range' : (25,-10,15),
     'xaxis' : 'modified topnes',
-    'fold' : 0
+    'fold' : 3
 }
 

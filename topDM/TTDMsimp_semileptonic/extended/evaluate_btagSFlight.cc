@@ -45,15 +45,12 @@ class btagSFlight {
 
       RVecF results(systematic.size(), 1.0);
 
-      std::string correctionKey_alt;
       std::string correctionKey;
       std::string wpKey;
       
       if (year_ == "2024_Summer24"){
-        correctionKey = "UParTAK4_kinfit";
+        correctionKey = "UParTAK4_light";
         wpKey = "UParTAK4_wp_values";
-
-	correctionKey_alt = "robustParticleTransformer_light";
       }else{
         correctionKey = "robustParticleTransformer_light";
         wpKey = "robustParticleTransformer_wp_values";
@@ -61,18 +58,15 @@ class btagSFlight {
 
       auto cset_deepJet_mujets_alt  = cset->at(correctionKey);
       if (year_ == "2024_Summer24")
-	cset_deepJet_mujets_alt = cset_light->at(correctionKey_alt);
+	cset_deepJet_mujets_alt = cset_light->at(correctionKey);
       auto cset_deepJet_mujets  = cset->at(correctionKey);
       auto cset_deepJet_wps     = cset->at(wpKey);
 
       for (long unsigned int i=0; i<systematic.size(); i++){
 
-	//std::cout << systematic[i] << std::endl;
-	
 	float btag_sf    = 1.;
 	for (unsigned iJ{0}; iJ != nCleanJet; ++iJ) {
 
-	  //std::cout << "New Jet" << std::endl;
 	  double pt = ROOT::VecOps::Min(ROOT::RVecD{CleanJet_pt[iJ], 9999.9});
 	  
 	  if (CleanJet_pt[iJ] <= 30. || abs(CleanJet_eta[iJ]) >= 2.5) continue;
@@ -80,8 +74,8 @@ class btagSFlight {
 
 	    if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 0) {
 	      if (year_ == "2024_Summer24"){
-		//btag_sf *= cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]});
-		btag_sf *= cset_deepJet_mujets_alt->evaluate({"central", WP, 0, abs(CleanJet_eta[iJ]), pt});
+		btag_sf *= cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]});
+		//btag_sf *= cset_deepJet_mujets_alt->evaluate({"central", WP, 0, abs(CleanJet_eta[iJ]), pt});
               }else{
 		btag_sf *= cset_deepJet_mujets->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), pt});		
 	      }
@@ -98,8 +92,8 @@ class btagSFlight {
 	    else {
 	      if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 0) {
 		if (year_ == "2024_Summer24"){
-		  //btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]}))/(1-btag_eff);
-		  btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({"central", WP, 0, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
+		  btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]}))/(1-btag_eff);
+		  //btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({"central", WP, 0, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
 		}else{
 		  btag_sf *= (1-btag_eff*cset_deepJet_mujets->evaluate({systematic[i], WP, 0, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
 		}
@@ -125,8 +119,8 @@ btagSFlight::btagSFlight(TString eff_map, const string year, TString algo_extens
   year_ = year;
   if (year == "2024_Summer24"){
     home = "/cvmfs/cms-griddata.cern.ch/cat/metadata/BTV/Run3-24CDEReprocessingFGHIPrompt-Summer24-NanoAODv15/latest/";
-    cset = CorrectionSet::from_file(home + "/btagging_preliminary.json.gz");
-    cset_light = CorrectionSet::from_file("/cvmfs/cms-griddata.cern.ch/cat/metadata/BTV/Run3-23DSep23-Summer23BPix-NanoAODv12/latest/btagging.json.gz");
+    cset = CorrectionSet::from_file(home + "/btagging.json.gz");
+    cset_light = CorrectionSet::from_file(home + "/btagging.json.gz");
   }else{
     home = "/afs/cern.ch/user/v/victorr/private/mkShapesRDF/mkShapesRDF/processor/data/jsonpog-integration/POG/BTV/" + year;
     cset = CorrectionSet::from_file(home + "/btagging.json.gz");

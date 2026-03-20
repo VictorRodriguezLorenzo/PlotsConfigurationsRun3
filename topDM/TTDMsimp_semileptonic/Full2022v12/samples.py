@@ -6,17 +6,16 @@ redirector = ""
 useXROOTD = False
 
 mcProduction = 'Summer22_130x_nAODv12_Full2022v12'
-#mcSteps      = 'MCl2loose2022v12__MCCorr2022v12JetScaling__sblancof__l2tight'
-mcSteps      = 'MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
+mcSteps      = 'MCl1loose2022v12__MCCorr2022v12JetScaling'
 dataReco     = 'Run2022_ReReco_nAODv12_Full2022v12'
-#dataSteps    = 'DATAl2loose2022v12__sblancof__l2loose'
-dataSteps    = 'DATAl2loose2022v12__l2loose'
+dataSteps    = 'DATAl1loose2022v12'
 
 ##############################################
 ###### Tree base directory for the site ######
 ##############################################
 #treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/calderon/HWWNano/'
-treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/'
+#treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/'
+treeBaseDir = '/eos/user/v/victorr/HWWNano/'
 limitFiles = -1
 
 def makeMCDirectory(var=""):
@@ -278,7 +277,7 @@ for phi in mPhi:
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-'''
+
 # tt+DM inclusive scalar
 for phi in mPhi:
     samples[f'TTDMsimpSpin0_s_mphi_{phi}'] = {
@@ -286,7 +285,7 @@ for phi in mPhi:
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-'''
+
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     samples[f'TTto2LDMsimpSpin0_ps_mphi_{phi}'] = {

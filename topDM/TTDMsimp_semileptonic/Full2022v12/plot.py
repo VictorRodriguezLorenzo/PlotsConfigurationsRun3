@@ -91,7 +91,7 @@ for phi in mPhi:
             'color': 100, # kRed 
             'samples'  : [f'TTto2LDMsimpSpin0_s_mphi_{phi}']
             }
-'''
+
 # tt+DM inclusive scalar
 for phi in mPhi:
    groupPlot[f'TTDMsimpSpin0_s_mphi_{phi}']  = {
@@ -100,7 +100,7 @@ for phi in mPhi:
             'color': 632, # kRed 
             'samples'  : [f'TTDMsimpSpin0_s_mphi_{phi}']
             }
-'''
+
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     plot['TTto2LDMsimpSpin0_ps_mphi_{phi}']  = {
@@ -243,7 +243,7 @@ for phi in mPhi:
             'isData'   : 0,
             'scale'    : 1.0
             }
-'''
+
 # tt+DM inclusive scalar
 for phi in mPhi:
     plot[f'TTDMsimpSpin0_s_mphi_{phi}']  = {
@@ -252,7 +252,7 @@ for phi in mPhi:
             'isData'   : 0,
             'scale'    : 1e3 
             }
-'''
+
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     plot[f'TTto2LDMsimpSpin0_ps_mphi_{phi}']  = {
