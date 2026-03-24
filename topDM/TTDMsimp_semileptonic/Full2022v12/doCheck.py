@@ -77,7 +77,7 @@ transfer_input_files = $(Folder)/script.py, /afs/cern.ch/user/v/victorr/private/
 output = $(Folder)/out.txt
 error  = $(Folder)/err.txt
 log    = $(Folder)/log.txt
-request_cpus   = 1
+request_cpus   = 4
 +JobFlavour = "nextweek"
 queue 1 Folder in  RPLME_ALLSAMPLES"""
         

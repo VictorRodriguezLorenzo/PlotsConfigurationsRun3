@@ -217,7 +217,7 @@ variables['h1t'] = {
 variables['topness'] = {
     'name': 'topness',
     'range' : (25,-10,15),
-    'xaxis' : 'modified topnes',
+    'xaxis' : 'modified topness',
     'fold' : 3
 }
 

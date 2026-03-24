@@ -4,19 +4,19 @@ groupPlot = {}
 #############  BACKGROUNDS  ###############
 ###########################################
 
-groupPlot['DY']  = {  
-    'nameHR'   : 'DY',
-    'isSignal' : 0,
-    'color'    : 418, #kGreen+4
-    'samples'  : ['DY']
-}
+#groupPlot['DY']  = {  
+#    'nameHR'   : 'DY',
+#    'isSignal' : 0,
+#    'color'    : 418, #kGreen+4
+#    'samples'  : ['DY']
+#}
 
-groupPlot['ST']  = {  
-    'nameHR'   : 'Single Top',
-    'isSignal' : 0,
-    'color'    : 619, 
-    'samples'  : ['ST']
-}
+#groupPlot['ST']  = {  
+#    'nameHR'   : 'Single Top',
+#    'isSignal' : 0,
+#    'color'    : 619, 
+#    'samples'  : ['ST']
+#}
 
 groupPlot['TTTo2L2Nu']  = {  
     'nameHR'   : 't#bar{t}(2l)',
@@ -32,40 +32,40 @@ groupPlot['TTToSemiLeptonic']  = {
     'samples'  : ['TTToSemiLeptonic']
 }
 
-groupPlot['TTTo4Q']  = {  
-    'nameHR'   : 't#bar{t}(4q)',
-    'isSignal' : 0,
-    'color'    : 810,   # kOrange + 10
-    'samples'  : ['TTTo4Q']
-}
-
-groupPlot['TTV']  = {  
-    'nameHR'   : 'TTV',
-    'isSignal' : 0,
-    'color'    : 616,   # kMagenta
-    'samples'  : ['TTV']
-}
-
-groupPlot['TXX']  = {  
-    'nameHR'   : 't + X',
-    'isSignal' : 0,
-    'color'    : 870,   # kAzure + 10
-    'samples'  : ['TXX']
-}
-
-groupPlot['VV']  = {  
-    'nameHR'   : 'VV',
-    'isSignal' : 0,
-    'color'    : 857, # kAzure -3
-    'samples'  : ['WW', 'WZ', 'ZZ']
-}
-
-groupPlot['VVV']  = {  
-    'nameHR'   : 'VVV',
-    'isSignal' : 0,
-    'color'    : 432, # kCyan
-    'samples'  : ['WWW', 'WWZ', 'WZZ', 'ZZZ']
-}
+#groupPlot['TTTo4Q']  = {  
+#    'nameHR'   : 't#bar{t}(4q)',
+#    'isSignal' : 0,
+#    'color'    : 810,   # kOrange + 10
+#    'samples'  : ['TTTo4Q']
+#}
+#
+#groupPlot['TTV']  = {  
+#    'nameHR'   : 'TTV',
+#    'isSignal' : 0,
+#    'color'    : 616,   # kMagenta
+#    'samples'  : ['TTV']
+#}
+#
+#groupPlot['TXX']  = {  
+#    'nameHR'   : 't + X',
+#    'isSignal' : 0,
+#    'color'    : 870,   # kAzure + 10
+#    'samples'  : ['TXX']
+#}
+#
+#groupPlot['VV']  = {  
+#    'nameHR'   : 'VV',
+#    'isSignal' : 0,
+#    'color'    : 857, # kAzure -3
+#    'samples'  : ['WW', 'WZ', 'ZZ']
+#}
+#
+#groupPlot['VVV']  = {  
+#    'nameHR'   : 'VVV',
+#    'isSignal' : 0,
+#    'color'    : 432, # kCyan
+#    'samples'  : ['WWW', 'WWZ', 'WZZ', 'ZZZ']
+#}
 
 groupPlot['Fake']  = {
     'nameHR' : 'Non-prompt',
@@ -127,19 +127,19 @@ plot = {}
 #############  BACKGROUNDS  ###############
 ###########################################
 
-plot['DY']  = {  
-    'color'    : 418,    # kGreen+2
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
+#plot['DY']  = {  
+#    'color'    : 418,    # kGreen+2
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
 
-plot['ST']  = {  
-    'color'    : 619,
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
+#plot['ST']  = {  
+#    'color'    : 619,
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
 
 plot['TTTo2L2Nu']  = {  
     'color'    : 400, 
@@ -155,74 +155,74 @@ plot['TTToSemiLeptonic']  = {
     'scale'    : 1.0,
 }
 
-plot['TTTo4Q']  = {
-    'color'    : 810,   # kOrange + 10 
-    'isSignal' : 0,
-    'isData'   : 0,
-    'scale'    : 1.0,
-}
-
-plot['TTV']  = {  
-    'color'    : 616,   # kMagenta
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-
-plot['TXX']  = {  
-    'color'    : 870,   # kMagenta
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-
-plot['WW']  = {  
-    'color'    : 857, # kAzure -3
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-
-plot['WZ']  = {  
-    'color'    : 857, # kAzure -3
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-
-plot['ZZ']  = {  
-    'color'    : 857, # kAzure -3
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-
-plot['WWW']  = {  
-    'color'    : 432, # kCyan
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-plot['WWZ']  = {  
-    'color'    : 432, # kCyan
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-
-plot['WZZ']  = {  
-    'color'    : 432, # kCyan
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
-
-plot['ZZZ']  = {  
-    'color'    : 432, # kCyan
-    'isSignal' : 0,
-    'isData'   : 0, 
-    'scale'    : 1.0,
-}
+#plot['TTTo4Q']  = {
+#    'color'    : 810,   # kOrange + 10 
+#    'isSignal' : 0,
+#    'isData'   : 0,
+#    'scale'    : 1.0,
+#}
+#
+#plot['TTV']  = {  
+#    'color'    : 616,   # kMagenta
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#
+#plot['TXX']  = {  
+#    'color'    : 870,   # kMagenta
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#
+#plot['WW']  = {  
+#    'color'    : 857, # kAzure -3
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#
+#plot['WZ']  = {  
+#    'color'    : 857, # kAzure -3
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#
+#plot['ZZ']  = {  
+#    'color'    : 857, # kAzure -3
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#
+#plot['WWW']  = {  
+#    'color'    : 432, # kCyan
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#plot['WWZ']  = {  
+#    'color'    : 432, # kCyan
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#
+#plot['WZZ']  = {  
+#    'color'    : 432, # kCyan
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
+#
+#plot['ZZZ']  = {  
+#    'color'    : 432, # kCyan
+#    'isSignal' : 0,
+#    'isData'   : 0, 
+#    'scale'    : 1.0,
+#}
 
 plot['Fake']  = {
     'color': 921,    # kGray + 1
