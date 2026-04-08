@@ -66,7 +66,7 @@ float evaluate_dnn(
     float pdark,
     float dphi_ttbar,
     float dphi_met_llb,
-    float mPhi
+    int mPhi
                 )
 {
     Py_Initialize();

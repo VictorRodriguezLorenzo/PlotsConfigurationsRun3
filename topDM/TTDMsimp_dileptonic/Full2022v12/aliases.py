@@ -144,7 +144,7 @@ aliases['noJetInHorn'] = {
     'afterNuis': True
 }
 
-aliases['noJetInHorn_pT15'] = {
+aliases['noJetInHorn_pT30'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/jet_horns.cc"'],
     'expr': 'Jet_inHorns(CleanJet_pt, CleanJet_eta, true)'
 }
@@ -328,13 +328,16 @@ aliases['zLep_mll'] = {
 ########################## DNN discriminator ################################
 #############################################################################
 
-# DNN discriminator
-aliases['evaluate_dnn'] = {
-    'linesToAdd': ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022v12/evaluate_DNN.cc"'],
-    'class': 'evaluate_dnn',
-    'args': 'Lepton_pt[0], Lepton_pt[1], Lepton_eta[0], Lepton_eta[1], mll, ptll, drll, detall, dphill, yll, PuppiMET_pt, PuppiMET_phi, dphilmet, dphilmet1, dphilmet2, dphillmet, mtw1, mtw2, mth, mTi, mR, mT2, mTe, recoil, upara, uperp, pTWW, mcoll, mcollWW, choiMass, nbjet_jet_ratio, njet, ht, vht_pt, dphijet1met, dphijet2met, dphijjmet, doubleNu_producer[6], doubleNu_producer[8], doubleNu_producer[7], dphi_met_llb',
-    'afterNuis': True
+## DNN discriminator
+mPhi = ['10', '50', '100', '150', '200', '250', '300', '350', '400', '500', '600', '700', '800', '1000']
+for phi in mPhi:
+    aliases[f'evaluate_dnn_mPhi_{phi}'] = {
+        'linesToAdd': ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022v12/evaluate_DNN.cc"'],
+        'class': 'evaluate_dnn',
+        'args': f'Lepton_pt[0], Lepton_pt[1], Lepton_eta[0], Lepton_eta[1], mll, ptll, drll, detall, dphill, yll, PuppiMET_pt, PuppiMET_phi, dphilmet, dphilmet1, dphilmet2, dphillmet, mtw1, mtw2, mth, mTi, mR, mT2, mTe, recoil, upara, uperp, pTWW, mcoll, mcollWW, choiMass, nbjet_jet_ratio, njet, ht, vht_pt, dphijet1met, dphijet2met, dphijjmet, doubleNu_producer[6], doubleNu_producer[8], doubleNu_producer[7], dphi_met_llb, {phi}',
+        'afterNuis': True
 }
+
 
 #############################################################################
 ####################### tt+DM regions definition ############################

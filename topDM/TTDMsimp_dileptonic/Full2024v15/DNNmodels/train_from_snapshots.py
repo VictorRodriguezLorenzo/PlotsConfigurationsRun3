@@ -195,9 +195,9 @@ for key, rdf in dataframes.items():
     pd_df['isBkg'] = 0
     pd_dataframes[key] = pd_df
 
-Bkg = pd.DataFrame(rdf_bkg.AsNumpy(var))
 features_to_read = [v for v in var if v != "mPhi"]
 Bkg = pd.DataFrame(rdf_bkg.AsNumpy(features_to_read))
+
 if PARAMETRIC:
     signal_hypotheses = sorted({extract_mphi(k) for k in sample_groups if extract_mphi(k) is not None})
     if not signal_hypotheses:
@@ -469,7 +469,7 @@ if PARAMETRIC and "mPhi" in X_test.columns:
         print("AUC per mPhi hypothesis:")
         for i, (mass, fpr_mass, tpr_mass, auc_mass) in enumerate(roc_curves_by_mass):
             print(f"  mPhi={mass}: AUC={auc_mass:.4f}")
-            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=f"mPhi={mass:g} (AUC={auc_mass:.3f})")
+            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=rf"m_\Phi={mass:g} (AUC={auc_mass:.3f})")
 
         plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random guess')
         plt.xlabel('False Positive rate', fontsize=12)

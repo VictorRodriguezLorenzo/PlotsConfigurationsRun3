@@ -87,9 +87,6 @@ var = [
 'dphi_met_llb'
 ]
 
-if PARAMETRIC:
-    var.append("mPhi")
-
 #var = [
 #    'dphill',
 #    'PuppiMET_pt',
@@ -99,6 +96,9 @@ if PARAMETRIC:
 #    'dphi_ttbar',
 #    'dphi_met_llb',
 #]
+
+if PARAMETRIC:
+    var.append("mPhi")
 
 # Find all snapshot ROOT files
 files = glob.glob("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2022v12/DNNmodels/files_for_training/*.root")
@@ -195,7 +195,6 @@ for key, rdf in dataframes.items():
     pd_df['isBkg'] = 0
     pd_dataframes[key] = pd_df
 
-Bkg = pd.DataFrame(rdf_bkg.AsNumpy(var))
 features_to_read = [v for v in var if v != "mPhi"]
 Bkg = pd.DataFrame(rdf_bkg.AsNumpy(features_to_read))
 if PARAMETRIC:
@@ -274,7 +273,11 @@ model = Sequential([
 model.compile(
     loss='binary_crossentropy',
     optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
-    metrics=[tf.keras.metrics.AUC(name="auc")]
+    metrics=[tf.keras.metrics.AUC(
+        name="auc",
+        curve="ROC",
+        num_thresholds=2000
+        )]
 )
 
 early = callbacks.EarlyStopping(
@@ -469,7 +472,7 @@ if PARAMETRIC and "mPhi" in X_test.columns:
         print("AUC per mPhi hypothesis:")
         for i, (mass, fpr_mass, tpr_mass, auc_mass) in enumerate(roc_curves_by_mass):
             print(f"  mPhi={mass}: AUC={auc_mass:.4f}")
-            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=f"mPhi={mass:g} (AUC={auc_mass:.3f})")
+            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=rf"m_\\Phi={mass:g} (AUC={auc_mass:.3f})")
 
         plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random guess')
         plt.xlabel('False Positive rate', fontsize=12)

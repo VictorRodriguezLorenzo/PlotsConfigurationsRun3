@@ -285,9 +285,11 @@ variables['tt_reco']  = {
     'fold' : 3
 }
 
-#### DISCRIMINANT FOR DNN ###
-variables['evaluate_dnn']  = { 'name': 'evaluate_dnn',
+### DISCRIMINANT FOR DNN ###
+mPhi = ['10', '50', '100', '150', '200', '250', '300', '350', '400', '500', '600', '700', '800', '1000']
+for phi in mPhi:
+    variables[f'evaluate_dnn_mPhi_{phi}']  =  { 'name': f'evaluate_dnn_mPhi_{phi}',
                         'range' : (30,0,1),
-                        'xaxis' : 'DNN Discriminant',
+                        'xaxis' : f'DNN Discriminant m_\\Phi={phi}',
                         'fold' : 3
                         }

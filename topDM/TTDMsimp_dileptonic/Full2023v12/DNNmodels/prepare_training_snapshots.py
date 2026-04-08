@@ -289,7 +289,7 @@ df = df.Define("dphi_ttbar","doubleNu[7]")
 df = df.Define("tt_reco","doubleNu[9]")
 df = df.Define("bjet_idx",'(nCleanJet > 0 && Jet_btag{algo}[CleanJet_jetIdx[0]] > {wp}) ? 0 : (nCleanJet > 1 && Jet_btag{algo}[CleanJet_jetIdx[1]] > {wp}) ? 1 : (nCleanJet > 2 && Jet_btag{algo}[CleanJet_jetIdx[2]] > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP]))
 df = df.Define("dphi_met_llb","abs(DeltaPhi(PuppiMET_phi, atan2(Lepton_pt[0]*sin(Lepton_phi[0]) + Lepton_pt[1]*sin(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*sin(CleanJet_phi[bjet_idx]), Lepton_pt[0]*cos(Lepton_phi[0]) + Lepton_pt[1]*cos(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*cos(CleanJet_phi[bjet_idx]))))")
-df = df.Define("noJetInHorn","Jet_inHorns(CleanJet_pt, CleanJet_eta)")
+df = df.Define("noJetInHorn","Jet_inHorns(CleanJet_pt, CleanJet_eta, true)")
 df = df.Define("bReq",'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(bAlgo, btagging_WPs[bAlgo][bWP]))
 
 if PARAMETRIC:
