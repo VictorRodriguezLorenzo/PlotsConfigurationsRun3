@@ -5,10 +5,9 @@ from tensorflow.keras.models import load_model
 import os
 import joblib
 import pandas as pd
-os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
 # Load the model
-model = load_model('/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2024v15/DNNmodels/Models/model_dnn_model.h5', compile = False)
+model = load_model('/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2024v15/DNNmodels/Models/model_dnn_model.keras', compile = False)
 
 # Load scaler
 scaler = joblib.load(

@@ -27,7 +27,7 @@ save_model = True
 
 loaded_model = False
 
-MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/model_DNN.h5"
+MODEL_NAME = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/model_DNN.keras"
 
 PARAMETRIC = True
 
@@ -328,7 +328,7 @@ if save_model and loaded_model == False:
 
     os.makedirs("./Models", exist_ok=True)
     joblib.dump(scaler, './Models/scaler_'+ANALYSIS_NAME+'.pkl')
-    model.save('./Models/model_'+ANALYSIS_NAME+'.h5')
+    model.save('./Models/model_'+ANALYSIS_NAME+'.keras')
 
 ##### FOR THE DEEP NEURAL NETWORK ######
 y_pred = model.predict(X_test_scaled)
