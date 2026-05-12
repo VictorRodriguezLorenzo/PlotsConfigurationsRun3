@@ -96,14 +96,10 @@ os.makedirs("condor_logs", exist_ok=True)
 
 with open("run_snapshot.sh", "w") as f:
     f.write("""#!/bin/bash
-echo 'first source of start.sh'; source /cvmfs/sft.cern.ch/lcg/views/LCG_107/x86_64-el9-gcc11-opt/setup.sh
-source /afs/cern.ch/user/v/victorr/private/mkShapesRDF/myenv/bin/activate
-export STARTPATH=/afs/cern.ch/user/v/victorr/private/mkShapesRDF/start.sh
-export PATH=/afs/cern.ch/user/v/victorr/private/mkShapesRDF/utils/bin:$PATH
-export PYTHONPATH=/afs/cern.ch/user/v/victorr/private/mkShapesRDF/myenv/lib64/python3.11/site-packages:$PYTHONPATH
+source /afs/cern.ch/user/v/victorr/private/mkShapesRDF/start.sh
 export X509_USER_PROXY=$HOME/.proxy
 
-time python prepare_training_snapshots.py $1
+time python prepare_training_snapshots.py "$1"
 """)
 
 os.chmod("run_snapshot.sh", 0o755)
