@@ -379,7 +379,7 @@ fake_rate_reader::fake_rate_reader( TString year , TString ele_WP, TString muon_
   nLeptons_ = nLeptons;
   electron_tight_charge_ = electron_tight_charge; // ['std','ss']
 
-  TString ele_tight_suffix = "LooseID";
+  TString ele_tight_suffix = "MediumID";
   TString mkShapesRDF_base = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/";
   
   // Fake rate input files

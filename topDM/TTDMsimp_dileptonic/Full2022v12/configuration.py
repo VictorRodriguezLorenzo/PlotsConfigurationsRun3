@@ -50,8 +50,7 @@ plotPath = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Plots" 
 
 # this lines are executed right before the runner on the condor node
 mountEOS = [
-    # "export KRB5CCNAME=/home/gpizzati/krb5\n",
-]
+        ]
 
 # list of imports to import when compiling the whole configuration folder, it should not contain imports used by configuration.py
 imports = ["os", "glob", ("collections", "OrderedDict"), "ROOT"]
