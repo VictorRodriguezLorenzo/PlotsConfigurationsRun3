@@ -469,7 +469,7 @@ if PARAMETRIC and "mPhi" in X_test.columns:
         print("AUC per mPhi hypothesis:")
         for i, (mass, fpr_mass, tpr_mass, auc_mass) in enumerate(roc_curves_by_mass):
             print(f"  mPhi={mass}: AUC={auc_mass:.4f}")
-            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=rf"$m_\Phi={mass:g}$ (AUC={auc_mass:.3f})")
+            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=rf"$m_\\Phi={mass:g}$ (AUC={auc_mass:.3f})")
 
         plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random guess')
         plt.xlabel('False Positive rate', fontsize=12)

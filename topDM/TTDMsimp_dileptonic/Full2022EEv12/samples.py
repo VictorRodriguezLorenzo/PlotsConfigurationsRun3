@@ -261,6 +261,8 @@ samples['ZZZ'] = {
 
 ######### Other ########
 
+files = []
+
 for label in [
         'DYGto2LG-1Jets_MLL-4to50_PTG-10to100',
         'DYGto2LG-1Jets_MLL-4to50_PTG-100to200',
@@ -282,11 +284,10 @@ samples['Other'] = {
 ###########################################
 ###############  SIGNALS  #################
 ###########################################
-'''
-mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
-'''
-mPhi = ['150']
-'''
+
+mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600', '700', '800', '1000']
+#mPhi = ['150']
+
 # tt+DM dilepton scalar
 for phi in mPhi:
     samples[f'TTto2LDMsimpSpin0_s_mphi-{phi}'] = {
@@ -294,7 +295,7 @@ for phi in mPhi:
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-'''
+
 # tt+DM inclusive scalar
 for phi in mPhi:
     samples[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
@@ -302,7 +303,7 @@ for phi in mPhi:
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-'''
+
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     samples[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
@@ -318,7 +319,7 @@ for phi in mPhi:
             'weight': mcCommonWeight,
             'FilesPerJob': 1
             }
-'''
+
 ###########################################
 ################## FAKE ###################
 ###########################################

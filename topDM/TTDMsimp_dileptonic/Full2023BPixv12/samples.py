@@ -261,6 +261,8 @@ samples['ZZZ'] = {
 
 ######## Other ########
 
+files = []
+
 for label in [
         'DYGto2LG-1Jets_MLL-4to50_PTG-10to100',
         'DYGto2LG-1Jets_MLL-4to50_PTG-100to200',

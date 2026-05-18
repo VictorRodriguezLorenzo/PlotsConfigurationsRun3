@@ -5,12 +5,12 @@ preselections = '((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && 
             && Lepton_pt[1] > 20 \
             && abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 \
             && mll > 20 \
-            && noJetInHorn  \
+            && noJetInHorn_pT30  \
             && bReq'
 
 # CUTS
 
-#cuts["all"] = "Alt(Lepton_pt, 2, 0) < 10"
+cuts["all"] = "Alt(Lepton_pt, 2, 0) < 10"
 
 #######################
 #### Signal region ####

@@ -33,23 +33,23 @@ for phi in mPhi:
         'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}')
     }
 
-# tt+DM inclusive scalar
-for phi in mPhi:
-    files_ttDM_temp[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}')
-    }
+## tt+DM inclusive scalar
+#for phi in mPhi:
+#    files_ttDM_temp[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
+#        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}')
+#    }
 
-# tt+DM dilepton pseudoscalar
-for phi in mPhi:
-    files_ttDM_temp[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}')
-    }
+## tt+DM dilepton pseudoscalar
+#for phi in mPhi:
+#    files_ttDM_temp[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
+#        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}')
+#    }
 
-# tt+DM inclusive scalar
-for phi in mPhi:
-    files_ttDM_temp[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}')
-    }
+## tt+DM inclusive pseudoscalar
+#for phi in mPhi:
+#    files_ttDM_temp[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
+#        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}')
+#    }
 
 files_ttDM = files_ttDM_temp.copy()
 for key, value in list(files_ttDM_temp.items()):

@@ -1,6 +1,7 @@
 import sys
 import argparse
 import os
+import re
 import subprocess
 
 def defaultParser():
@@ -29,6 +30,7 @@ def defaultParser():
     )
     
     return parser
+
 def run(submit=False, specific_jobs=None, condor_q=None):
     prePath = os.path.abspath(os.path.dirname(__file__))
 
@@ -52,7 +54,14 @@ def run(submit=False, specific_jobs=None, condor_q=None):
     error_files = []
     script_files = []
 
+    tag_total = {}
+    tag_failed = {}
+
     for fname in fnames:
+        tag = fname.rsplit("_", 1)[0]
+
+        tag_total[tag] = tag_total.get(tag, 0) + 1
+
         file_name = output_path + "mkShapes__ttDM_dilep_2024__ALL__" + fname + ".root"
         error_file = jobDir + fname + "/" + "err.txt"
         script_file = jobDir + fname + "/" + "script.py"
@@ -67,6 +76,8 @@ def run(submit=False, specific_jobs=None, condor_q=None):
             error_files.append(error_file)
             script_files.append(script_file)
 
+            tag_failed[tag] = tag_failed.get(tag, 0) + 1
+
     print("=========================")
     print(
         "Ratio of failed jobs: "
@@ -77,6 +88,27 @@ def run(submit=False, specific_jobs=None, condor_q=None):
         + str(round(100 * len(failed_jobs) / len(fnames), 2))
         + "%"
     )
+
+    print("\nFailure percentage per tag:\n")
+
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    RESET = "\033[0m"
+
+    for tag in sorted(tag_total):
+        total = tag_total[tag]
+        failed = tag_failed.get(tag, 0)
+        percentage = 100 * failed / total
+
+        text = f"{tag}: {failed}/{total} = {percentage:.2f}%"
+
+        if percentage == 0:
+            print(f"{GREEN}{text}{RESET}")
+        elif percentage == 100:
+            print(f"{RED}{text}{RESET}")
+        else:
+            print(text + "")
+
 
     jobs_to_submit = failed_jobs
 
