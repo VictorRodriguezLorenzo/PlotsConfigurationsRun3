@@ -182,23 +182,32 @@ bAlgo = 'RobustParTAK4B' # ['DeepFlavB','RobustParTAK4B','PNetB']
 bWP    = 'medium'     # ['loose','medium']
 #bSF   = 'deepjet'
 
-# b veto
+# No b-tagged jets
 aliases['bVeto'] = {
-    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) == 0'.format(bAlgo, btagging_WPs[bAlgo][bWP])
+    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) == 0'.format(
+        bAlgo, btagging_WPs[bAlgo][bWP]
+    )
 }
 
-# At least one b-tagged jet  
-aliases['bReq'] = { 
-    'expr': 'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(bAlgo, btagging_WPs[bAlgo][bWP])
+# At least one b-tagged jet
+aliases['bReq'] = {
+    'expr': 'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {}) >= 1'.format(
+        bAlgo, btagging_WPs[bAlgo][bWP]
+    )
 }
 
 # Number of b-jets
 aliases['nbjets'] = {
-    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})'.format(bAlgo, btagging_WPs[bAlgo][bWP])
+    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})'.format(
+        bAlgo, btagging_WPs[bAlgo][bWP]
+    )
 }
 
+# Ratio of b-jets to selected jets
 aliases['nbjet_jet_ratio'] = {
-    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})/njet'.format(bAlgo, btagging_WPs[bAlgo][bWP])
+    'expr': '(njet > 0 ? Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})/njet : 0.)'.format(
+        bAlgo, btagging_WPs[bAlgo][bWP]
+    )
 }
 
 year = '2023_Summer23' 
@@ -271,7 +280,7 @@ aliases['doubleNu_producer'] = {
 }
 
 aliases['bjet_idx'] = {
-    'expr': '(nCleanJet > 0 && Jet_btag{algo}[CleanJet_jetIdx[0]] > {wp}) ? 0 : (nCleanJet > 1 && Jet_btag{algo}[CleanJet_jetIdx[1]] > {wp}) ? 1 : (nCleanJet > 2 && Jet_btag{algo}[CleanJet_jetIdx[2]] > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP]),
+    'expr': '(nCleanJet > 0 && Alt(Jet_btag{algo}, Alt(CleanJet_jetIdx,0,-1), -99.f) > {wp}) ? 0 : (nCleanJet > 1 && Alt(Jet_btag{algo}, Alt(CleanJet_jetIdx,1,-1), -99.f) > {wp}) ? 1 : (nCleanJet > 2 && Alt(Jet_btag{algo}, Alt(CleanJet_jetIdx,2,-1), -99.f) > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP]),
     'afterNuis': True
 }
 
@@ -326,7 +335,8 @@ for phi in mPhi:
     aliases['evaluate_dnn'] = {
         'linesToAdd': ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023v12/evaluate_DNN.cc"'],
         'class': 'evaluate_dnn',
-        'args': 'Lepton_pt[0], Lepton_pt[1], Lepton_eta[0], Lepton_eta[1], mll, ptll, drll, detall, dphill, yll, PuppiMET_pt, PuppiMET_phi, dphilmet, dphilmet1, dphilmet2, dphillmet, mtw1, mtw2, mth, mTi, mR, mT2, mTe, recoil, upara, uperp, pTWW, mcoll, mcollWW, choiMass, nbjet_jet_ratio, njet, ht, vht_pt, dphijet1met, dphijet2met, dphijjmet, doubleNu_producer[6], doubleNu_producer[8], doubleNu_producer[7], dphi_met_llb, phi',
+#        'args': 'Lepton_pt[0], Lepton_pt[1], Lepton_eta[0], Lepton_eta[1], mll, ptll, drll, detall, dphill, yll, PuppiMET_pt, PuppiMET_phi, dphilmet, dphilmet1, dphilmet2, dphillmet, mtw1, mtw2, mth, mTi, mR, mT2, mTe, recoil, upara, uperp, pTWW, mcoll, mcollWW, choiMass, nbjet_jet_ratio, njet, ht, vht_pt, dphijet1met, dphijet2met, dphijjmet, doubleNu_producer[6], doubleNu_producer[8], doubleNu_producer[7], dphi_met_llb, phi',
+        'args': f'dphill, PuppiMET_pt, mT2, doubleNu_producer[6], doubleNu_producer[8], doubleNu_producer[7], dphi_met_llb, {phi}',
         'afterNuis': True
 }
 

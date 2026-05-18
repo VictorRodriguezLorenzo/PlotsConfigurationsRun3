@@ -71,14 +71,17 @@ class btagSFbc {
 	
 	for (unsigned iJ{0}; iJ != nCleanJet; ++iJ) {
 
+	  const int jetIdx = CleanJet_jetIdx[iJ];
+	  if (jetIdx < 0 || jetIdx >= static_cast<int>(Jet_btag.size()) || jetIdx >= static_cast<int>(Jet_hadronFlavour.size())) continue;
+
 	  double pt = ROOT::VecOps::Min(ROOT::RVecD{CleanJet_pt[iJ], 9999.9});
 	  
 	  if (CleanJet_pt[iJ] <= 30. || abs(CleanJet_eta[iJ]) >= 2.5) continue;
-	  if (Jet_btag[CleanJet_jetIdx[iJ]] > cset_deepJet_wps->evaluate({WP})) {
-	    if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 5) {
+	  if (Jet_btag[jetIdx] > cset_deepJet_wps->evaluate({WP})) {
+	    if (Jet_hadronFlavour[jetIdx] == 5) {
 	      btag_sf *= cset_deepJet_mujets->evaluate({systematic[i], WP, 5, abs(CleanJet_eta[iJ]), pt});
 	    }
-	    else if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 4) {
+	    else if (Jet_hadronFlavour[jetIdx] == 4) {
 	      
 	      if (year_ == "2024_Summer24"){
 		btag_sf *= cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]});
@@ -92,14 +95,14 @@ class btagSFbc {
 	    }
 	  }
 	  else {
-	    float btag_eff = getEff(pt, CleanJet_eta[iJ], Jet_hadronFlavour[CleanJet_jetIdx[iJ]]);
+	    float btag_eff = getEff(pt, CleanJet_eta[iJ], Jet_hadronFlavour[jetIdx]);
 	    if (btag_eff == 1.) {
 	      continue;
 	    }else {
-	      if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 5) {
+	      if (Jet_hadronFlavour[jetIdx] == 5) {
 		btag_sf *= (1-btag_eff*cset_deepJet_mujets->evaluate({systematic[i], WP, 5, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);
 	      }
-	      else if (Jet_hadronFlavour[CleanJet_jetIdx[iJ]] == 4) {
+	      else if (Jet_hadronFlavour[jetIdx] == 4) {
 		if (year_ == "2024_Summer24"){
 		  btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({systematic[i], WP, 4, abs(CleanJet_eta[iJ]), CleanJet_pt[iJ]}))/(1-btag_eff);
 		  //btag_sf *= (1-btag_eff*cset_deepJet_mujets_alt->evaluate({"central", WP, 4, abs(CleanJet_eta[iJ]), pt}))/(1-btag_eff);

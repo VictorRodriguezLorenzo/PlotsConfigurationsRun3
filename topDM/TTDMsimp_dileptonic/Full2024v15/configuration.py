@@ -41,8 +41,8 @@ plotFile = "plot.py"
 structureFile = "structure.py"
 
 # nuisances file for mkDatacards and for mkShape
-#nuisancesFile = "nuisances_ALL.py"
-nuisancesFile = "nuisances.py"
+nuisancesFile = "nuisances_ALL.py"
+#nuisancesFile = "nuisances.py"
 
 # path to folder where to save plots
 plotPath = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Plots" + tag

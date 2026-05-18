@@ -36,69 +36,69 @@ PARAMETRIC = True
 # ============================================================
 
 # Branches to load
+#var = [
+#'lep_pt1',
+#'lep_pt2',
+#'lep_eta1',
+#'lep_eta2',
+#
+#'mll',
+#'ptll',
+#'drll',
+#'detall',
+#'dphill',
+#'yll',
+#
+#'PuppiMET_pt',
+#'PuppiMET_phi',
+#'dphilmet',
+#'dphilmet1',
+#'dphilmet2',
+#'dphillmet',
+#
+#'mtw1',
+#'mtw2',
+#'mth',
+#'mTi',
+#'mR',
+#'mT2',
+#'mTe',
+#
+#'recoil',
+#'upara',
+#'uperp',
+#'pTWW',
+#
+#'mcoll',
+#'mcollWW',
+#'choiMass',
+#
+#'nbjet_jet_ratio',
+#'njet',
+#'ht',
+#'vht_pt',
+#'dphijet1met',
+#'dphijet2met',
+#'dphijjmet',
+#
+#'chel',
+#'pdark',
+#'dphi_ttbar',
+#'dphi_met_llb'
+#]
+
 var = [
-'lep_pt1',
-'lep_pt2',
-'lep_eta1',
-'lep_eta2',
-
-'mll',
-'ptll',
-'drll',
-'detall',
-'dphill',
-'yll',
-
-'PuppiMET_pt',
-'PuppiMET_phi',
-'dphilmet',
-'dphilmet1',
-'dphilmet2',
-'dphillmet',
-
-'mtw1',
-'mtw2',
-'mth',
-'mTi',
-'mR',
-'mT2',
-'mTe',
-
-'recoil',
-'upara',
-'uperp',
-'pTWW',
-
-'mcoll',
-'mcollWW',
-'choiMass',
-
-'nbjet_jet_ratio',
-'njet',
-'ht',
-'vht_pt',
-'dphijet1met',
-'dphijet2met',
-'dphijjmet',
-
-'chel',
-'pdark',
-'dphi_ttbar',
-'dphi_met_llb'
+    'dphill',
+    'PuppiMET_pt',
+    'mT2',
+    'pdark',
+    'chel',
+    'dphi_ttbar',
+    'dphi_met_llb',
 ]
 
 if PARAMETRIC:
     var.append("mPhi")
-
-#var = [
-#    'dphill',
-#    'PuppiMET_pt',
-#    'mT2',
-#    'pdark',
-#    'chel',
-#    'dphi_ttbar',
-#    'dphi_met_llb',
-#]
 
 # Find all snapshot ROOT files
 files = glob.glob("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2024v15/DNNmodels/files_for_training/*.root")
@@ -469,7 +469,7 @@ if PARAMETRIC and "mPhi" in X_test.columns:
         print("AUC per mPhi hypothesis:")
         for i, (mass, fpr_mass, tpr_mass, auc_mass) in enumerate(roc_curves_by_mass):
             print(f"  mPhi={mass}: AUC={auc_mass:.4f}")
-            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=rf"m_\Phi={mass:g} (AUC={auc_mass:.3f})")
+            plt.plot(fpr_mass, tpr_mass, color=color_map(i), label=rf"$m_\Phi={mass:g}$ (AUC={auc_mass:.3f})")
 
         plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random guess')
         plt.xlabel('False Positive rate', fontsize=12)

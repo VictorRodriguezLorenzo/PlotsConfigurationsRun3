@@ -6,7 +6,7 @@ mcProduction = 'Summer24_150x_nAODv15_Full2024v15'
 mcSteps      = 'MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
 
 # Signal
-signalProduction = 'Summer23BPix_130x_nAODv12_Full2023BPixv12'
+signalProduction = 'Summer24_150x_nAODv15_Full2024v15'
 signalSteps      = 'MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
 
 # Data

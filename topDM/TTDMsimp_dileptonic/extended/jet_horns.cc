@@ -17,8 +17,7 @@ bool Jet_inHorns(RVecF CleanJet_pt,
   
   for (unsigned int i = 0; i<CleanJet_pt.size(); i++){
     if (minReq) {
-      lowpt = (CleanJet_pt[i] > 15.0 && CleanJet_pt[i] < 50.0);          // pt of jets between 15  & 50
-      //lowpt = (CleanJet_pt[i] > 30.0 && CleanJet_pt[i] < 50.0);          // pt of jets between 30  & 50
+      lowpt = (CleanJet_pt[i] > 30.0 && CleanJet_pt[i] < 50.0);          // pt of jets between 30  & 50
     } else {
       lowpt = (CleanJet_pt[i] < 50.0);
     }

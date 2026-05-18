@@ -25,69 +25,69 @@ outfile = os.path.join(
 # ============================================================
 # VARIABLE LIST
 # ============================================================
+#var = [
+#'lep_pt1',
+#'lep_pt2',
+#'lep_eta1',
+#'lep_eta2',
+#
+#'mll',
+#'ptll',
+#'drll',
+#'detall',
+#'dphill',
+#'yll',
+#
+#'PuppiMET_pt',
+#'PuppiMET_phi',
+#'dphilmet',
+#'dphilmet1',
+#'dphilmet2',
+#'dphillmet',
+#
+#'mtw1',
+#'mtw2',
+#'mth',
+#'mTi',
+#'mR',
+#'mT2',
+#'mTe',
+#
+#'recoil',
+#'upara',
+#'uperp',
+#'pTWW',
+#
+#'mcoll',
+#'mcollWW',
+#'choiMass',
+#
+#'nbjet_jet_ratio',
+#'njet',
+#'ht',
+#'vht_pt',
+#'dphijet1met',
+#'dphijet2met',
+#'dphijjmet',
+#
+#'chel',
+#'pdark',
+#'dphi_ttbar',
+#'dphi_met_llb'
+#]
+
 var = [
-'lep_pt1',
-'lep_pt2',
-'lep_eta1',
-'lep_eta2',
-
-'mll',
-'ptll',
-'drll',
-'detall',
-'dphill',
-'yll',
-
-'PuppiMET_pt',
-'PuppiMET_phi',
-'dphilmet',
-'dphilmet1',
-'dphilmet2',
-'dphillmet',
-
-'mtw1',
-'mtw2',
-'mth',
-'mTi',
-'mR',
-'mT2',
-'mTe',
-
-'recoil',
-'upara',
-'uperp',
-'pTWW',
-
-'mcoll',
-'mcollWW',
-'choiMass',
-
-'nbjet_jet_ratio',
-'njet',
-'ht',
-'vht_pt',
-'dphijet1met',
-'dphijet2met',
-'dphijjmet',
-
-'chel',
-'pdark',
-'dphi_ttbar',
-'dphi_met_llb'
+  'dphill',
+  'PuppiMET_pt',
+  'mT2',
+  'pdark',
+  'chel',
+  'dphi_ttbar',
+  'dphi_met_llb',
 ]
 
 if PARAMETRIC:
     var.append("mPhi")
-
-#var = [
-#  'dphill',
-#  'PuppiMET_pt',
-#  'mT2',
-#  'pdark',
-#  'chel',
-#  'dphi_ttbar',
-#  'dphi_met_llb',
-#]
 
 # ============================================================
 # DECLARATIONS
