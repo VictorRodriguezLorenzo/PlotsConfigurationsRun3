@@ -121,24 +121,24 @@ variables['phi2']  = {
     'fold'  : 3
 }
 
-variables['jetdeepb']  = {
-    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanJet_jetIdx), 0, -99)',
-    'range' : (30,0,1),
-    'xaxis' : 'B tagger 1st jet (DeepB)',
-    'fold' : 0
-}
-variables['jetpnetb']  = {
-    'name': 'Alt(Take(Jet_btagPNetB, CleanJet_jetIdx), 0, -99)',
-    'range' : (30,0,1),
-    'xaxis' : 'B tagger 1st jet (PNetB)',
-    'fold' : 0
-}
-variables['jetupartb']  = {
-    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanJet_jetIdx), 0, -99)',
-    'range' : (30,0,1),
-    'xaxis' : 'B tagger 1st jet (RParT)',
-    'fold' : 0
-}
+#variables['jetdeepb']  = {
+#    'name': 'Alt(Take(Jet_btagDeepFlavB, CleanJet_jetIdx), 0, -99)',
+#    'range' : (30,0,1),
+#    'xaxis' : 'B tagger 1st jet (DeepB)',
+#    'fold' : 0
+#}
+#variables['jetpnetb']  = {
+#    'name': 'Alt(Take(Jet_btagPNetB, CleanJet_jetIdx), 0, -99)',
+#    'range' : (30,0,1),
+#    'xaxis' : 'B tagger 1st jet (PNetB)',
+#    'fold' : 0
+#}
+#variables['jetupartb']  = {
+#    'name': 'Alt(Take(Jet_btagRobustParTAK4B, CleanJet_jetIdx), 0, -99)',
+#    'range' : (30,0,1),
+#    'xaxis' : 'B tagger 1st jet (RParT)',
+#    'fold' : 0
+#}
 
 # MET
 variables['trkMet']  = { 

@@ -54,7 +54,7 @@ def parse_args():
     parser.add_argument("--workers",type=int,
         default=max(1,multiprocessing.cpu_count()//2))
 
-    parser.add_argument("--trials",type=int,default=5000)
+    parser.add_argument("--trials",type=int,default=2000)
 
     parser.add_argument("--seed",type=int,default=42)
 
@@ -112,8 +112,6 @@ def build_dataset(snapshot_glob):
 
     sig_rdfs={k:downsample(c,target) for k,c in sig_chains.items()}
 
-    bkg_rdf=ROOT.RDataFrame(chain_bkg)
-
     sig_pd={}
 
     for key,rdf in sig_rdfs.items():
@@ -124,10 +122,15 @@ def build_dataset(snapshot_glob):
 
         sig_pd[key]=df
 
+    sig=pd.concat(sig_pd.values(),ignore_index=True)
+
+    # Mirror the training balancing strategy by downsampling background
+    # to match the total number of signal events across hypotheses.
+    bkg_target=len(sig)
+    bkg_rdf=downsample(chain_bkg,bkg_target)
+
     bkg=pd.DataFrame(bkg_rdf.AsNumpy(FEATURES))
     bkg["isSignal"]=0
-
-    sig=pd.concat(sig_pd.values(),ignore_index=True)
 
     df_all=pd.concat([sig,bkg],ignore_index=True)
 
@@ -303,7 +306,28 @@ def plot_hyperparameter_vs_auc(results_df,outdir):
 
         plt.figure(figsize=(8,6))
 
-        sns.boxplot(x=results_df[col],y=results_df["value"])
+        if col=="layer_sizes":
+
+            def layer_sort_key(layer_str):
+                sizes=[int(x) for x in str(layer_str).split("-") if x]
+                if not sizes:
+                    return (0,0,())
+                return (len(sizes),sizes[0],tuple(sizes))
+
+            layer_order=sorted(
+                results_df[col].dropna().unique(),
+                key=layer_sort_key,
+                reverse=True
+            )
+
+            sns.boxplot(
+                x=results_df[col],
+                y=results_df["value"],
+                order=layer_order
+            )
+
+        else:
+            sns.boxplot(x=results_df[col],y=results_df["value"])
 
         if col=="layer_sizes":
             plt.xticks(rotation=90,fontsize=8)
@@ -312,7 +336,8 @@ def plot_hyperparameter_vs_auc(results_df,outdir):
 
         plt.ylabel("Validation AUC")
         plt.xlabel(col)
-
+        plt.ylim(0.89, 0.92)
+       
         plt.tight_layout()
 
         plt.savefig(os.path.join(outdir,f"{col}_vs_auc.png"))

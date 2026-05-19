@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 #include <TMath.h>
 #include <math.h>
 
@@ -69,30 +70,32 @@ float evaluate_dnn(
     int mPhi
                 )
 {
-    Py_Initialize();
+    static PyObject* pFunction = nullptr;
+    if (!Py_IsInitialized()) {
+        Py_Initialize();
+    }
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    if (pFunction == nullptr) {
+        PyObject* sysPath = PySys_GetObject("path");
+        PyList_Append(sysPath, PyUnicode_DecodeFSDefault("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2024v15"));
+
+        PyObject* pModule = PyImport_ImportModule("EvaluateDNN");
+        if (pModule == NULL) {
+            PyErr_Print();
+            throw std::runtime_error("ERROR importing EvaluateDNN module");
+        }
+
+        pFunction = PyObject_GetAttrString(pModule, "load_neural_network");
+        Py_DECREF(pModule);
+        if (pFunction == NULL) {
+            PyErr_Print();
+            throw std::runtime_error("ERROR getting load_neural_network");
+        }
+    }
 
     double result = -1;
-
-    // Import the module
-    PyObject* sysPath = PySys_GetObject("path");
-    PyList_Append(sysPath, PyUnicode_DecodeFSDefault("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2024v15"));
-    PyObject* pModule = PyImport_ImportModule("EvaluateDNN");
-
-    if (pModule == NULL) {
-        printf("ERROR importing module \n");
-        exit(-1);
-    } 
-
-    if (pModule != NULL) {
-        // Retrieve the function
-        PyObject* pFunction = PyObject_GetAttrString(pModule, "load_neural_network");
-        if (pFunction == NULL) {
-            printf("ERROR getting function");
-            exit(-1);
-        }
-	if (pFunction != NULL) {
-            // Prepare arguments
-	    std::vector<float> input;
+    // Prepare arguments
+    std::vector<float> input;
 
 //            input.push_back(lep_pt1);
 //            input.push_back(lep_pt2);
@@ -144,48 +147,38 @@ float evaluate_dnn(
             input.push_back(dphi_met_llb);
             input.push_back(mPhi);
 
-            // Input
-	    PyObject* pList = PyList_New(input.size());
-            for (size_t i = 0; i < input.size(); ++i) {
-	        PyList_SetItem(pList, i, PyFloat_FromDouble((double)input[i]));
+    // Input
+    PyObject* pList = PyList_New(input.size());
+    for (size_t i = 0; i < input.size(); ++i) {
+        PyList_SetItem(pList, i, PyFloat_FromDouble((double)input[i]));
+    }
+    PyObject* pArgs = PyTuple_Pack(1, pList);
+    Py_DECREF(pList);
+    if (pArgs != NULL) {
+        // Call the function
+        PyObject* pValue = PyObject_CallObject(pFunction, pArgs);
+        if (pValue != NULL) {
+            if (PyList_Check(pValue)) {
+                Py_ssize_t listSize = PyList_Size(pValue);
+                for (Py_ssize_t i = 0; i < listSize; i++) {
+                    PyObject* listItem = PyList_GetItem(pValue, i);
+                    result = PyFloat_AsDouble(listItem);
+                }
+            } else {
+                PyErr_Print();
             }
-            PyObject* pArgs = PyTuple_Pack(1, pList);
-            if (pArgs != NULL) {
-		    // Call the function
-		    PyObject* pValue = PyObject_CallObject(pFunction, pArgs);
-		    if (pValue != NULL) {
-			    if (PyList_Check(pValue)) {
-				    Py_ssize_t listSize = PyList_Size(pValue);
- 
-				    for (Py_ssize_t i = 0; i < listSize; i++) {
-					    PyObject* listItem = PyList_GetItem(pValue, i);
-					    result = PyFloat_AsDouble(listItem);
-				    }
-			    } else {
-				    PyErr_Print();
-			    } 
-		    } else {
-			    PyErr_Print();
-		    }
-
-		    Py_DECREF(pArgs);
-	    } else {
-		    PyErr_Print();
-	    }
-
-	    Py_DECREF(pFunction);
-	} else {
-		PyErr_Print();
-	}
-
-	Py_DECREF(pModule);
+            Py_DECREF(pValue);
+        } else {
+            PyErr_Print();
+        }
+        Py_DECREF(pArgs);
     } else {
-	    PyErr_Print();
+        PyErr_Print();
     }
 
-//    cout << "Returning result DNN: " << result << endl;
+    PyGILState_Release(gstate);
+
     return (float)result;
-    Py_Finalize();
 }
 
 #endif

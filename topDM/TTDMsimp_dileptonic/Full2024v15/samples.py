@@ -211,15 +211,15 @@ samples['ttH'] = {
 }
 
 ######## TXX ##########
-#files = nanoGetSampleFiles(mcDirectory, 'THW') \
-#        + nanoGetSampleFiles(mcDirectory, 'THQ') \
-        #+ nanoGetSampleFiles(mcDirectory, 'TWZ')
+files = nanoGetSampleFiles(mcDirectory, 'THW') \
+        + nanoGetSampleFiles(mcDirectory, 'THQ') \
+       #+ nanoGetSampleFiles(mcDirectory, 'TWZ')
 
-#samples['TXX'] = {
-#    'name': files,
-#    'weight': mcCommonWeight,
-#    'FilesPerJob': 5
-#}
+samples['TXX'] = {
+    'name': files,
+    'weight': mcCommonWeight,
+    'FilesPerJob': 5
+}
 
 ########## VV ###########
 files = nanoGetSampleFiles(mcDirectory, 'WWTo2L2Nu')
