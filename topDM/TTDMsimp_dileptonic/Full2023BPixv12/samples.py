@@ -1,5 +1,7 @@
 from mkShapesRDF.lib.search_files import SearchFiles
 
+import os
+
 searchFiles = SearchFiles()
 
 redirector = ""
@@ -32,7 +34,8 @@ def makeMCDirectory(var=""):
 mcDirectory   = makeMCDirectory()
 # fakeDirectory = os.path.join(treeBaseDir, dataReco, fakeSteps)
 dataDirectory = os.path.join(treeBaseDir, dataReco, dataSteps)
-signalDirectory = "/eos/user/v/victorr/HWWNano/Summer23BPix_130x_nAODv12_Full2023BPixv12/MCl2loose2023BPixv12__MCCorr2023BPixv12JetScaling__l2tight"
+# signalDirectory = "/eos/user/v/victorr/HWWNano/Summer23BPix_130x_nAODv12_Full2023BPixv12/MCl2loose2023BPixv12__MCCorr2023BPixv12JetScaling__l2tight"
+signalDirectory = "/eos/user/e/emunozri/ttDM/HWWNano/Summer23BPix_130x_nAODv12_Full2023BPixv12/MCl2loose2023BPixv12__MCCorr2023BPixv12JetScaling__l2tight"
 fakeDirectory = dataDirectory
 
 samples = {}
@@ -114,14 +117,27 @@ mcCommonWeight        = 'XSWeight*METFilter_Common*PromptGenLepMatch2l*SFweight'
 ###########################################
 
 ########## DY #########
-files = nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-50')# \
-#        + nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-10to50')
+
+ptllDYW_LO = '((0.632927+0.0456956*gen_ptll-0.00154485*gen_ptll*gen_ptll+2.64397e-05*gen_ptll*gen_ptll*gen_ptll-2.19374e-07*gen_ptll*gen_ptll*gen_ptll*gen_ptll+6.99751e-10*gen_ptll*gen_ptll*gen_ptll*gen_ptll*gen_ptll)*(gen_ptll>0)*(gen_ptll<100)+(1.41713-0.00165342*gen_ptll)*(gen_ptll>=100)*(gen_ptll<300)+1*(gen_ptll>=300))'
+
+dy_samples = [
+        'DYto2L-2Jets_MLL-50',
+        'DYto2L-2Jets_MLL-10to50',
+        ]
+
+files = []
+
+for sample in dy_samples:
+    files += nanoGetSampleFiles(mcDirectory, sample)
 
 samples['DY'] = {
-    'name': files,
-    'weight': mcCommonWeight,
-    'FilesPerJob': 4,
-}
+        'name': files,
+        'weight': mcCommonWeight,
+        'FilesPerJob': 12,
+        }
+
+for sample in dy_samples:
+    addSampleWeight(samples, 'DY', sample, ptllDYW_LO)
 
 ########## Single top #########
 files = nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') \
@@ -136,7 +152,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') \
 samples['ST'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 10
 }
 
 ########## TTTo2L2Nu #########
@@ -149,6 +165,7 @@ samples['TTTo2L2Nu'] = {
 }
 
 addSampleWeight(samples,'TTTo2L2Nu','TTTo2L2Nu','Top_pTrw')
+addSampleWeight(samples,'TTTo2L2Nu','TTTo2L2Nu','Top_pTrw_13To13p6')
 
 ##### TTToSemiLeptonic #####
 files = nanoGetSampleFiles(mcDirectory, 'TTToSemiLeptonic')
@@ -156,7 +173,7 @@ files = nanoGetSampleFiles(mcDirectory, 'TTToSemiLeptonic')
 samples['TTToSemiLeptonic'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 10
 }
 
 ########### TTX ##########
@@ -168,7 +185,7 @@ files = nanoGetSampleFiles(mcDirectory, 'TTNuNu') \
 samples['ttZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 2
+    'FilesPerJob': 8
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'TTLNu')
@@ -177,7 +194,7 @@ files = nanoGetSampleFiles(mcDirectory, 'TTLNu')
 samples['ttW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 2
+    'FilesPerJob': 8
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'TTHtoNon2B') \
@@ -186,18 +203,24 @@ files = nanoGetSampleFiles(mcDirectory, 'TTHtoNon2B') \
 samples['ttH'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 2
+    'FilesPerJob': 10
 }
 
 ######## TXX ##########
-files = nanoGetSampleFiles(mcDirectory, 'THW') \
-        + nanoGetSampleFiles(mcDirectory, 'THQ') \
-        #+ nanoGetSampleFiles(mcDirectory, 'TWZ')
+files = nanoGetSampleFiles(mcDirectory, 'THW')
 
-samples['TXX'] = {
+samples['tHW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 10
+}
+
+files = nanoGetSampleFiles(mcDirectory, 'THQ') \
+
+samples['tHQ'] = {
+    'name': files,
+    'weight': mcCommonWeight,
+    'FilesPerJob': 30
 }
 
 ########## VV ###########
@@ -206,7 +229,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWTo2L2Nu')
 samples['WW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 8
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WZ')
@@ -214,7 +237,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WZ')
 samples['WZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 40
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'ZZ')
@@ -222,7 +245,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ZZ')
 samples['ZZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 40
 }
 
 ######## VVV #########
@@ -232,7 +255,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWW')
 samples['WWW'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 4
+    'FilesPerJob': 40
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WWZ')
@@ -240,7 +263,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WWZ')
 samples['WWZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 40
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'WZZ')
@@ -248,7 +271,7 @@ files = nanoGetSampleFiles(mcDirectory, 'WZZ')
 samples['WZZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 40
 }
 
 files = nanoGetSampleFiles(mcDirectory, 'ZZZ')
@@ -256,7 +279,7 @@ files = nanoGetSampleFiles(mcDirectory, 'ZZZ')
 samples['ZZZ'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5
+    'FilesPerJob': 40
 }
 
 ######## Other ########
@@ -264,7 +287,7 @@ samples['ZZZ'] = {
 files = []
 
 for label in [
-#        'DYGto2LG-1Jets_MLL-4to50_PTG-10to100',
+        'DYGto2LG-1Jets_MLL-4to50_PTG-10to100',
         'DYGto2LG-1Jets_MLL-4to50_PTG-100to200',
         'DYGto2LG-1Jets_MLL-4to50_PTG-200',
         'DYGto2LG-1Jets_MLL-50_PTG-10to100',
@@ -275,52 +298,60 @@ for label in [
 ]:
     files += nanoGetSampleFiles(mcDirectory, label)
 
+files += nanoGetSampleFiles(mcDirectory, "TZQB-ZTo2L")
+
+files += nanoGetSampleFiles(mcDirectory, "TTG_PTG-10to100")
+files += nanoGetSampleFiles(mcDirectory, "TTG_PTG-100to200")
+files += nanoGetSampleFiles(mcDirectory, "TTG_PTG-200")
+
+files += nanoGetSampleFiles(mcDirectory, "TTTT")
+
 samples['Other'] = {
     'name': files,
     'weight': mcCommonWeight,
-    'FilesPerJob': 5,
+    'FilesPerJob': 30,
 }
 
 ###########################################
 ###############  SIGNALS  #################
 ###########################################
-'''
-mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600' '700', '800', '1000']
-'''
-mPhi = ['600']
-'''
+
+mPhi = ['10','50','100','150', '200', '250', '300', '350', '400', '500', '600', '700', '800', '1000']
+
+#mPhi = ['300']
+
 # tt+DM dilepton scalar
 for phi in mPhi:
     samples[f'TTto2LDMsimpSpin0_s_mphi-{phi}'] = {
             'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}'),
             'weight': mcCommonWeight,
-            'FilesPerJob': 1
+            'FilesPerJob': 40
             }
-'''
-# tt+DM inclusive scalar
-for phi in mPhi:
-    samples[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}'),
-            'weight': mcCommonWeight,
-            'FilesPerJob': 1
-            }
-'''
+
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     samples[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
             'name': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}'),
             'weight': mcCommonWeight,
-            'FilesPerJob': 1
+            'FilesPerJob': 40
             }
 
-# tt+DM inclusive pseudoscalar
+# tW+DM dilepton scalar
 for phi in mPhi:
-    samples[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
-            'name': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}'),
+    samples[f'TWto2LDMsimpSpin0_s_mphi-{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TWto2LDMsimpSpin0_s_mphi-{phi}'),
             'weight': mcCommonWeight,
-            'FilesPerJob': 1
+            'FilesPerJob': 40
             }
-'''
+
+# tW+DM dilepton pseudoscalar
+for phi in mPhi:
+    samples[f'TWto2LDMsimpSpin0_ps_mphi-{phi}'] = {
+            'name': nanoGetSampleFiles(signalDirectory, f'TWto2LDMsimpSpin0_ps_mphi-{phi}'),
+            'weight': mcCommonWeight,
+            'FilesPerJob': 40
+            }
+
 ###########################################
 ################## FAKE ###################
 ###########################################
@@ -330,19 +361,19 @@ samples['Fake'] = {
   'weight': 'METFilter_DATA*fakeW',
   'weights': [],
   'isData': ['all'],
-  'FilesPerJob': 10
+  'FilesPerJob': 50
 }
 
 for _, sd in DataRun:
   for pd in DataSets:
-    tag = pd + '_' + sd
+    datatag = pd + '_' + sd
 
     if (pd == "SingleMuon" and _ in ["D"]) or (pd == "Muon" and _ == "B"):
         continue
-    files = nanoGetSampleFiles(fakeDirectory, tag)
+    files = nanoGetSampleFiles(fakeDirectory, datatag)
 
     samples['Fake']['name'].extend(files)
-    addSampleWeight(samples, 'Fake', tag, DataTrig[pd])
+    addSampleWeight(samples, 'Fake', datatag, DataTrig[pd])
 
     
 ###########################################
@@ -354,7 +385,7 @@ samples['DATA'] = {
     'weight': 'LepWPCut*METFilter_DATA',
     'weights': [], 
     'isData': ['all'], 
-    'FilesPerJob': 15
+    'FilesPerJob': 80
 } 
 for _, sd in DataRun:
   for pd in DataSets:

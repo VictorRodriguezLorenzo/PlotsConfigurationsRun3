@@ -4,17 +4,17 @@ structure = {}
 
 # keys here must match keys in samples.py    
 
-structure['DY']  = {
+structure['DY']  = {  
                   'isSignal' : 0,
                   'isData'   : 0,
               }
 
-structure['TTTo2L2Nu'] = {
+structure['TTTo2L2Nu'] = {   
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['TTToSemiLeptonic'] = {
+structure['TTToSemiLeptonic'] = {   
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
@@ -29,57 +29,67 @@ structure['TTToSemiLeptonic'] = {
                   'isData'   : 0,
                   }
 
-structure['ttW']  = {
+structure['ttW']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['ttZ']  = {
+structure['ttZ']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['ttH']  = {
+structure['ttH']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['TXX']  = {
+structure['THW']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['WWW']  = {
+structure['THQ']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['WWZ']  = {
+structure['WWW']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['WZZ']  = {
+structure['WWZ']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['ZZZ']  = {
+structure['WZZ']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['WW']  = {
+structure['ZZZ']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
-structure['WZ']  = {
+structure['WW']  = { 
+                  'isSignal' : 0,
+                  'isData'   : 0,
+                  }
+
+structure['WZ']  = { 
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
 
 structure['ZZ']  = {
+                  'isSignal' : 0,
+                  'isData'   : 0,
+                  }
+
+structure['Other']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
@@ -98,13 +108,6 @@ for phi in mPhi:
         'isData': 0
     }
 
-# tt+DM inclusive scalar
-for phi in mPhi:
-    structure[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
-        'isSignal': 2,
-        'isData': 0
-    }
-
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     structure[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
@@ -112,17 +115,23 @@ for phi in mPhi:
         'isData': 0
     }
 
-# tt+DM inclusive pseudoscalar
+# tW+DM dilepton scalar
 for phi in mPhi:
-    structure[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
+    structure[f'TWto2LDMsimpSpin0_s_mphi-{phi}'] = {
+        'isSignal': 2,
+        'isData': 0
+    }
+
+# tW+DM dilepton pseudoscalar
+for phi in mPhi:
+    structure[f'TWto2LDMsimpSpin0_ps_mphi-{phi}'] = {
         'isSignal': 2,
         'isData': 0
     }
 
 # data
 
-structure['DATA']  = {
+structure['DATA']  = { 
                   'isSignal' : 0,
                   'isData'   : 1,
               }
-

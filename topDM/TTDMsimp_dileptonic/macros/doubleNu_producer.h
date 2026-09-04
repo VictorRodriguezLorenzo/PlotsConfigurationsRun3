@@ -1,5 +1,5 @@
-#ifndef MKSHAPESRDF_PROCESSOR_MODULES_DOUBLENEUTRINOSOLUTIONMACRO_H
-#define MKSHAPESRDF_PROCESSOR_MODULES_DOUBLENEUTRINOSOLUTIONMACRO_H
+#ifndef DOUBLENU_PRODUCER_H
+#define DOUBLENU_PRODUCER_H
 
 #include <Math/Factory.h>
 #include <Math/IFunction.h>
@@ -572,7 +572,9 @@ public:
           N1_(3, 3),
           N2_constraint_(3, 3),
           N2_nubar_(3, 3),
-          usedMinimizerFallback_(false)
+          usedMinimizerFallback_(false),
+          selectedPairingSwapped_(false),
+          selectedObjective_(std::numeric_limits<double>::quiet_NaN())
     {
         H1.Zero();
         H2.Zero();
@@ -593,7 +595,9 @@ public:
           N1_(3, 3),
           N2_constraint_(3, 3),
           N2_nubar_(3, 3),
-          usedMinimizerFallback_(false)
+          usedMinimizerFallback_(false),
+          selectedPairingSwapped_(false),
+          selectedObjective_(std::numeric_limits<double>::quiet_NaN())
     {
         H1.Zero();
         H2.Zero();
@@ -762,8 +766,8 @@ public:
                     result.solutions.begin(),
                     result.solutions.end(),
                     [&](const NuPair& a, const NuPair& b) {
-                        const double mttA = combinedTTbarMass(a, B1, B2, L1, L2);
-                        const double mttB = combinedTTbarMass(b, B1, B2, L1, L2);
+                        const double mttA = combinedTTbarMass(a, B1, B2, L1, L2, result.H1, result.H2);
+                        const double mttB = combinedTTbarMass(b, B1, B2, L1, L2, result.H1, result.H2);
                         if (mttA != mttB) {
                             return mttA < mttB;
                         }
@@ -793,6 +797,7 @@ public:
             N2_constraint_ = pairing1.N2_constraint;
             N2_nubar_ = pairing1.N2_nubar;
             usedMinimizerFallback_ = pairing1.usedMinimizerFallback;
+            selectedPairingSwapped_ = false;
         } else {
             nunu_s = pairing2.solutions;
             H1.ResizeTo(pairing2.H1.GetNrows(), pairing2.H1.GetNcols());
@@ -806,6 +811,13 @@ public:
             N2_constraint_ = pairing2.N2_constraint;
             N2_nubar_ = pairing2.N2_nubar;
             usedMinimizerFallback_ = pairing2.usedMinimizerFallback;
+            selectedPairingSwapped_ = true;
+        }
+
+        if (!nunu_s.empty() && isFinitePair(nunu_s.front())) {
+            const double residual = metResidual(nunu_s.front(), met_x, met_y);
+            selectedObjective_ = std::isfinite(residual) ? residual * residual
+                                                         : std::numeric_limits<double>::quiet_NaN();
         }
 
         if (nunu_s.empty()) {
@@ -857,6 +869,8 @@ public:
     }
 
     bool usedMinimizerFallback() const { return usedMinimizerFallback_; }
+    bool selectedPairingSwapped() const { return selectedPairingSwapped_; }
+    double selectedObjective() const { return selectedObjective_; }
 
 
     std::vector<double> allSolutionsFlat() const {
@@ -877,6 +891,8 @@ private:
     TMatrixD N2_constraint_;
     TMatrixD N2_nubar_;
     bool usedMinimizerFallback_ = false;
+    bool selectedPairingSwapped_ = false;
+    double selectedObjective_ = std::numeric_limits<double>::quiet_NaN();
 
     struct PairingResult {
         std::vector<NuPair> solutions;
@@ -906,32 +922,70 @@ private:
                std::isfinite(pair.second[1]);
     }
 
-    static TLorentzVector neutrinoP4(const std::array<double, 2>& nuPt) {
-        TLorentzVector nu;
-        if (!std::isfinite(nuPt[0]) || !std::isfinite(nuPt[1])) {
-            nu.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
-            return nu;
+    static bool neutrinoP4FromH(const std::array<double, 2>& nuPt,
+                                const TMatrixD& H,
+                                TLorentzVector& nu) {
+        if (!std::isfinite(nuPt[0]) || !std::isfinite(nuPt[1]) ||
+            H.GetNrows() != 3 || H.GetNcols() != 3) {
+            return false;
         }
 
-        const double px = nuPt[0];
-        const double py = nuPt[1];
-        const double p2 = px * px + py * py;
-        const double e = (p2 > 0.0) ? std::sqrt(p2) : 0.0;
-        nu.SetPxPyPzE(px, py, 0.0, e);
-        return nu;
+        // H maps t=(cos(theta), sin(theta), 1) to the FULL neutrino
+        // three-momentum.  H_perp keeps only px,py.  Invert H_perp to
+        // recover t from the selected transverse solution, then apply H.
+        TMatrixD Hperp(3,3);
+        Hperp.Zero();
+        for (int i = 0; i < 2; ++i)
+            for (int j = 0; j < 3; ++j)
+                Hperp(i,j) = H(i,j);
+        Hperp(2,2) = 1.0;
+
+        TMatrixD invHperp;
+        if (!invert3x3(Hperp, invHperp)) return false;
+
+        TVectorD pT(3);
+        pT(0) = nuPt[0];
+        pT(1) = nuPt[1];
+        pT(2) = 1.0;
+
+        const TVectorD t = invHperp * pT;
+        const TVectorD p3 = H * t;
+
+        if (p3.GetNrows() < 3 ||
+            !std::isfinite(p3(0)) ||
+            !std::isfinite(p3(1)) ||
+            !std::isfinite(p3(2))) {
+            return false;
+        }
+
+        const double e = std::sqrt(
+            p3(0)*p3(0) + p3(1)*p3(1) + p3(2)*p3(2)
+        );
+        if (!std::isfinite(e)) return false;
+
+        nu.SetPxPyPzE(p3(0), p3(1), p3(2), e);
+        return true;
     }
 
     static double combinedTTbarMass(const NuPair& pair,
                                     const TLorentzVector& B1,
                                     const TLorentzVector& B2,
                                     const TLorentzVector& L1,
-                                    const TLorentzVector& L2) {
+                                    const TLorentzVector& L2,
+                                    const TMatrixD& H1,
+                                    const TMatrixD& H2) {
         if (!isFinitePair(pair)) {
             return std::numeric_limits<double>::infinity();
         }
 
-        TLorentzVector top1 = B1 + L1 + neutrinoP4(pair.first);
-        TLorentzVector top2 = B2 + L2 + neutrinoP4(pair.second);
+        TLorentzVector nu1, nu2;
+        if (!neutrinoP4FromH(pair.first, H1, nu1) ||
+            !neutrinoP4FromH(pair.second, H2, nu2)) {
+            return std::numeric_limits<double>::infinity();
+        }
+
+        const TLorentzVector top1 = B1 + L1 + nu1;
+        const TLorentzVector top2 = B2 + L2 + nu2;
         const double mtt = (top1 + top2).M();
         return std::isfinite(mtt) ? mtt : std::numeric_limits<double>::infinity();
     }
@@ -959,7 +1013,7 @@ private:
         }
 
         const auto& best = res.solutions.front();
-        const double mtt = combinedTTbarMass(best, B1, B2, L1, L2);
+        const double mtt = combinedTTbarMass(best, B1, B2, L1, L2, res.H1, res.H2);
         if (std::isfinite(mtt)) {
             return mtt;
         }
@@ -988,14 +1042,51 @@ struct EventKinematics {
     }
 };
 
-inline TLorentzVector makeMasslessNeutrino(double px, double py) {
-    TLorentzVector nu;
-    double energy = std::sqrt(px * px + py * py);
-    nu.SetPxPyPzE(px, py, 0.0, energy);
-    return nu;
+inline bool reconstructNeutrinoP4(const TMatrixD& H,
+                                  double px,
+                                  double py,
+                                  TLorentzVector& nu) {
+    if (!std::isfinite(px) || !std::isfinite(py) ||
+        H.GetNrows() != 3 || H.GetNcols() != 3) {
+        return false;
+    }
+
+    TMatrixD Hperp(3,3);
+    Hperp.Zero();
+    for (int i = 0; i < 2; ++i)
+        for (int j = 0; j < 3; ++j)
+            Hperp(i,j) = H(i,j);
+    Hperp(2,2) = 1.0;
+
+    TMatrixD invHperp;
+    if (!invert3x3(Hperp, invHperp)) return false;
+
+    TVectorD pT(3);
+    pT(0) = px;
+    pT(1) = py;
+    pT(2) = 1.0;
+
+    const TVectorD t = invHperp * pT;
+    const TVectorD p3 = H * t;
+
+    if (p3.GetNrows() < 3 ||
+        !std::isfinite(p3(0)) ||
+        !std::isfinite(p3(1)) ||
+        !std::isfinite(p3(2))) {
+        return false;
+    }
+
+    const double e = std::sqrt(
+        p3(0)*p3(0) + p3(1)*p3(1) + p3(2)*p3(2)
+    );
+    if (!std::isfinite(e)) return false;
+
+    nu.SetPxPyPzE(p3(0), p3(1), p3(2), e);
+    return true;
 }
 
-inline TVector3 leptonDirectionInTopRest(const TLorentzVector& top, const TLorentzVector& lepton) {
+inline TVector3 leptonDirectionInTopRest(const TLorentzVector& top,
+                                         const TLorentzVector& lepton) {
     if (top.E() <= 0.0) {
         return TVector3();
     }
@@ -1020,63 +1111,62 @@ inline EventKinematics computeEventKinematics(const TLorentzVector& b1,
                                               size_t idx = 0)
 {
     EventKinematics kin;
-    kin.valid = false;   // default
+    kin.valid = false;
 
-    // -----------------------
-    // 1) Build neutrinos
-    // -----------------------
-    TLorentzVector nu1 = makeMasslessNeutrino(solver.nu1_px(idx), solver.nu1_py(idx));
-    TLorentzVector nu2 = makeMasslessNeutrino(solver.nu2_px(idx), solver.nu2_py(idx));
+    if (!solver.isValid(idx)) return kin;
 
-    // Validate px/py are finite numbers
-    if (!std::isfinite(nu1.Px()) || !std::isfinite(nu1.Py()) ||
-        !std::isfinite(nu2.Px()) || !std::isfinite(nu2.Py()))
+    // The selected solution belongs either to
+    //   (b1,l1) + (b2,l2)
+    // or to
+    //   (b1,l2) + (b2,l1).
+    // Keep the leptons consistent with the pairing chosen by the solver.
+    const bool swapped = solver.selectedPairingSwapped();
+    const TLorentzVector& lepForB1 = swapped ? l2 : l1;
+    const TLorentzVector& lepForB2 = swapped ? l1 : l2;
+
+    // Recover FULL neutrino four-vectors, including pz, from the H matrices
+    // of the selected pairing.
+    TLorentzVector nu1, nu2;
+    if (!reconstructNeutrinoP4(
+            solver.getH1(), solver.nu1_px(idx), solver.nu1_py(idx), nu1) ||
+        !reconstructNeutrinoP4(
+            solver.getH2(), solver.nu2_px(idx), solver.nu2_py(idx), nu2)) {
+        return kin;
+    }
+
+    // nu1 belongs to b1 + lepForB1; nu2 belongs to b2 + lepForB2.
+    kin.top1 = b1 + lepForB1 + nu1;
+    kin.top2 = b2 + lepForB2 + nu2;
+
+    if (kin.top1.E() <= 0.0 || kin.top2.E() <= 0.0)
         return kin;
 
-    // -----------------------
-    // 2) Build top candidates
-    // -----------------------
-    kin.top1 = b1 + l1 + nu1;
-    kin.top2 = b2 + l2 + nu2;
-
-    // Physical sanity check
-    if (kin.top1.E() <= 0 || kin.top2.E() <= 0)
-        return kin;
-
-    // -----------------------
-    // 3) Lepton directions in top rest frame
-    // -----------------------
-    TVector3 l1_rf = leptonDirectionInTopRest(kin.top1, l1);
-    TVector3 l2_rf = leptonDirectionInTopRest(kin.top2, l2);
-
-    if (l1_rf.Mag2() == 0 || l2_rf.Mag2() == 0)
+    // Use the SAME selected pairing for the lepton directions.
+    const TVector3 l1_rf = leptonDirectionInTopRest(kin.top1, lepForB1);
+    const TVector3 l2_rf = leptonDirectionInTopRest(kin.top2, lepForB2);
+    if (l1_rf.Mag2() == 0.0 || l2_rf.Mag2() == 0.0)
         return kin;
 
     kin.chel = l1_rf.Dot(l2_rf);
 
-    // -----------------------
-    // 4) Δphi_ttbar
-    // -----------------------
     if (std::isfinite(kin.top1.Phi()) && std::isfinite(kin.top2.Phi())) {
         kin.dphi_ttbar =
             std::abs(TVector2::Phi_mpi_pi(kin.top1.Phi() - kin.top2.Phi()));
     } else {
-        kin.dphi_ttbar = -999.0;   // mark invalid
+        return kin;
     }
 
-    // -----------------------
-    // 5) p_dark calculation
-    // -----------------------
-    double residual_x = met_x - nu1.Px() - nu2.Px();
-    double residual_y = met_y - nu1.Py() - nu2.Py();
-    kin.pdark = std::sqrt(residual_x * residual_x + residual_y * residual_y);
+    // p_dark only depends on the transverse residual.
+    const double residual_x = met_x - nu1.Px() - nu2.Px();
+    const double residual_y = met_y - nu1.Py() - nu2.Py();
+    kin.pdark = std::hypot(residual_x, residual_y);
 
-    // -----------------------
-    // 6) Final validity flag
-    // -----------------------
-    kin.valid = true;
+    kin.valid = std::isfinite(kin.chel) &&
+                std::isfinite(kin.dphi_ttbar) &&
+                std::isfinite(kin.pdark);
     return kin;
 }
+
 } // namespace nuana
 
 // ---------- Aliases ----------
@@ -1084,4 +1174,4 @@ using nuana::nuSolutionSet;
 using nuana::doubleNeutrinoSolution;
 using nuana::makeMetCov;
 
-#endif // MKSHAPESRDF_PROCESSOR_MODULES_DOUBLENEUTRINOSOLUTIONMACRO_H
+#endif // DOUBLENU_PRODUCER_H
