@@ -63,7 +63,7 @@ RVecF doubleNu_producer(
             float eta = CleanJet_eta[i];
             float btag = Jet_btagger[jetIdx];
         
-            if (pt > 20.0 && std::abs(eta) < 2.5 && btag > bAlgo_WP)
+            if (pt > 30.0 && std::abs(eta) < 2.5 && btag > bAlgo_WP)
                 bjet_indices.push_back(i);
         }
         

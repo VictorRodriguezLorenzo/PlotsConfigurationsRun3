@@ -44,7 +44,12 @@ structure['ttH']  = {
                   'isData'   : 0,
                   }
 
-structure['TXX']  = { 
+structure['THW']  = { 
+                  'isSignal' : 0,
+                  'isData'   : 0,
+                  }
+
+structure['THQ']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
                   }
@@ -84,6 +89,11 @@ structure['ZZ']  = {
                   'isData'   : 0,
                   }
 
+structure['Other']  = {
+                  'isSignal' : 0,
+                  'isData'   : 0,
+                  }
+
 structure['Fake']  = {
                   'isSignal' : 0,
                   'isData'   : 0,
@@ -98,13 +108,6 @@ for phi in mPhi:
         'isData': 0
     }
 
-# tt+DM inclusive scalar
-for phi in mPhi:
-    structure[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
-        'isSignal': 2,
-        'isData': 0
-    }
-
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     structure[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
@@ -112,9 +115,16 @@ for phi in mPhi:
         'isData': 0
     }
 
-# tt+DM inclusive pseudoscalar
+# tW+DM dilepton scalar
 for phi in mPhi:
-    structure[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
+    structure[f'TWto2LDMsimpSpin0_s_mphi-{phi}'] = {
+        'isSignal': 2,
+        'isData': 0
+    }
+
+# tW+DM dilepton pseudoscalar
+for phi in mPhi:
+    structure[f'TWto2LDMsimpSpin0_ps_mphi-{phi}'] = {
         'isSignal': 2,
         'isData': 0
     }
