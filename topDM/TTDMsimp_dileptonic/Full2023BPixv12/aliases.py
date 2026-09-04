@@ -1,6 +1,7 @@
 import os
 import copy
 import inspect
+import joblib
 
 configurations = os.path.realpath(inspect.getfile(inspect.currentframe())) # this file
 
@@ -104,37 +105,45 @@ aliases['gstarHigh'] = {
     'samples': ['WZ', 'VgS', 'Vg'],
 }
 
-## Top pT reweighting ##
+# Top pT reweighting ##
 
+# NNLO + NLO EW correction derived at 13 TeV
 aliases['Top_pTrw'] = {
     'expr': '(topGenPt * antitopGenPt > 0.) * (TMath::Sqrt((0.103*TMath::Exp(-0.0118*topGenPt) - 0.000134*topGenPt + 0.973) * (0.103*TMath::Exp(-0.0118*antitopGenPt) - 0.000134*antitopGenPt + 0.973))) + (topGenPt * antitopGenPt <= 0.)',
+    'samples': ['TTTo2L2Nu']
+}
+
+# Extrapolation of the correction from 13 TeV to 13.6 TeV, from TOP-25-018
+aliases['Top_pTrw_13To13p6'] = {
+    'expr': '(topGenPt * antitopGenPt > 0.) * TMath::Sqrt((0.991 + 0.000075*topGenPt) * (0.991 + 0.000075*antitopGenPt)) + (topGenPt * antitopGenPt <= 0.)',
     'samples': ['TTTo2L2Nu']
 }
 
 # Jet bins
 # using Alt(CleanJet_pt, n, 0) instead of Sum(CleanJet_pt >= 20) because jet pt ordering is not strictly followed in JES-varied samples
 
-# One jet: leading jet with pt > 30 GeV
+# One jet: leading jet with pt > 20 GeV
 aliases['oneJet'] = {
-    'expr': 'Alt(CleanJet_pt, 0, 0) > 30.',
+    'expr': 'Alt(CleanJet_pt, 0, 0) > 20.',
     'afterNuis': True
 }
 
-# Multiple jets: leading jet with pt > 30, others with pt > 20 GeV
+# Multiple jets: leading jet with pt > 20, others with pt > 20 GeV
 aliases['multiJet'] = {
-    'expr': 'Alt(CleanJet_pt, 0, 0) > 30. && Alt(CleanJet_pt, 1, 0) > 20.',
+    'expr': 'Alt(CleanJet_pt, 0, 0) > 20. && Alt(CleanJet_pt, 1, 0) > 20.',
     'afterNuis': True
 }
 
-# Three jets: leading jet with pt > 30, two others with pt > 20 GeV
+# Three jets: leading jet with pt > 20, two others with pt > 20 GeV
 aliases['ThreeJet'] = {
-    'expr': 'Alt(CleanJet_pt, 0, 0) > 30. && Alt(CleanJet_pt, 1, 0) > 20. && Alt(CleanJet_pt, 2, 0) > 20.',
+    'expr': 'Alt(CleanJet_pt, 0, 0) > 20. && Alt(CleanJet_pt, 1, 0) > 20. && Alt(CleanJet_pt, 2, 0) > 20.',
     'afterNuis': True
 }
 
 # Number of jets
 aliases['njets'] = {
-    'expr': 'Sum(CleanJet_pt > 20.) '
+    'expr': 'Sum(CleanJet_pt > 20.)',
+    'afterNuis': True
 }
 
 # Fixing issues with jets in the horns
@@ -144,9 +153,10 @@ aliases['noJetInHorn'] = {
     'afterNuis': True
 }
 
-aliases['noJetInHorn_pT30'] = {
+aliases['noJetInHorn_pT20'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/jet_horns.cc"'],
-    'expr': 'Jet_inHorns(CleanJet_pt, CleanJet_eta, true)'
+    'expr': 'Jet_inHorns(CleanJet_pt, CleanJet_eta, true)',
+    'afterNuis': True
 }
 
 ############################################################################
@@ -177,7 +187,7 @@ btagging_SFs = {
 }
 
 # Algorithm and WP selection
-bAlgo = 'RobustParTAK4B' # ['DeepFlavB','RobustParTAK4B','PNetB'] 
+bAlgo = 'PNetB' # ['DeepFlavB','RobustParTAK4B','PNetB'] 
 bWP    = 'medium'     # ['loose','medium']
 #bSF   = 'deepjet'
 
@@ -197,19 +207,19 @@ aliases['bReq'] = {
 
 # Number of b-jets
 aliases['nbjets'] = {
-    'expr': 'Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})'.format(
+    'expr': 'Sum(CleanJet_pt > 30. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})'.format(
         bAlgo, btagging_WPs[bAlgo][bWP]
     )
 }
 
-# Ratio of b-jets to selected jets
+## Ratio of b-jets to selected jets
 aliases['nbjet_jet_ratio'] = {
-    'expr': '(njet > 0 ? Sum(CleanJet_pt > 20. && abs(CleanJet_eta) < 2.5 && Take(Jet_btag{}, CleanJet_jetIdx) > {})/njet : 0.)'.format(
-        bAlgo, btagging_WPs[bAlgo][bWP]
-    )
+    'expr': '(njets > 0 ? nbjets/njets : 0.)'.format(bAlgo, btagging_WPs[bAlgo][bWP]),
+    'afterNuis': True
 }
 
-year = '2023_Summer23BPix' 
+year = '2023_Summer23BPix'
+btag_eff_file = 'bTagEff_Full2023BPixv12_ttbar_PNetB_medium.root'
 #shifts = ['central', 'down_fsrdef', 'down_hdamp', 'down_isrdef', 'down_jer', 'down_jes', 'down_mass', 'down_statistic', 'down_tune', 'up_fsrdef', 'up_hdamp','up_isrdef', 'up_jer', 'up_jes', 'up_mass', 'up_statistic', 'up_tune']
 shifts = ['central', 'up_uncorrelated', 'down_uncorrelated', 'up_correlated', 'down_correlated']
 shift_str = '{"' + '","'.join(shifts) + '"}'
@@ -226,7 +236,7 @@ for flavour in ['bc', 'light']:
     aliases[btagsf_tmp] = {
         'linesToProcess':[
             f'ROOT.gSystem.Load("/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/extended/evaluate_btagSF{flavour}_cc.so","", ROOT.kTRUE)',
-            f"ROOT.gInterpreter.ProcessLine('btagSF{flavour} btag_SF{flavour} = btagSF{flavour}(\"/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/data/btag_eff/bTagEff_2023BPix_ttbar_loose.root\",\"{year}\",\"_parT\");')"
+            f"ROOT.gInterpreter.ProcessLine('btagSF{flavour} btag_SF{flavour} = btagSF{flavour}(\"/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/data/btag_eff/{btag_eff_file}\",\"{year}\",\"\");')"
         ],
         'expr': f'btag_SF{flavour}(CleanJet_pt, CleanJet_eta, CleanJet_jetIdx, nCleanJet, Jet_hadronFlavour, Jet_btag{bAlgo}, "{wp_map[bWP]}", {shift_str})',
         'samples' : mc,
@@ -239,6 +249,7 @@ for flavour in ['bc', 'light']:
             'expr': f"{btagsf_tmp}[{i}]",
             'samples' : mc,
         }
+
 ##########################################################################
 # End of b tagging
 ##########################################################################
@@ -277,21 +288,17 @@ aliases['doubleNu_producer'] = {
     'afterNuis': True
 }
 
-aliases['bjet_idx'] = {
-    'expr': '(nCleanJet > 0 && Alt(Jet_btag{algo}, Alt(CleanJet_jetIdx,0,-1), -99.f) > {wp}) ? 0 : (nCleanJet > 1 && Alt(Jet_btag{algo}, Alt(CleanJet_jetIdx,1,-1), -99.f) > {wp}) ? 1 : (nCleanJet > 2 && Alt(Jet_btag{algo}, Alt(CleanJet_jetIdx,2,-1), -99.f) > {wp}) ? 2 : -1'.format(algo=bAlgo, wp=btagging_WPs[bAlgo][bWP]),
-    'afterNuis': True
-}
-
-aliases['dphi_met_llb'] = {
-    'expr': 'abs(DeltaPhi(PuppiMET_phi, atan2(Lepton_pt[0]*sin(Lepton_phi[0]) + Lepton_pt[1]*sin(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*sin(CleanJet_phi[bjet_idx]), Lepton_pt[0]*cos(Lepton_phi[0]) + Lepton_pt[1]*cos(Lepton_phi[1]) + CleanJet_pt[bjet_idx]*cos(CleanJet_phi[bjet_idx]))))',
-    'afterNuis': True
-}
-
 ### Defining other relevant variables ###
-#### mT2 variable definition
+# mT2 variable definition
 aliases['mT2'] = {
     'linesToAdd' : ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/macros/computeMT2.cc"'],
     'expr': 'computeMT2(Lepton_pt[0], Lepton_eta[0], Lepton_phi[0], Lepton_pt[1], Lepton_eta[1], Lepton_phi[1], PuppiMET_pt, PuppiMET_phi)',
+    'afterNuis': True
+}
+
+aliases['mt2blbl'] = {
+    'linesToAdd': ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/macros/computeMT2blbl.cc"'],
+    'expr': 'computeMT2blbl(nCleanJet, CleanJet_pt, CleanJet_eta, CleanJet_phi, CleanJet_mass, CleanJet_jetIdx, nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId, PuppiMET_pt, PuppiMET_phi, Jet_btag{}, {})'.format(bAlgo,btagging_WPs[bAlgo][bWP]),
     'afterNuis': True
 }
 
@@ -300,6 +307,106 @@ aliases['mpmet'] = {
     'expr' : 'min(projtkmet, projpfmet)',
     'afterNuis': True
 }
+
+############################################################################
+############ Extra topology variables for tt+DM / top+DM ####################
+############################################################################
+
+aliases['topDMVars'] = {
+    'linesToAdd': [
+        '#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/macros/topDM_vars.cc"'
+    ],
+    'expr': 'topDM_DNN_vars(nCleanJet, CleanJet_pt, CleanJet_eta, CleanJet_phi, CleanJet_mass, CleanJet_jetIdx, nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId, PuppiMET_pt, PuppiMET_phi, Jet_btag{}, {})'.format(
+        bAlgo,
+        btagging_WPs[bAlgo][bWP]
+    ),
+    'afterNuis': True
+}
+
+_topdm_alias_map = {
+    'dphi_met_ll'              : 0,
+    'st'                       : 2,
+    'met_over_sqrt_ht'         : 3,
+    'met_over_st'              : 4,
+    'dphi_min_j_met'           : 5,
+
+    'pt_llb'                   : 6,
+    'dphi_met_llb'             : 7,
+
+    'pt_llbb'                  : 8,
+    'dphi_met_llbb'            : 9,
+    'm_llbb'                   : 10,
+    'mT_llbb_met'              : 11,
+    'met_over_pt_llbb'         : 12,
+
+    'mt2_bell_l'               : 13,
+    'mbl_min'                  : 14,
+    'mbl_max'                  : 15,
+    'mtbl'                     : 16,
+
+    'mbb'                      : 17,
+    'drbb'                     : 18,
+    'ptbb'                     : 19,
+
+    'max_nonleading_btag'      : 20,
+    'pt_b2'                    : 21,
+
+    'nForwardJet'              : 22,
+    'leadingForwardJet_pt'     : 23,
+    'leadingForwardJet_absEta' : 24,
+    'deta_forwardJet_b'        : 25,
+    'dphi_forwardJet_met'      : 26,
+}
+
+for _name, _idx in _topdm_alias_map.items():
+    aliases[_name] = {
+        'expr': 'topDMVars[{}]'.format(_idx),
+        'afterNuis': True
+    }
+
+aliases['top1_pt_reco'] = {
+    'expr': 'doubleNu_producer[4]',
+    'afterNuis': True
+}
+
+aliases['top2_pt_reco'] = {
+    'expr': 'doubleNu_producer[5]',
+    'afterNuis': True
+}
+
+aliases['pdark_over_met'] = {
+    'expr': '(PuppiMET_pt > 0 && doubleNu_producer[8] > -998) ? doubleNu_producer[8]/PuppiMET_pt : -999.',
+    'afterNuis': True
+}
+
+aliases['topDMRestFrameVars'] = {
+    'linesToAdd': [
+        '#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/macros/topDM_restFrame_vars.cc"'
+    ],
+    'expr': 'topDM_restFrame_vars(nCleanJet, CleanJet_pt, CleanJet_eta, CleanJet_phi, CleanJet_mass, CleanJet_jetIdx, nLepton, Lepton_pt, Lepton_eta, Lepton_phi, Lepton_pdgId, PuppiMET_pt, PuppiMET_phi, Jet_btag{}, {})'.format(
+        bAlgo,
+        btagging_WPs[bAlgo][bWP]
+    ),
+    'afterNuis': True
+}
+
+_restframe_alias_map = {
+    'angle_ll_llbb_rf' : 0,
+    'dphi_ll_llbb_rf'  : 1,
+    'cos_l1_llbb_rf'   : 2,
+    'cos_l2_llbb_rf'   : 3,
+
+    'angle_ll_llmet_rf': 4,
+    'dphi_ll_llmet_rf' : 5,
+    'cos_l1_llmet_rf'  : 6,
+    'cos_l2_llmet_rf'  : 7,
+}
+
+for _name, _idx in _restframe_alias_map.items():
+    aliases[_name] = {
+        'expr': 'topDMRestFrameVars[{}]'.format(_idx),
+        'afterNuis': True
+    }
 
 # ttZ indices
 aliases['zLep1'] = {
@@ -327,15 +434,83 @@ aliases['zLep_mll'] = {
 ########################## DNN discriminator ################################
 #############################################################################
 
-# DNN discriminator
+# Mass hypothesis points
 mPhi = ['10', '50', '100', '150', '200', '250', '300', '350', '400', '500', '600', '700', '800', '1000']
-for phi in mPhi:
-    aliases['evaluate_dnn_mPhi_{phi}'] = {
-        'linesToAdd': ['#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/evaluate_DNN.cc"'],
-        'class': 'evaluate_dnn',
-        #'args': 'Lepton_pt[0], Lepton_pt[1], Lepton_eta[0], Lepton_eta[1], mll, ptll, drll, detall, dphill, yll, PuppiMET_pt, PuppiMET_phi, dphilmet, dphilmet1, dphilmet2, dphillmet, mtw1, mtw2, mth, mTi, mR, mT2, mTe, recoil, upara, uperp, pTWW, mcoll, mcollWW, choiMass, nbjet_jet_ratio, njet, ht, vht_pt, dphijet1met, dphijet2met, dphijjmet, doubleNu_producer[6], doubleNu_producer[8], doubleNu_producer[7], dphi_met_llb, phi',
-        'args': f'dphill, PuppiMET_pt, mT2, doubleNu_producer[6], doubleNu_producer[8], doubleNu_producer[7], dphi_met_llb, {phi}',        
-        'afterNuis': True
+mPhiRVec = 'ROOT::VecOps::RVec<float>{' + ','.join([f'{phi}.f' for phi in mPhi]) + '}'
+
+rdf_name = {
+    'lep_pt1': 'pt1',
+    'lep_pt2': 'pt2',
+    'lep_eta1': 'Lepton_eta[0]',
+    'lep_eta2': 'Lepton_eta[1]',
+    'chel': 'doubleNu_producer[6]',
+    'pdark': 'doubleNu_producer[8]',
+    'dphi_ttbar': 'doubleNu_producer[7]',
+    'dphi_met_llb_safe': 'dphi_met_llb',
+}
+
+# ttDM ps DNN discriminant
+features_ttDM = [v for v in joblib.load(
+    "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/Models/features_model_DNN_ttDM_ps.pkl"
+) if v != 'mPhi']
+
+featuresRVec_ttDM = 'ROOT::VecOps::RVec<float>{' + ','.join(f'static_cast<float>({rdf_name.get(v, v)})' for v in features_ttDM if v != 'mPhi') + '}'
+
+aliases['evaluate_dnn_ttDM_ps'] = {
+    'linesToAdd': [
+        '#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/evaluate_DNN_ttDM.cc"'
+    ],
+    'class': 'evaluate_dnn_ttDM',
+    'args': f'{featuresRVec_ttDM}, {mPhiRVec}, "ps"',
+    'afterNuis': True
+}
+
+# ttDM s DNN discriminant
+features_ttDM = [v for v in joblib.load(
+    "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/Models/features_model_DNN_ttDM_s.pkl"
+) if v != 'mPhi']
+
+featuresRVec_ttDM = 'ROOT::VecOps::RVec<float>{' + ','.join(f'static_cast<float>({rdf_name.get(v, v)})' for v in features_ttDM if v != 'mPhi') + '}'
+
+aliases['evaluate_dnn_ttDM_s'] = {
+    'linesToAdd': [
+        '#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/evaluate_DNN_ttDM.cc"'
+    ],
+    'class': 'evaluate_dnn_ttDM',
+    'args': f'{featuresRVec_ttDM}, {mPhiRVec}, "s"',
+    'afterNuis': True
+}
+
+# tWDM ps DNN discriminant
+features_tWDM = [v for v in joblib.load(
+    "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/Models/features_model_DNN_tWDM_ps.pkl"
+) if v != 'mPhi']
+
+featuresRVec_tWDM = 'ROOT::VecOps::RVec<float>{' + ','.join(f'static_cast<float>({rdf_name.get(v, v)})' for v in features_tWDM if v != 'mPhi') + '}'
+
+aliases['evaluate_dnn_tWDM_ps'] = {
+    'linesToAdd': [
+        '#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/evaluate_DNN_tWDM.cc"'
+    ],
+    'class': 'evaluate_dnn_tWDM',
+    'args': f'{featuresRVec_tWDM}, {mPhiRVec}, "ps"',
+    'afterNuis': True
+}
+
+# tWDM s DNN discriminant
+features_tWDM = [v for v in joblib.load(
+    "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/DNNmodels/Models/features_model_DNN_tWDM_s.pkl"
+) if v != 'mPhi']
+
+featuresRVec_tWDM = 'ROOT::VecOps::RVec<float>{' + ','.join(f'static_cast<float>({rdf_name.get(v, v)})' for v in features_tWDM if v != 'mPhi') + '}'
+
+aliases['evaluate_dnn_tWDM_s'] = {
+    'linesToAdd': [
+        '#include "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/Full2023BPixv12/evaluate_DNN_tWDM.cc"'
+    ],
+    'class': 'evaluate_dnn_tWDM',
+    'args': f'{featuresRVec_tWDM}, {mPhiRVec}, "s"',
+    'afterNuis': True
 }
 
 #############################################################################
@@ -345,11 +520,11 @@ for phi in mPhi:
 aliases['sr'] = {
     'expr': 'mT2 > 80 && (!(abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) || abs(91.1876 - mll) > 15) && Alt(Lepton_pt, 2, 0) < 10',
     'afterNuis': True
-} 
+}
 
-# ttZ control region                                                                                                                                                                                       
+## ttZ control region
 aliases['ttZcr'] = {
-    'expr': 'nLepton == 3 && Lepton_pt[2] > 20 && abs(Lepton_eta[2]) < 2.4 && ThreeJet && zLep1 >=0 && zLep2 >=0 && zLep_mll > 0 && (Lepton_pdgId[zLep1] == -Lepton_pdgId[zLep2]) && abs(91.1876 - zLep_mll) < 10 && Lepton_pt[otherLepIndex] > 35',
+    'expr': 'nLepton == 3 && Lepton_pt[2] > 20 && ((abs(Lepton_pdgId[2]) == 11 && abs(Lepton_eta[2]) < 2.5)|| (abs(Lepton_pdgId[2]) == 13 && abs(Lepton_eta[2]) < 2.4)) && ThreeJet && zLep1 >=0 && zLep2 >=0 && zLep_mll > 0 && (Lepton_pdgId[zLep1] == -Lepton_pdgId[zLep2]) && abs(91.1876 - zLep_mll) < 10 && Lepton_pt[otherLepIndex] > 35',
     'afterNuis': True
 }
 
@@ -359,8 +534,9 @@ aliases['dycr'] = {
     'afterNuis': True
 }
 
-# Validation region
-aliases['ttvr'] = {
+# tt(2l) control region
+aliases['ttcr'] = {
     'expr': 'mT2 < 80 && (!(abs(Lepton_pdgId[0]) == abs(Lepton_pdgId[1])) || abs(91.1876 - mll) > 15) && Alt(Lepton_pt, 2, 0) < 10',
     'afterNuis': True
 }
+

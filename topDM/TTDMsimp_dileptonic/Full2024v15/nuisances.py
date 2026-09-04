@@ -86,6 +86,41 @@ nuisances['trigg'] = {
     'samples': dict((skey, trig_syst) for skey in mc)
 }
 
+## CR rate parameters
+nuisances['tt2lnorm']  = {
+               'name'  : 'tt2lnorm_2024',
+               'samples'  : {
+                   'TTTo2L2Nu' : '1.00',
+                   },
+               'type'  : 'rateParam',
+               'cuts'  : [
+                   'ttcr_Inc',
+                   ]
+              }
+
+nuisances['ttZnorm']  = {
+               'name'  : 'ttZnorm_2024',
+               'samples'  : {
+                   'ttZ' : '1.00',
+                   },
+               'type'  : 'rateParam',
+               'cuts'  : [
+                   'ttZcr_Inc',
+                   ]
+              }
+
+nuisances['DYnorm']  = {
+               'name'  : 'DYnorm_2024',
+               'samples'  : {
+                   'DY' : '1.00',
+                   },
+               'type'  : 'rateParam',
+               'cuts'  : [
+                   'dycr_1b',
+                   ]
+              }
+
+
 ### MC statistical uncertainty
 autoStats = True
 if autoStats:

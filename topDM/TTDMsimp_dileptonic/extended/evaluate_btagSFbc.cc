@@ -54,8 +54,8 @@ class btagSFbc {
 	      wpKey = "UParTAK4_wp_values";
       }
       else{
-	      correctionKey	= "robustParticleTransformer_mujets";
-	      wpKey = "robustParticleTransformer_wp_values";
+	      correctionKey	= "particleNet_comb";
+	      wpKey = "particleNet_wp_values";
       }
 
       auto cset_deepJet_mujets_alt  = cset->at(correctionKey);

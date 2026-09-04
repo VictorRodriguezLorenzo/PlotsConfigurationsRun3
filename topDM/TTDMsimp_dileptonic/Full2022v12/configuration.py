@@ -11,7 +11,7 @@ outputFile = "mkShapes__{}.root".format(tag)
 
 #: path to ouput folder
 outputFolder = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Run3-ttDM/rootFiles/ttDM_dilep_2022/"
-#outputFolder = "rootFiles/ttDM_dilep_2022/"
+#outputFolder = "rootFiles/" + tag
 
 # path to batch folder (used for condor submission)
 batchFolder = "condor"
@@ -44,8 +44,11 @@ structureFile = "structure.py"
 nuisancesFile = "nuisances_ALL.py"
 #nuisancesFile = "nuisances.py"
 
+# used by mkDatacards to define output directory for datacards
+outputDirDatacard = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Run3-ttDM/datacards/datacards_" + tag
+
 # path to folder where to save plots
-plotPath = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Plots" + tag
+plotPath = "/eos/user/" + os.getlogin()[0] + "/" + os.getlogin() + "/www/Run3-ttDM/Plots/Plots" + tag
 #plotPath = "Plots" + tag
 
 # this lines are executed right before the runner on the condor node
@@ -59,8 +62,8 @@ imports = ["os", "glob", ("collections", "OrderedDict"), "ROOT"]
 filesToExec = [
     samplesFile,
     aliasesFile,
-    variablesFile,
     cutsFile,
+    variablesFile,
     plotFile,
     nuisancesFile,
     structureFile,
@@ -70,6 +73,7 @@ filesToExec = [
 varsToKeep = [
     "batchVars",
     "outputFolder",
+    "outputDirDatacard",
     "batchFolder",
     "configsFolder",
     "outputFile",

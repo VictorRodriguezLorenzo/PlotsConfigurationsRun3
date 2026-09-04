@@ -1,5 +1,6 @@
 treeBaseDir = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/'
-signalBaseDir   = '/eos/user/v/victorr/HWWNano/'
+#signalBaseDir   = '/eos/user/v/victorr/HWWNano/'
+signalBaseDir   = '/eos/user/e/emunozri/ttDM/HWWNano/'
 
 # MC backgrounds
 mcProduction = 'Summer24_150x_nAODv15_Full2024v15'
@@ -71,7 +72,7 @@ nuisances['lumi_2024'] = {
 #### FAKES
 
 nuisances['fake_syst'] = {
-    'name'    : 'CMS_fake_syst',
+    'name'    : 'fake_syst',
     'type'    : 'lnN',
     'samples' : {
         'Fake' : '1.3'
@@ -79,7 +80,7 @@ nuisances['fake_syst'] = {
 }
 
 nuisances['fake_ele'] = {
-    'name'    : 'CMS_fake_e_2024',
+    'name'    : 'fake_e_2024',
     'kind'    : 'weight',
     'type'    : 'shape',
     'samples' : {
@@ -88,7 +89,7 @@ nuisances['fake_ele'] = {
 }
 
 nuisances['fake_ele_stat'] = {
-    'name'    : 'CMS_fake_stat_e_2024',
+    'name'    : 'fake_stat_e_2024',
     'kind'    : 'weight',
     'type'    : 'shape',
     'samples' : {
@@ -97,7 +98,7 @@ nuisances['fake_ele_stat'] = {
 }
 
 nuisances['fake_mu'] = {
-    'name'    : 'CMS_fake_m_2024',
+    'name'    : 'fake_m_2024',
     'kind'    : 'weight',
     'type'    : 'shape',
     'samples' : {
@@ -106,7 +107,7 @@ nuisances['fake_mu'] = {
 }       
 
 nuisances['fake_mu_stat'] = {
-    'name'    : 'CMS_fake_stat_m_2024',
+    'name'    : 'fake_stat_m_2024',
     'kind'    : 'weight',
     'type'    : 'shape',
     'samples' : {
@@ -138,7 +139,7 @@ for flavour in ['bc', 'light']:
 trig_syst = ['TriggerSFWeight_2l_u/TriggerSFWeight_2l', 'TriggerSFWeight_2l_d/TriggerSFWeight_2l']
 
 nuisances['trigg'] = {
-    'name': 'CMS_eff_trigger_2024',
+    'name': 'eff_trigger_2024',
     'kind': 'weight',
     'type': 'shape',
     'samples': dict((skey, trig_syst) for skey in mc)
@@ -147,7 +148,7 @@ nuisances['trigg'] = {
 ##### Electron Efficiency and energy scale
 
 nuisances['eff_e'] = {
-    'name': 'CMS_eff_e_2024',
+    'name': 'eff_e_2024',
     'kind': 'weight',
     'type': 'shape',
     'samples': dict((skey, ['SFweightEleUp', 'SFweightEleDown']) for skey in mc),
@@ -156,7 +157,7 @@ nuisances['eff_e'] = {
 ##### Muon Efficiency and energy scale
 
 nuisances['eff_m'] = {
-    'name': 'CMS_eff_m_2024',
+    'name': 'eff_m_2024',
     'kind': 'weight',
     'type': 'shape',
     'samples': dict((skey, ['SFweightMuUp', 'SFweightMuDown']) for skey in mc),
@@ -165,7 +166,7 @@ nuisances['eff_m'] = {
 #### Lepton scale
 
 nuisances['leppt_scale'] = {
-    'name'       : 'CMS_scale_l_2024',
+    'name'       : 'scale_l_2024',
     'kind'       : 'suffix',
     'type'       : 'shape',
     'mapUp'      : 'leptonScaleup',
@@ -177,7 +178,7 @@ nuisances['leppt_scale'] = {
 }
 
 nuisances['leppt_res'] = {
-    'name'       : 'CMS_resolution_l_2024',
+    'name'       : 'resolution_l_2024',
     'kind'       : 'suffix',
     'type'       : 'shape',
     'mapUp'      : 'leptonResolutionup',
@@ -196,7 +197,7 @@ jes_systs    = ["Absolute", "Absolute_2024", "FlavorQCD", "BBEC1", "EC2", "HF", 
 for js in jes_systs:
     
     nuisances[js] = {
-        'name'      : 'CMS_scale_j_' + js,
+        'name'      : 'scale_j_' + js,
         'kind'      : 'suffix',
         'type'      : 'shape',
         'mapUp'     : 'jesRegroed_' + js + 'up',
@@ -210,7 +211,7 @@ for js in jes_systs:
 ##### Jet energy resolution
 
 nuisances['JER'] = {
-    'name'      : 'CMS_res_j_2024',
+    'name'      : 'res_j_2024',
     'kind'      : 'suffix',
     'type'      : 'shape',
     'mapUp'     : 'jerup',
@@ -225,7 +226,7 @@ nuisances['JER'] = {
 ##### MET energy scale
 
 nuisances['met'] = {
-    'name'      : 'CMS_scale_met_2024',
+    'name'      : 'scale_met_2024',
     'kind'      : 'suffix',
     'type'      : 'shape',
     'mapUp'     : 'unclustEnup',
@@ -240,7 +241,7 @@ nuisances['met'] = {
 ##### Pileup
 
 nuisances['PU'] = {
-    'name': 'CMS_pileup_2024',
+    'name': 'pileup_2024',
     'kind': 'weight',
     'type': 'shape',
     'samples': dict((skey, ['puWeightUp/puWeight', 'puWeightDown/puWeight']) for skey in mc),
@@ -275,52 +276,19 @@ nuisances['UE_CP5']  = {
 ##### Top pT reweighting uncertainty
 
 nuisances['TopPtRew'] = {
-    'name': 'CMS_topPtRew',   # Theory uncertainty
+    'name': 'topPtRew',   # Theory uncertainty
     'kind': 'weight',
     'type': 'shape',
     'samples': {'TTTo2L2Nu': ["1.", "1./Top_pTrw"]},
     'symmetrize': True
 }
 
-####### Generic "cross section uncertainties"
-
-apply_on = {
-    'ST': [
-        '(topGenPt * antitopGenPt <= 0.) * 1.0816 + (topGenPt * antitopGenPt > 0.)',
-        '(topGenPt * antitopGenPt <= 0.) * 0.9184 + (topGenPt * antitopGenPt > 0.)'
-    ],
-    'TTTo2L2Nu': [
-        '(topGenPt * antitopGenPt <= 0.) * 1.0816 + (topGenPt * antitopGenPt > 0.)',
-        '(topGenPt * antitopGenPt <= 0.) * 0.9184 + (topGenPt * antitopGenPt > 0.)'
-    ],
-    'TTToSemiLeptonic': [
-        '(topGenPt * antitopGenPt <= 0.) * 1.0816 + (topGenPt * antitopGenPt > 0.)',
-        '(topGenPt * antitopGenPt <= 0.) * 0.9184 + (topGenPt * antitopGenPt > 0.)'
-    ]
-}
-
-nuisances['singleTopToTTbar'] = {
-    'name': 'singleTopToTTbar',
-    'skipCMS': 1,
-    'kind': 'weight',
-    'type': 'shape',
-    'samples': apply_on
-}
-
-#nuisances['WgStar'] = {
-#    'name'    : 'CMS_WgStarScale',
-#    'type'    : 'lnN',
-#    'samples' : {
-#        'WgS' : '1.25'
-#    }
-#}
-
 ###### pdf uncertainties
 
 pdf_variations = ["LHEPdfWeight[%d]" %i for i in range(1,101)] # Float_t LHE pdf variation weights (w_var / w_nominal) for LHA IDs  320901 - 321000
 
 nuisances['pdf_V'] = {
-    'name'  : 'CMS_pdf_V',
+    'name'  : 'pdf_V',
     'kind'  : 'weight_rms',
     'type'  : 'shape',
     'AsLnN': '0',
@@ -330,7 +298,7 @@ nuisances['pdf_V'] = {
 }
 
 nuisances['pdf_VV']  = {
-    'name'  : 'CMS_pdf_VV',
+    'name'  : 'pdf_VV',
     'kind'  : 'weight_rms',
     'type'  : 'shape',
     'AsLnN': '0',
@@ -341,19 +309,56 @@ nuisances['pdf_VV']  = {
     },
 }
 
-nuisances['pdf_top']  = {
-    'name'  : 'CMS_pdf_top',
+nuisances['pdf_TTbar']  = {
+    'name'  : 'pdf_TTbar',
+    'kind'  : 'weight_rms',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
+        'TTTo2L2Nu'       : pdf_variations,
+        'TTToSemiLeptonic': pdf_variations,
+    },
+}
+
+nuisances['pdf_ST']  = {
+    'name'  : 'pdf_ST',
     'kind'  : 'weight_rms',
     'type'  : 'shape',
     'AsLnN': '0',
     'samples'  : {
         'ST'              : pdf_variations,
-        'TTTo2L2Nu'       : pdf_variations,
-        'TTToSemiLeptonic': pdf_variations,
+    },
+}
+
+nuisances['pdf_ttV']  = {
+    'name'  : 'pdf_ttV',
+    'kind'  : 'weight_rms',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
         'ttW'             : pdf_variations,
         'ttZ'             : pdf_variations,
+    },
+}
+
+nuisances['pdf_ttH']  = {
+    'name'  : 'pdf_ttH',
+    'kind'  : 'weight_rms',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
         'ttH'             : pdf_variations,
-        'TXX'             : pdf_variations,  
+    },
+}
+
+nuisances['pdf_tXX']  = {
+    'name'  : 'pdf_tXX',
+    'kind'  : 'weight_rms',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
+        'THQ'             : pdf_variations,
+        'THW'             : pdf_variations,
     },
 }
 
@@ -366,19 +371,61 @@ variations = ['Alt(LHEScaleWeight,0,1)',
               'Alt(LHEScaleWeight,nLHEScaleWeight-2,1)',
               'Alt(LHEScaleWeight,nLHEScaleWeight-1,1)']
 
-nuisances['QCDscale_top']  = {
-    'name'  : 'QCDscale_top',
-    'kind'  : 'weight',
+nuisances['QCDscale_TTbar']  = {
+    'name'  : 'QCDscale_TTbar',
+    'skipCMS': 1,
+    'kind'  : 'weight_envelope',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
+        'TTTo2L2Nu': variations,
+        'TTToSemiLeptonic': variations,
+    }
+}
+
+nuisances['QCDscale_ST']  = {
+    'name'  : 'QCDscale_ST',
+    'skipCMS': 1,
+    'kind'  : 'weight_envelope',
     'type'  : 'shape',
     'AsLnN': '0',
     'samples'  : {
         'ST': variations,
-        'TTTo2L2Nu': variations,
-        'TTToSemiLeptonic': variations,
+    }
+}
+
+nuisances['QCDscale_ttV']  = {
+    'name'  : 'QCDscale_ttV',
+    'skipCMS': 1,
+    'kind'  : 'weight_envelope',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
         'ttW': variations,
         'ttZ': variations,
+    }
+}
+
+nuisances['QCDscale_ttH']  = {
+    'name'  : 'QCDscale_ttH',
+    'skipCMS': 1,
+    'kind'  : 'weight_envelope',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
         'ttH': variations,
-        'TXX': variations,
+    }
+}
+
+nuisances['QCDscale_tXX']  = {
+    'name'  : 'QCDscale_tXX',
+    'skipCMS': 1,
+    'kind'  : 'weight_envelope',
+    'type'  : 'shape',
+    'AsLnN': '0',
+    'samples'  : {
+        'THQ': variations,
+        'THW': variations,
     }
 }
 
@@ -387,45 +434,185 @@ nuisances['QCDscale_V'] = {
     'skipCMS': 1,
     'kind'  : 'weight_envelope',
     'type': 'shape',
+    'AsLnN': '0',
     'samples': {'DY': variations},
-    'AsLnN': '0'
 }
 
 nuisances['QCDscale_VV'] = {
     'name' : 'QCDscale_VV',
-    'kind' : 'weight',
+    'skipCMS': 1,
+    'kind' : 'weight_envelope',
     'type' : 'shape',
+    'AsLnN': '0',
     'samples' : {
         'WW'  : variations,
-        'Vg'  : variations,
+        #'Vg'  : variations,
         #'ZZ'  : variations, 
         #'WZ'  : variations,
         #'VgS' : variations,
     }
 }
 
-## CR rate parameters
-nuisances['ttZnorm']  = {
-               'name'  : 'ttZnorm_2023BPix',
-               'samples'  : {
-                   'ttZ' : '1.00',
-                   },
-               'type'  : 'rateParam',
-               'cuts'  : [
-                   'ttZcr_inclusive',
-                   ]
-              }
+###############################################################
+# Signal PDF / QCD scale acceptance uncertainties
+###############################################################
 
-nuisances['DYnorm']  = {
-               'name'  : 'DYnorm_2023BPix',
-               'samples'  : {
-                   'DY' : '1.00',
-                   },
-               'type'  : 'rateParam',
-               'cuts'  : [
-                   'dycr_1b',
-                   ]
-              }
+sys.path.insert(0, os.getcwd())
+from theoryNormalizations_2024_Signals import theoryNormalizations as signalTheoryNormalizations
+
+ttDMSignals = [
+    skey for skey in mc
+    if 'TTto2LDMsimp' in skey
+]
+
+tWDMSignals = [
+    skey for skey in mc
+    if 'TWto2LDMsimp' in skey
+]
+
+# =============================================================
+# QCD muR / muF
+# =============================================================
+
+scale_indices = [0, 1, 3, 5, 7, 8]
+
+
+def signalScaleVariations(skey):
+
+    info = signalTheoryNormalizations[skey]
+
+    if info['qcdScaleStatus'] != 3:
+        raise RuntimeError(
+            f'No valid QCD scale normalization for {skey}'
+        )
+
+    norms = info['qcdScale']
+    central = norms[4]
+
+    return [
+        (
+            f'(Alt(LHEScaleWeight,{i},1.)/'
+            f'Alt(LHEScaleWeight,4,1.))'
+            f'/({norms[i] / central:.12g})'
+        )
+        for i in scale_indices
+    ]
+
+
+nuisances['QCDscale_ttDM_ACCEPT'] = {
+    'name': 'QCDscale_ttDM_accept',
+    'skipCMS': 1,
+    'kind': 'weight_envelope',
+    'type': 'shape',
+    'AsLnN': '0',
+    'samples': {
+        skey: signalScaleVariations(skey)
+        for skey in ttDMSignals
+    },
+}
+
+
+nuisances['QCDscale_tWDM_ACCEPT'] = {
+    'name': 'QCDscale_tWDM_accept',
+    'skipCMS': 1,
+    'kind': 'weight_envelope',
+    'type': 'shape',
+    'AsLnN': '0',
+    'samples': {
+        skey: signalScaleVariations(skey)
+        for skey in tWDMSignals
+    },
+}
+
+
+# =============================================================
+# PDF Hessian eigenvectors
+# =============================================================
+
+def signalPdfVariations(skey):
+
+    info = signalTheoryNormalizations[skey]
+
+    if info['pdfStatus'] != 3:
+        raise RuntimeError(
+            f'No valid PDF normalization for {skey}'
+        )
+
+    norms = info['pdf']
+    central = norms[0]
+
+    return [
+        (
+            f'(Alt(LHEPdfWeight,{i},1.)/'
+            f'Alt(LHEPdfWeight,0,1.))'
+            f'/({norms[i] / central:.12g})'
+        )
+        for i in range(1, 101)
+    ]
+
+nuisances['pdf_ttDM_ACCEPT'] = {
+    'name': 'pdf_ttDM_accept',
+    'skipCMS': 1,
+    'kind': 'weight_rms',
+    'type': 'shape',
+    'AsLnN': '0',
+    'samples': {
+        skey: signalPdfVariations(skey)
+        for skey in ttDMSignals
+    },
+}
+
+nuisances['pdf_tWDM_ACCEPT'] = {
+    'name': 'pdf_tWDM_accept',
+    'skipCMS': 1,
+    'kind': 'weight_rms',
+    'type': 'shape',
+    'AsLnN': '0',
+    'samples': {
+        skey: signalPdfVariations(skey)
+        for skey in tWDMSignals
+    },
+}
+
+## CR rate parameters
+fit_cuts = [
+    'ttdm_sr_2l_1b',
+    'ttdm_sr_2l_2b',
+    'dycr_1b',
+    'ttZcr_Inc',
+    'ttcr_Inc',
+]
+
+nuisances['tt2lnorm'] = {
+    'name': 'tt2lnorm_2024',
+    'samples': {
+        'TTTo2L2Nu': '1.00',
+    },
+    'type': 'rateParam',
+    'cuts': fit_cuts,
+    'range': [0.0, 5.0],
+}
+
+nuisances['ttZnorm'] = {
+    'name': 'ttZnorm_2024',
+    'samples': {
+        'ttZ': '1.00',
+    },
+    'type': 'rateParam',
+    'cuts': fit_cuts,
+    'range': [0.0, 5.0],
+}
+
+nuisances['DYnorm'] = {
+    'name': 'DYnorm_2024',
+    'samples': {
+        'DY': '1.00',
+    },
+    'type': 'rateParam',
+    'cuts': fit_cuts,
+    'range': [0.0, 5.0],
+}
+
 
 ### MC statistical uncertainty
 autoStats = True
@@ -434,7 +621,7 @@ if autoStats:
     nuisances['stat'] = {
         'type': 'auto',
         'maxPoiss': '10',
-        'includeSignal': '0',
+        'includeSignal': '1',
         #  nuisance ['maxPoiss'] =  Number of threshold events for Poisson modelling
         #  nuisance ['includeSignal'] =  Include MC stat nuisances on signal processes (1=True, 0=False)
         'samples': {}

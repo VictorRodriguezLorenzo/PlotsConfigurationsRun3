@@ -1,3 +1,6 @@
+#ifndef TTZ_LEPTONS_CC
+#define TTZ_LEPTONS_CC
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -155,3 +158,5 @@ float getZLepMll(int nLep, RVecF pt, RVecF eta, RVecF phi, RVecI pdgId) {
 }
 
 } // extern "C"
+
+#endif

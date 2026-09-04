@@ -3,9 +3,10 @@ cuts = {}
 preselections = '((abs(Lepton_pdgId[0]) == 11 || abs(Lepton_pdgId[0]) == 13) && (abs(Lepton_pdgId[1]) == 11 || abs(Lepton_pdgId[1]) == 13)) \
             && Lepton_pt[0] > 25 \
             && Lepton_pt[1] > 20 \
-            && abs(Lepton_eta[0]) < 2.4 && abs(Lepton_eta[1]) < 2.4 \
+            && ((abs(Lepton_pdgId[0]) == 11 && abs(Lepton_eta[0]) < 2.5) || (abs(Lepton_pdgId[0]) == 13 && abs(Lepton_eta[0]) < 2.4)) \
+            && ((abs(Lepton_pdgId[1]) == 11 && abs(Lepton_eta[1]) < 2.5) || (abs(Lepton_pdgId[1]) == 13 && abs(Lepton_eta[1]) < 2.4)) \
             && mll > 20 \
-            && noJetInHorn \
+            && noJetInHorn_pT20 \
             && bReq'
 
 # CUTS
@@ -29,11 +30,11 @@ cuts['ttdm_sr']  = {
 ### Control regions ###
 #######################
 
-cuts['ttvr']  = {
-   'expr': 'ttvr',  
-    # Sub-categorization of VR
+cuts['ttcr']  = {
+   'expr': 'ttcr',  
+    # Sub-categorization of tt(2l) CR
    'categories' : {
-       'inclusive' : '1',
+       'Inc' : '1',
        }
 }
 
@@ -42,7 +43,7 @@ cuts['dycr']  = {
     # Sub-categorization of DY CR
    'categories' : {
        '1b' : 'nbjets == 1',
-       '2b' : 'nbjets == 2',
+       '2b' : 'nbjets >= 2',
        }
 }
 
@@ -50,6 +51,6 @@ cuts['ttZcr']  = {
    'expr': 'ttZcr',
     # Sub-categorization of ttZ CR
    'categories' : {
-       'inclusive' : '1',
+       'Inc' : '1',
        }
 }

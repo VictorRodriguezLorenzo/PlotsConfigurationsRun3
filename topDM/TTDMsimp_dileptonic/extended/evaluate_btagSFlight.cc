@@ -52,8 +52,8 @@ class btagSFlight {
         correctionKey = "UParTAK4_light";
         wpKey = "UParTAK4_wp_values";
       }else{
-        correctionKey = "robustParticleTransformer_light";
-        wpKey = "robustParticleTransformer_wp_values";
+        correctionKey = "particleNet_light";
+        wpKey = "particleNet_wp_values";
       }
 
       auto cset_deepJet_mujets_alt  = cset->at(correctionKey);
