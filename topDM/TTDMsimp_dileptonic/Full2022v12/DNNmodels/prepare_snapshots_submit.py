@@ -4,7 +4,7 @@ import subprocess
 from mkShapesRDF.lib.search_files import SearchFiles
 
 # ============================================================
-# FILE DISCOVERY STRUCTURE 
+# FILE DISCOVERY STRUCTURE
 # ============================================================
 
 searchFiles = SearchFiles()
@@ -19,7 +19,8 @@ def nanoGetSampleFiles(path, name):
     return _files
 
 
-signalDirectory = '/eos/user/v/victorr/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
+#signalDirectory = '/eos/user/v/victorr/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
+signalDirectory = '/eos/user/e/emunozri/ttDM/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
 
 mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer22_130x_nAODv12_Full2022v12/MCl2loose2022v12__MCCorr2022v12JetScaling__l2tight'
 
@@ -33,31 +34,31 @@ for phi in mPhi:
         'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}')
     }
 
-# tt+DM inclusive scalar
-for phi in mPhi:
-    files_ttDM_temp[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}')
-    }
-
 # tt+DM dilepton pseudoscalar
 for phi in mPhi:
     files_ttDM_temp[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
         'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}')
     }
 
-# tt+DM inclusive scalar
+# t+DM tW-channel dilepton pseudoscalar
 for phi in mPhi:
-    files_ttDM_temp[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}')
+    files_ttDM_temp[f'TWto2LDMsimpSpin0_ps_mphi-{phi}'] = {
+        'names': nanoGetSampleFiles(signalDirectory, f'TWto2LDMsimpSpin0_ps_mphi-{phi}')
+    }
+
+# t+DM tW-channel dilepton scalar
+for phi in mPhi:
+    files_ttDM_temp[f'TWto2LDMsimpSpin0_s_mphi-{phi}'] = {
+        'names': nanoGetSampleFiles(signalDirectory, f'TWto2LDMsimpSpin0_s_mphi-{phi}')
     }
 
 files_ttDM = files_ttDM_temp.copy()
-
 for key, value in list(files_ttDM_temp.items()):
     if isinstance(value["names"], list) and len(value["names"]) == 0:
         del files_ttDM[key]
 
 files_top = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
+            nanoGetSampleFiles(mcDirectory, 'TTToSemiLeptonic') + \
             nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') + \
             nanoGetSampleFiles(mcDirectory, 'ST_t-channel_antitop') + \
             nanoGetSampleFiles(mcDirectory, 'ST_s-channel_plus') + \
@@ -67,10 +68,25 @@ files_top = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
             nanoGetSampleFiles(mcDirectory, 'ST_tW_top') + \
             nanoGetSampleFiles(mcDirectory, 'ST_tW_antitop')
 
-#files_DY = nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-50') + \
-#           nanoGetSampleFiles(mcDirectory, 'DYto2L-2Jets_MLL-10to50')
+files_ttZ = nanoGetSampleFiles(mcDirectory, 'TTNuNu') \
+        + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-4to50') \
+        + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-50') \
+        + nanoGetSampleFiles(mcDirectory, 'TTZ-ZtoQQ')
 
-files_BKG = files_top #+ files_DY
+files_ttW = nanoGetSampleFiles(mcDirectory, 'TTLNu') \
+         + nanoGetSampleFiles(mcDirectory, 'TTW-WtoQQ')
+
+files_ttH = nanoGetSampleFiles(mcDirectory, 'TTHtoNon2B') \
+        + nanoGetSampleFiles(mcDirectory, 'TTHto2B')
+
+#files_DY = nanoGetSampleFiles(mcDirectory, 'DYto2E-2Jets_MLL-50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Mu-2Jets_MLL-50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Tau-2Jets_MLL-50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2E-2Jets_MLL-10to50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Mu-2Jets_MLL-10to50') + \
+#           nanoGetSampleFiles(mcDirectory, 'DYto2Tau-2Jets_MLL-10to50') 
+
+files_BKG = files_top + files_ttZ + files_ttW + files_ttH  #+ files_DY
 
 # ============================================================
 # FLATTEN LIST
@@ -118,7 +134,6 @@ output      = condor_logs/job_$(Cluster)_$(Process).out
 error       = condor_logs/job_$(Cluster)_$(Process).err
 log         = condor_logs/job_$(Cluster).log
 
-request_cpus = 4
 requirements = (OpSysAndVer =?= "AlmaLinux9")
 +JobFlavour = "nextweek"
 
@@ -135,4 +150,3 @@ queue inputfile from (
 # ============================================================
 
 subprocess.run(["condor_submit", "submit_snapshot.sub"])
-

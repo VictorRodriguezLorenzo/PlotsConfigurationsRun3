@@ -19,7 +19,8 @@ def nanoGetSampleFiles(path, name):
     return _files
 
 
-signalDirectory = '/eos/user/v/victorr/HWWNano/Summer24_150x_nAODv15_Full2024v15/MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
+#signalDirectory = '/eos/user/v/victorr/HWWNano/Summer24_150x_nAODv15_Full2024v15/MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
+signalDirectory = '/eos/user/e/emunozri/ttDM/HWWNano/Summer24_150x_nAODv15_Full2024v15/MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
 
 mcDirectory = '/eos/cms/store/group/phys_higgs/cmshww/amassiro/HWWNano/Summer24_150x_nAODv15_Full2024v15/MCl2loose2024v15__MCCorr2024v15__JERFrom23BPix__l2tight'
 
@@ -30,26 +31,26 @@ files_ttDM_temp = {}
 # tt+DM dilepton scalar
 for phi in mPhi:
     files_ttDM_temp[f'TTto2LDMsimpSpin0_s_mphi-{phi}'] = {
-        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}')
+        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}') + nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_s_mphi-{phi}_ext1')
     }
 
-## tt+DM inclusive scalar
-#for phi in mPhi:
-#    files_ttDM_temp[f'TTDMsimpSpin0_s_mphi-{phi}'] = {
-#        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_s_mphi-{phi}')
-#    }
+# tt+DM dilepton pseudoscalar
+for phi in mPhi:
+    files_ttDM_temp[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
+        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}') + nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}_ext1')
+    }
 
-## tt+DM dilepton pseudoscalar
-#for phi in mPhi:
-#    files_ttDM_temp[f'TTto2LDMsimpSpin0_ps_mphi-{phi}'] = {
-#        'names': nanoGetSampleFiles(signalDirectory, f'TTto2LDMsimpSpin0_ps_mphi-{phi}')
-#    }
+# t+DM tW-channel dilepton pseudoscalar
+for phi in mPhi:
+    files_ttDM_temp[f'TWto2LDMsimpSpin0_ps_mphi-{phi}'] = {
+        'names': nanoGetSampleFiles(signalDirectory, f'TWto2LDMsimpSpin0_ps_mphi-{phi}')
+    }
 
-## tt+DM inclusive pseudoscalar
-#for phi in mPhi:
-#    files_ttDM_temp[f'TTDMsimpSpin0_ps_mphi-{phi}'] = {
-#        'names': nanoGetSampleFiles(signalDirectory, f'TTDMsimpSpin0_ps_mphi-{phi}')
-#    }
+# t+DM tW-channel dilepton scalar
+for phi in mPhi:
+    files_ttDM_temp[f'TWto2LDMsimpSpin0_s_mphi-{phi}'] = {
+        'names': nanoGetSampleFiles(signalDirectory, f'TWto2LDMsimpSpin0_s_mphi-{phi}')
+    }
 
 files_ttDM = files_ttDM_temp.copy()
 for key, value in list(files_ttDM_temp.items()):
@@ -57,6 +58,7 @@ for key, value in list(files_ttDM_temp.items()):
         del files_ttDM[key]
 
 files_top = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
+            nanoGetSampleFiles(mcDirectory, 'TTToSemiLeptonic') + \
             nanoGetSampleFiles(mcDirectory, 'ST_t-channel_top') + \
             nanoGetSampleFiles(mcDirectory, 'ST_t-channel_antitop') + \
             nanoGetSampleFiles(mcDirectory, 'ST_s-channel_plus') + \
@@ -66,6 +68,17 @@ files_top = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
             nanoGetSampleFiles(mcDirectory, 'ST_tW_top') + \
             nanoGetSampleFiles(mcDirectory, 'ST_tW_antitop')
 
+files_ttZ = nanoGetSampleFiles(mcDirectory, 'TTNuNu') \
+        + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-4to50') \
+        + nanoGetSampleFiles(mcDirectory, 'TTLL_MLL-50') \
+        + nanoGetSampleFiles(mcDirectory, 'TTZ-ZtoQQ')
+
+files_ttW = nanoGetSampleFiles(mcDirectory, 'TTLNu') \
+         + nanoGetSampleFiles(mcDirectory, 'TTW-WtoQQ')
+
+files_ttH = nanoGetSampleFiles(mcDirectory, 'TTHtoNon2B') \
+        + nanoGetSampleFiles(mcDirectory, 'TTHto2B')
+
 #files_DY = nanoGetSampleFiles(mcDirectory, 'DYto2E-2Jets_MLL-50') + \
 #           nanoGetSampleFiles(mcDirectory, 'DYto2Mu-2Jets_MLL-50') + \
 #           nanoGetSampleFiles(mcDirectory, 'DYto2Tau-2Jets_MLL-50') + \
@@ -73,7 +86,7 @@ files_top = nanoGetSampleFiles(mcDirectory, 'TTTo2L2Nu') + \
 #           nanoGetSampleFiles(mcDirectory, 'DYto2Mu-2Jets_MLL-10to50') + \
 #           nanoGetSampleFiles(mcDirectory, 'DYto2Tau-2Jets_MLL-10to50') 
 
-files_BKG = files_top #+ files_DY
+files_BKG = files_top + files_ttZ + files_ttW + files_ttH  #+ files_DY
 
 # ============================================================
 # FLATTEN LIST
@@ -121,7 +134,6 @@ output      = condor_logs/job_$(Cluster)_$(Process).out
 error       = condor_logs/job_$(Cluster)_$(Process).err
 log         = condor_logs/job_$(Cluster).log
 
-request_cpus = 4
 requirements = (OpSysAndVer =?= "AlmaLinux9")
 +JobFlavour = "nextweek"
 

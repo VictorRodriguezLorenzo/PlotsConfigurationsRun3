@@ -380,8 +380,10 @@ fake_rate_reader::fake_rate_reader( TString year , TString ele_WP, TString muon_
   electron_tight_charge_ = electron_tight_charge; // ['std','ss']
 
   TString ele_tight_suffix = "MediumID";
-  TString mkShapesRDF_base = "/afs/cern.ch/user/v/victorr/private/PlotsConfigurationsRun3/topDM/TTDMsimp_dileptonic/";
-  
+  TString sourceFile = __FILE__;
+  TString extendedDir = gSystem->DirName(sourceFile);
+  TString mkShapesRDF_base = gSystem->DirName(extendedDir);
+
   // Fake rate input files
   TString fake_muon_file_name_10 = mkShapesRDF_base + "/data/fakerate/" + year + "/cut_TightID_pfIsoLoose_HWW_tthmva_" + muon_WP + "/MuonFR_jet10.root";
   TString fake_muon_file_name_15 = mkShapesRDF_base + "/data/fakerate/" + year + "/cut_TightID_pfIsoLoose_HWW_tthmva_" + muon_WP + "/MuonFR_jet15.root";
